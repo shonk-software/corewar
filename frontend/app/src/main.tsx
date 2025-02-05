@@ -16,7 +16,7 @@ import LobbySelectionPage from "./pages/lobbySelectionPage/LobbySelectionPage.ts
 import PlayerCodingPage from "./pages/playerCodeInput/PlayerCodingPage.tsx";
 import ResultDisplayPage from "./pages/resultDisplayPage/ResultDisplayPage.tsx";
 import { LobbyProvider } from "./services/lobbyContext/LobbyContext.tsx";
-import GameVisuPage from "@/pages/gameVisu/GameVisuPage.tsx";
+import CanvasGameVisuPage from "@/pages/canvasGameVisuPage/CanvasGameVisuPage.tsx";
 
 const router = createBrowserRouter([
 	{
@@ -56,7 +56,7 @@ const router = createBrowserRouter([
 	},
 	{
 		path: "/visu",
-		element: <GameVisuPage></GameVisuPage>,
+		element: <CanvasGameVisuPage></CanvasGameVisuPage>,
 	},
 ]);
 
