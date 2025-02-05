@@ -1,0 +1,47 @@
+@import "../../vars.css";
+
+#everything {
+	position: static;
+	min-height: 100dvh;
+	max-width: 100dvw;
+}
+
+#boardBuffer {
+	min-height: calc(100dvh - var(--HEADER-HEIGHT) - var(--FOOTER-HEIGHT));
+	display: flex;
+	flex-grow: 1;
+	flex-direction: row;
+	justify-content: flex-start;
+}
+
+#infodump {
+	width: 18%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+#theRestOfTheBoard {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	align-items: baseline;
+	width: 100%;
+}
+
+#layoutingContainer {
+	display: flex;
+	flex-grow: 1;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+}
+
+#visuBoard {
+	transform: translate(-50%, -50%);
+	transform-origin: top left;
+
+	position: absolute;
+	left: 56%;
+	top: 50%;
+}
