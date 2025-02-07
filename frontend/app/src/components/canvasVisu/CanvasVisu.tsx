@@ -6,9 +6,9 @@ import {
 	useRef,
 } from "react";
 import "./CanvasVisu.css";
-import { HexagonalTileProps } from "@/components/hexagonalTile/HexagonalTile.tsx";
 import { CanvasVisuProps } from "@/components/canvasVisu/CanvasVisuProps.ts";
 import { calcIdealColumnsAndRows, fitHexagonsToCanvas } from "@/lib/utils.ts";
+import { HexagonalTileProps } from "@/domain/HexagonalTileProps.tsx";
 
 const CanvasVisu = forwardRef(function CanvasVisu(
 	{

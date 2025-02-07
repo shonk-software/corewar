@@ -1,8 +1,8 @@
 import { MutableRefObject, useEffect, useRef } from "react";
-import { HexagonalTileProps } from "@/components/hexagonalTile/HexagonalTile.tsx";
 import "./HexagonalBoardBackground.css";
 import CanvasVisu from "@/components/canvasVisu/CanvasVisu.tsx";
 import { defaultTileProps } from "@/lib/DefaultTileProps.ts";
+import { HexagonalTileProps } from "@/domain/HexagonalTileProps.tsx";
 
 // This is just our "funny background" component. I think there is no real benefit in writing tests for this and
 // if we would want to write tests, I feel it would be very difficult. This is mostly visual design stuff.

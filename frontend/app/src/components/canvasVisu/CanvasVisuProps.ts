@@ -1,4 +1,4 @@
-import { HexagonalTileProps } from "@/components/hexagonalTile/HexagonalTile.tsx";
+import { HexagonalTileProps } from "@/domain/HexagonalTileProps.tsx";
 
 export interface CanvasVisuProps {
 	defaultTileProps: HexagonalTileProps;
