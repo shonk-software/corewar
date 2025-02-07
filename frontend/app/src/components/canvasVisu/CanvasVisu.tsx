@@ -7,15 +7,17 @@ import {
 } from "react";
 import "./CanvasVisu.css";
 import { HexagonalTileProps } from "@/components/hexagonalTile/HexagonalTile.tsx";
-import { defaultTileProps } from "@/lib/DefaultTileProps.ts";
 import { CanvasVisuProps } from "@/components/canvasVisu/CanvasVisuProps.ts";
 import { calcIdealColumnsAndRows, fitHexagonsToCanvas } from "@/lib/utils.ts";
 
 const CanvasVisu = forwardRef(function CanvasVisu(
 	{
+		defaultTileProps,
 		canvasWidth = 1500,
 		canvasHeight = 800,
 		hex_count = 8192,
+		scale_factor_for_space_between_hexes = 0.9,
+		cornerRadius = 0,
 	}: Readonly<CanvasVisuProps>,
 	ref?: ForwardedRef<{
 		drawChanges: (
@@ -26,8 +28,6 @@ const CanvasVisu = forwardRef(function CanvasVisu(
 		) => void;
 	}>,
 ) {
-	const SCALE_FACTOR_FOR_SOME_SPACE_BETWEEN_HEXES = 0.9;
-
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const canvasContextRef = useRef<CanvasRenderingContext2D | undefined | null>(
 		null,
@@ -59,25 +59,36 @@ const CanvasVisu = forwardRef(function CanvasVisu(
 		]);
 
 		ctx.beginPath();
+
+		// Move to the first vertex
 		ctx.moveTo(vertices[0][0], vertices[0][1]);
-		for (let i = 1; i < 6; i++) {
-			ctx.lineTo(vertices[i][0], vertices[i][1]);
+
+		for (let i = 0; i < 6; i++) {
+			const next = (i + 1) % 6; // Wrap around for last vertex
+			ctx.arcTo(
+				vertices[i][0],
+				vertices[i][1],
+				vertices[next][0],
+				vertices[next][1],
+				cornerRadius,
+			);
 		}
+
 		ctx.closePath();
 
 		if (props.fill) {
-			if (props.isDimmed) {
-				ctx.fillStyle = props.fill === "#FF006E" ? "#800037" : "#008080";
-			} else {
-				ctx.fillStyle = props.fill;
-			}
+			ctx.fillStyle = props.isDimmed
+				? props.fill === "#FF006E"
+					? "#800037"
+					: "#008080"
+				: props.fill;
 			ctx.fill();
 		}
 
 		ctx.stroke();
 
 		// Draw an 'X' inside the hexagon if requested
-		if (props.textContent == "X") {
+		if (props.textContent === "X") {
 			ctx.strokeStyle = props.textColor;
 			ctx.lineWidth = 1;
 
@@ -166,7 +177,7 @@ const CanvasVisu = forwardRef(function CanvasVisu(
 					widthHexagon / 2 + widthHexagon * col,
 					heightHexagon / 2 +
 						((heightHexagon + radiusToHexagonCorner) * row) / 2,
-					radiusToHexagonCorner * SCALE_FACTOR_FOR_SOME_SPACE_BETWEEN_HEXES,
+					radiusToHexagonCorner * scale_factor_for_space_between_hexes,
 					update.newProps,
 				);
 			} else {
@@ -175,7 +186,7 @@ const CanvasVisu = forwardRef(function CanvasVisu(
 					widthHexagon / 2 + widthHexagon * (col + 0.5),
 					heightHexagon / 2 +
 						((heightHexagon + radiusToHexagonCorner) * row) / 2,
-					radiusToHexagonCorner * SCALE_FACTOR_FOR_SOME_SPACE_BETWEEN_HEXES,
+					radiusToHexagonCorner * scale_factor_for_space_between_hexes,
 					update.newProps,
 				);
 			}

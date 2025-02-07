@@ -221,10 +221,13 @@ function CanvasGameVisuPage() {
 			</div>
 			<div id={"visuBoard"}>
 				<CanvasVisu
+					defaultTileProps={defaultTileProps}
 					ref={boardRef}
 					canvasWidth={1500}
 					canvasHeight={900}
 					hex_count={hex_count}
+					scale_factor_for_space_between_hexes={0.9}
+					cornerRadius={0}
 				></CanvasVisu>
 			</div>
 			<Footer />
