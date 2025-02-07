@@ -1,38 +1,39 @@
-import { useRef, useEffect, MutableRefObject } from "react";
-import HexagonalBoard from "@/components/hexagonalBoard/HexagonalBoard.tsx";
+import { MutableRefObject, useEffect, useRef } from "react";
 import { HexagonalTileProps } from "@/components/hexagonalTile/HexagonalTile.tsx";
 import "./HexagonalBoardBackground.css";
+import CanvasVisu from "@/components/canvasVisu/CanvasVisu.tsx";
+import { defaultTileProps } from "@/lib/DefaultTileProps.ts";
 
 // This is just our "funny background" component. I think there is no real benefit in writing tests for this and
-// if we would want to write tests, it feel it would be very difficult. This is mostly visual design stuff.
+// if we would want to write tests, I feel it would be very difficult. This is mostly visual design stuff.
 function HexagonalBoardBackground() {
-	function turnOffCells(cells: MutableRefObject<{ x: number; y: number }[]>) {
+	function turnOffCells(cells: MutableRefObject<number[]>) {
 		if (!boardRef.current) {
 			console.error("Board ref is undefined!");
 			return;
 		}
 
-		for (const cell of cells.current) {
-			boardRef.current.updateTiles([
-				{
-					row: cell.y,
-					col: cell.x,
-					props: {
-						fill: "",
+		boardRef.current.drawChanges(
+			cells.current.map((value) => {
+				return {
+					hexIndex: value,
+					newProps: {
+						...defaultTileProps,
+						fill: "#000000",
 						isDimmed: false,
 						stroke: "gray",
 						strokeWidth: "16",
 						textContent: "",
 					},
-				},
-			]);
-		}
+				};
+			}),
+		);
 
 		cells.current = [];
 	}
 
 	function turnOnRandomCellToColor(
-		listOfActiveCells: MutableRefObject<{ x: number; y: number }[]>,
+		listOfActiveCells: MutableRefObject<number[]>,
 		color: string,
 	) {
 		if (!boardRef.current) {
@@ -40,20 +41,17 @@ function HexagonalBoardBackground() {
 			return;
 		}
 
-		let randomCoords: { x: number; y: number };
+		let randomIndex: number;
 
 		do {
-			randomCoords = {
-				x: Math.floor(Math.random() * COLS),
-				y: Math.floor(Math.random() * ROWS),
-			};
-		} while (listOfActiveCells.current.includes(randomCoords));
+			randomIndex = Math.floor(Math.random() * HEX_COUNT);
+		} while (listOfActiveCells.current.includes(HEX_COUNT));
 
-		boardRef.current.updateTiles([
+		boardRef.current.drawChanges([
 			{
-				row: randomCoords.y,
-				col: randomCoords.x,
-				props: {
+				hexIndex: randomIndex,
+				newProps: {
+					...defaultTileProps,
 					fill: color,
 					isDimmed: false,
 					stroke: color,
@@ -62,27 +60,16 @@ function HexagonalBoardBackground() {
 				},
 			},
 		]);
-		listOfActiveCells.current.push(randomCoords);
+		listOfActiveCells.current.push(randomIndex);
 	}
 
-	const ROWS = 10;
-	const COLS = 10;
+	const HEX_COUNT: number = 80;
 
 	const BACKGROUND_BLINKING_INTERVAL_MS: number = 1200;
 	const RED_CELL_COUNT: number = 15;
 	const BLUE_CELL_COUNT: number = 15;
 
-	const activeCells = useRef<{ x: number; y: number }[]>([]);
-
-	const boardRef = useRef<{
-		updateTiles: (
-			updates: {
-				row: number;
-				col: number;
-				props: Partial<HexagonalTileProps>;
-			}[],
-		) => void;
-	}>(null);
+	const activeCells = useRef<number[]>([]);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
@@ -105,9 +92,29 @@ function HexagonalBoardBackground() {
 		return () => clearInterval(interval);
 	}, []);
 
+	const boardRef = useRef<{
+		drawChanges: (
+			updates: {
+				hexIndex: number;
+				newProps: HexagonalTileProps;
+			}[],
+		) => void;
+	}>(null);
+
 	return (
 		<div className={"background-animation"}>
-			<HexagonalBoard rows={ROWS} tilesPerRow={COLS} ref={boardRef} />
+			<CanvasVisu
+				defaultTileProps={{
+					...defaultTileProps,
+					strokeWidth: "16",
+				}}
+				canvasWidth={3400}
+				canvasHeight={2600}
+				hex_count={HEX_COUNT}
+				scale_factor_for_space_between_hexes={0.91}
+				cornerRadius={32}
+				ref={boardRef}
+			/>
 		</div>
 	);
 }
