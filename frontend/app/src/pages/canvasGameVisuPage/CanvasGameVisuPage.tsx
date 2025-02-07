@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import { HexagonalTileProps } from "@/components/hexagonalTile/HexagonalTile.tsx";
 import CanvasVisu from "@/components/canvasVisu/CanvasVisu";
 import { LobbyStatus } from "@/domain/LobbyStatus.ts";
 import { useLobby } from "@/services/lobbyContext/LobbyContextHelpers.ts";
 import { useNavigate } from "react-router-dom";
-import { getLobbyStatusV1 } from "@/services/rest/LobbyRest.ts";
+import { getLobbyStatusV1WithVisuData } from "@/services/rest/LobbyRest.ts";
 import { defaultTileProps } from "@/lib/DefaultTileProps.ts";
 import Header from "@/components/header/Header.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import Footer from "@/components/footer/Footer.tsx";
 import "./canvasGameVisu.css";
+import { HexagonalTileProps } from "@/domain/HexagonalTileProps.tsx";
 
 function CanvasGameVisuPage() {
 	const lobbyStatus = useRef<LobbyStatus | null>(null);
@@ -23,7 +23,7 @@ function CanvasGameVisuPage() {
 
 	useEffect(() => {
 		if (lobby) {
-			getLobbyStatusV1(lobby.id).then((status) => {
+			getLobbyStatusV1WithVisuData(lobby.id).then((status) => {
 				console.log("setting lobby status");
 				lobbyStatus.current = status;
 				console.log("DONE setting lobby status");
