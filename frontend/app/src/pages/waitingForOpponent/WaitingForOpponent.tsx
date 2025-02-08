@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./WaitingForOpponent.module.css";
 import { useLobby } from "@/services/lobbyContext/LobbyContextHelpers.ts";
-import { getLobbyStatusV1 } from "@/services/rest/LobbyRest.ts";
+import { getLobbyStatusV1WithVisuData } from "@/services/rest/LobbyRest.ts";
 
 function WaitingForOpponentPage() {
 	const isPageVisible = usePageVisibility();
@@ -24,7 +24,7 @@ function WaitingForOpponentPage() {
 				console.error("No lobby!? How the f*ck did you manage to do this???");
 				return;
 			}
-			const status = await getLobbyStatusV1(lobby.id);
+			const status = await getLobbyStatusV1WithVisuData(lobby.id);
 
 			// TODO: Change getLobbyStatusV1 to include status IF WE STILL WANT TO KEEP THIS PART BELOW
 			/*			if (status.status >= 500) {

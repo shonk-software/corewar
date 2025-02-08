@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { HexagonalTileProps } from "@/components/hexagonalTile/HexagonalTile.tsx";
 import { LobbyStatus } from "@/domain/LobbyStatus.ts";
 import { useLobby } from "@/services/lobbyContext/LobbyContextHelpers.ts";
-import { getLobbyStatusV1 } from "@/services/rest/LobbyRest.ts";
+import { getLobbyStatusV1WithVisuData } from "@/services/rest/LobbyRest.ts";
 import { useNavigate } from "react-router-dom";
 import { Separator } from "@/components/ui/separator.tsx";
 
@@ -27,7 +27,7 @@ function GameVisuPage() {
 
 	useEffect(() => {
 		if (lobby) {
-			getLobbyStatusV1(lobby.id).then((status) => {
+			getLobbyStatusV1WithVisuData(lobby.id).then((status) => {
 				console.log("setting lobby status");
 				setLobbyStatus(status);
 				console.log("DONE setting lobby status");

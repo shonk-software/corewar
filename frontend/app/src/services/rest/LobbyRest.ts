@@ -35,9 +35,19 @@ export async function createLobbyV1(playerName: string): Promise<number> {
 	}).then((response) => response.json().then((data) => data.lobbyId as number));
 }
 
-export async function getLobbyStatusV1(lobbyId: number): Promise<LobbyStatus> {
+export async function getLobbyStatusV1WithVisuData(
+	lobbyId: number,
+): Promise<LobbyStatus> {
 	return await fetch(
 		`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/v1/lobby/${lobbyId}/status`,
+	).then((response) => response.json().then((data) => data as LobbyStatus));
+}
+
+export async function getLobbyStatusV1WithoutVisuData(
+	lobbyId: number,
+): Promise<LobbyStatus> {
+	return await fetch(
+		`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/v1/lobby/${lobbyId}/status?showVisualizationData=false`,
 	).then((response) => response.json().then((data) => data as LobbyStatus));
 }
 

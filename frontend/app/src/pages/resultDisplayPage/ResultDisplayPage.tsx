@@ -4,7 +4,7 @@ import {
 	useDispatchLobby,
 	useLobby,
 } from "@/services/lobbyContext/LobbyContextHelpers";
-import { getLobbyStatusV1 } from "@/services/rest/LobbyRest";
+import { getLobbyStatusV1WithoutVisuData } from "@/services/rest/LobbyRest";
 import { useUser } from "@/services/userContext/UserContextHelpers";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -18,7 +18,9 @@ export default function ResultDisplayPageV2() {
 
 	useEffect(() => {
 		if (lobby) {
-			getLobbyStatusV1(lobby.id).then((status) => setLobbyStatus(status));
+			getLobbyStatusV1WithoutVisuData(lobby.id).then((status) =>
+				setLobbyStatus(status),
+			);
 		}
 	}, [lobby]);
 

@@ -8,7 +8,7 @@ import {
 	useDispatchLobby,
 	useLobby,
 } from "@/services/lobbyContext/LobbyContextHelpers";
-import { getLobbyStatusV1 } from "@/services/rest/LobbyRest";
+import { getLobbyStatusV1WithoutVisuData } from "@/services/rest/LobbyRest";
 import { playerA, useUser } from "@/services/userContext/UserContextHelpers";
 import "@testing-library/jest-dom";
 import {
@@ -24,7 +24,7 @@ import ResultDisplayPage from "./ResultDisplayPage";
 
 // Mock the getStatusV0 function
 vi.mock("@/services/rest/LobbyRest", () => ({
-	getLobbyStatusV1: vi.fn(),
+	getLobbyStatusV1WithoutVisuData: vi.fn(),
 }));
 vi.mock("@/services/userContext/UserContextHelpers");
 
@@ -56,14 +56,16 @@ describe("ResultDisplayPage", () => {
 		(useLobby as Mock).mockReturnValue(expectedLobby);
 		const router = createMemoryRouter(testRouterConfig);
 
-		(getLobbyStatusV1 as Mock).mockResolvedValue(mockResultWinnerA);
+		(getLobbyStatusV1WithoutVisuData as Mock).mockResolvedValue(
+			mockResultWinnerA,
+		);
 
 		act(() => {
 			render(<RouterProvider router={router} />);
 		});
 
 		await waitFor(() => {
-			expect(getLobbyStatusV1).toHaveBeenCalled();
+			expect(getLobbyStatusV1WithoutVisuData).toHaveBeenCalled();
 		});
 	});
 
@@ -72,7 +74,9 @@ describe("ResultDisplayPage", () => {
 		(useLobby as Mock).mockReturnValue(aLobby());
 		const router = createMemoryRouter(testRouterConfig);
 
-		(getLobbyStatusV1 as Mock).mockResolvedValue(mockResultWinnerA);
+		(getLobbyStatusV1WithoutVisuData as Mock).mockResolvedValue(
+			mockResultWinnerA,
+		);
 
 		act(() => {
 			render(<RouterProvider router={router} />);
@@ -89,7 +93,9 @@ describe("ResultDisplayPage", () => {
 		(useLobby as Mock).mockReturnValue(aLobby());
 		const router = createMemoryRouter(testRouterConfig);
 
-		(getLobbyStatusV1 as Mock).mockResolvedValue(mockResultWinnerB);
+		(getLobbyStatusV1WithoutVisuData as Mock).mockResolvedValue(
+			mockResultWinnerB,
+		);
 
 		act(() => {
 			render(<RouterProvider router={router} />);
@@ -106,7 +112,7 @@ describe("ResultDisplayPage", () => {
 		(useLobby as Mock).mockReturnValue(aLobby());
 		const router = createMemoryRouter(testRouterConfig);
 
-		(getLobbyStatusV1 as Mock).mockResolvedValue(mockResultDraw);
+		(getLobbyStatusV1WithoutVisuData as Mock).mockResolvedValue(mockResultDraw);
 
 		act(() => {
 			render(<RouterProvider router={router} />);
@@ -124,7 +130,7 @@ describe("ResultDisplayPage", () => {
 
 		const router = createMemoryRouter(testRouterConfig);
 
-		(getLobbyStatusV1 as Mock).mockResolvedValue({
+		(getLobbyStatusV1WithoutVisuData as Mock).mockResolvedValue({
 			ok: true,
 			json: async () => mockResultWinnerA,
 		});
