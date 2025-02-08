@@ -6,7 +6,7 @@ import { usePageVisibility } from "@/lib/usePageVisibility.ts";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./WaitingForResult.module.css";
-import { getLobbyStatusV1 } from "@/services/rest/LobbyRest.ts";
+import { getLobbyStatusV1WithVisuData } from "@/services/rest/LobbyRest.ts";
 import { useLobby } from "@/services/lobbyContext/LobbyContextHelpers.ts";
 
 function WaitingForResultPage() {
@@ -24,7 +24,7 @@ function WaitingForResultPage() {
 				console.error("No lobby!? How the f*ck did you manage to do this???");
 				return;
 			}
-			const status = await getLobbyStatusV1(lobby.id);
+			const status = await getLobbyStatusV1WithVisuData(lobby.id);
 
 			console.log(status);
 
