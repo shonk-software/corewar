@@ -39,7 +39,7 @@ fun Route.configureShorkInterpreterControllerV1() {
             call.parameters["lobbyId"]?.toLongOrNull()
                 ?: return@get call.respond(HttpStatusCode.BadRequest)
 
-        val program = shorkUseCase.getProgramFromLobby(lobbyId, player)
+        val program = shorkUseCase.getProgramFromLobbyWithId(lobbyId, player)
 
         program.onFailure {
             logger.error("Failed to get program from lobby", it)
@@ -219,7 +219,14 @@ fun Route.configureShorkInterpreterControllerV1() {
      * }, ... ] }
      */
     get("/lobby") {
-        val lobbiesStatus = shorkUseCase.getAllLobbies()
+        val lobbiesStatus =
+            shorkUseCase.getAllLobbies().getOrElse {
+                call.respond(
+                    HttpStatusCode.InternalServerError,
+                    it.message ?: UNKNOWN_ERROR_MESSAGE,
+                )
+                return@get
+            }
         call.respond(HttpStatusCode.OK, mapOf("lobbies" to lobbiesStatus))
         return@get
     }

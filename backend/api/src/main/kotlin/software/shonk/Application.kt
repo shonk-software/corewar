@@ -10,12 +10,18 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
+import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import org.koin.ktor.plugin.koin
 import software.shonk.adapters.incoming.configureShorkInterpreterControllerV0
 import software.shonk.adapters.incoming.configureShorkInterpreterControllerV1
+import software.shonk.adapters.outgoing.MemoryLobbyManager
 import software.shonk.application.port.incoming.ShorkUseCase
 import software.shonk.application.port.incoming.V0ShorkUseCase
+import software.shonk.application.port.outgoing.DeleteLobbyPort
+import software.shonk.application.port.outgoing.LoadLobbyPort
+import software.shonk.application.port.outgoing.SaveLobbyPort
 import software.shonk.application.service.ShorkService
 import software.shonk.application.service.V0ShorkService
 import software.shonk.interpreter.IShork
@@ -81,8 +87,13 @@ fun Application.koinModule() {
         modules(
             module {
                 single<IShork> { Shork() }
-                single<ShorkUseCase> { ShorkService(get()) }
+                single<ShorkUseCase> { ShorkService(get(), get(), get(), get()) }
                 single<V0ShorkUseCase> { V0ShorkService(get()) }
+                singleOf(::MemoryLobbyManager) {
+                    bind<LoadLobbyPort>()
+                    bind<SaveLobbyPort>()
+                    bind<DeleteLobbyPort>()
+                }
             }
         )
     }

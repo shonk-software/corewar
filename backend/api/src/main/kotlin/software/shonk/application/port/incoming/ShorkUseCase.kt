@@ -9,7 +9,7 @@ import software.shonk.interpreter.Settings
 interface ShorkUseCase {
     fun addProgramToLobby(lobbyId: Long, name: String?, program: String): Result<Unit>
 
-    fun getProgramFromLobby(lobbyId: Long, name: String?): Result<String>
+    fun getProgramFromLobbyWithId(lobbyId: Long, name: String?): Result<String>
 
     fun setLobbySettings(lobbyId: Long, settings: Settings): Result<Unit>
 
@@ -25,7 +25,5 @@ interface ShorkUseCase {
 
     fun getCompilationErrors(code: String): List<CompileError>
 
-    fun getAllLobbies(): List<LobbyStatus>
-
-    fun verifyPlayer(playerName: String, lobbyId: Long): Result<Unit>
+    fun getAllLobbies(): Result<List<LobbyStatus>>
 }

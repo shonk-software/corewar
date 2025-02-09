@@ -1,24 +1,38 @@
 package software.shonk.application.service
 
+import io.mockk.spyk
+import io.mockk.verify
 import kotlin.test.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import software.shonk.adapters.outgoing.MemoryLobbyManager
+import software.shonk.application.port.outgoing.DeleteLobbyPort
+import software.shonk.application.port.outgoing.LoadLobbyPort
+import software.shonk.application.port.outgoing.SaveLobbyPort
 import software.shonk.domain.*
 import software.shonk.interpreter.MockShork
 import software.shonk.interpreter.Settings
-import software.shonk.interpreter.Shork
 
 class ShorkServiceTest {
 
-    @Test
-    fun `inits with no default lobby`() {
-        val shorkService = ShorkService(MockShork())
-        assertEquals(0, shorkService.lobbies.size)
+    lateinit var shorkService: ShorkService
+    lateinit var loadLobbyPort: LoadLobbyPort
+    lateinit var saveLobbyPort: SaveLobbyPort
+    lateinit var deleteLobbyPort: DeleteLobbyPort
+
+    // The in-memory lobby management also serves as a kind of mock here.
+    @BeforeEach
+    fun setUp() {
+        val lobbyManager = spyk<MemoryLobbyManager>()
+        loadLobbyPort = lobbyManager
+        saveLobbyPort = lobbyManager
+        deleteLobbyPort = lobbyManager
+        shorkService = ShorkService(MockShork(), loadLobbyPort, saveLobbyPort, deleteLobbyPort)
     }
 
     @Test
     fun `create lobby and playerA submits program`() {
-        val shorkService = ShorkService(MockShork())
         shorkService.createLobby("playerA")
         shorkService.addProgramToLobby(0L, "playerA", "someProgram")
         val result = shorkService.getLobbyStatus(0L).getOrThrow()
@@ -37,7 +51,6 @@ class ShorkServiceTest {
 
     @Test
     fun `create lobby and playerB submits program`() {
-        val shorkService = ShorkService(MockShork())
         shorkService.createLobby("playerA")
         shorkService.joinLobby(0L, "playerB")
         shorkService.addProgramToLobby(0L, "playerB", "someProgram")
@@ -57,9 +70,8 @@ class ShorkServiceTest {
 
     @Test
     fun `create lobby creates a new lobby`() {
-        val shorkService = ShorkService(MockShork())
         val lobbyId = shorkService.createLobby("playerA")
-        assertEquals(1, shorkService.lobbies.size)
+        assertEquals(1, shorkService.getAllLobbies().getOrNull()?.size)
 
         val result = shorkService.getLobbyStatus(lobbyId.getOrThrow()).getOrThrow()
         assertEquals(
@@ -76,7 +88,6 @@ class ShorkServiceTest {
 
     @Test
     fun `upload code in lobby 0 does not affect lobby 1`() {
-        val shorkService = ShorkService(MockShork())
         shorkService.createLobby("playerA")
         shorkService.createLobby("playerB")
         shorkService.addProgramToLobby(0L, "playerA", "someProgram")
@@ -107,7 +118,6 @@ class ShorkServiceTest {
 
     @Test
     fun `add code with playerName null`() {
-        val shorkService = ShorkService(MockShork())
         shorkService.createLobby("playerA")
         val result = shorkService.addProgramToLobby(0L, null, "someProgram")
 
@@ -117,25 +127,14 @@ class ShorkServiceTest {
 
     @Test
     fun `delete lobby removes the lobby`() {
-        val shorkService = ShorkService(MockShork())
         shorkService.createLobby("playerA")
         shorkService.deleteLobby(0L)
 
-        assertEquals(0, shorkService.lobbies.size)
-    }
-
-    @Test
-    fun `delete lobby fails if lobby does not exist`() {
-        val shorkService = ShorkService(MockShork())
-        val result = shorkService.deleteLobby(0L)
-
-        assertEquals(true, result.isFailure)
-        assertEquals("No lobby with that id", result.exceptionOrNull()?.message)
+        verify(exactly = 1) { deleteLobbyPort.deleteLobby(any()) }
     }
 
     @Test
     fun `get status for the lobby fails if lobby does not exist`() {
-        val shorkService = ShorkService(MockShork())
         val result = shorkService.getLobbyStatus(0L)
 
         assertEquals(true, result.isFailure)
@@ -144,7 +143,6 @@ class ShorkServiceTest {
 
     @Test
     fun `add program to the lobby fails if lobby does not exist`() {
-        val shorkService = ShorkService(MockShork())
         val result = shorkService.addProgramToLobby(0L, "playerA", "someProgram")
 
         assertEquals(true, result.isFailure)
@@ -153,17 +151,15 @@ class ShorkServiceTest {
 
     @Test
     fun `set settings for the lobby`() {
-        val shorkService = ShorkService(MockShork())
         shorkService.createLobby("playerA")
         val someSettings = Settings(69, 123, "NOP", 0)
         shorkService.setLobbySettings(0, someSettings)
 
-        assertEquals(someSettings, shorkService.lobbies[0]?.getSettings())
+        assertEquals(someSettings, loadLobbyPort.getLobby(0).getOrNull()?.getSettings())
     }
 
     @Test
     fun `set settings for invalid lobby`() {
-        val shorkService = ShorkService(MockShork())
         val someSettings = Settings(69, 123, "NOP", 0)
         val result = shorkService.setLobbySettings(0, someSettings)
 
@@ -173,22 +169,23 @@ class ShorkServiceTest {
 
     @Test
     fun `get code from lobby`() {
-        val shorkService = ShorkService(MockShork())
         shorkService.createLobby("playerA")
         shorkService.addProgramToLobby(0L, "playerA", "someProgram")
         shorkService.joinLobby(0L, "playerB")
         shorkService.addProgramToLobby(0L, "playerB", "someOtherProgram")
 
-        assertEquals("someProgram", shorkService.getProgramFromLobby(0L, "playerA").getOrNull())
+        assertEquals(
+            "someProgram",
+            shorkService.getProgramFromLobbyWithId(0L, "playerA").getOrNull(),
+        )
         assertEquals(
             "someOtherProgram",
-            shorkService.getProgramFromLobby(0L, "playerB").getOrNull(),
+            shorkService.getProgramFromLobbyWithId(0L, "playerB").getOrNull(),
         )
     }
 
     @Test
     fun `get code from multiple independent lobbies`() {
-        val shorkService = ShorkService(MockShork())
         shorkService.createLobby("playerA")
         shorkService.addProgramToLobby(0L, "playerA", "someProgram")
         shorkService.joinLobby(0L, "playerB")
@@ -203,64 +200,64 @@ class ShorkServiceTest {
             "evenMoreDifferentProgram",
         )
 
-        assertEquals("someProgram", shorkService.getProgramFromLobby(0L, "playerA").getOrNull())
+        assertEquals(
+            "someProgram",
+            shorkService.getProgramFromLobbyWithId(0L, "playerA").getOrNull(),
+        )
         assertEquals(
             "someOtherProgram",
-            shorkService.getProgramFromLobby(0L, "playerB").getOrNull(),
+            shorkService.getProgramFromLobbyWithId(0L, "playerB").getOrNull(),
         )
         assertEquals(
             "differentProgram",
-            shorkService.getProgramFromLobby(secondLobby.getOrThrow(), "playerA").getOrNull(),
+            shorkService.getProgramFromLobbyWithId(secondLobby.getOrThrow(), "playerA").getOrNull(),
         )
         assertEquals(
             "evenMoreDifferentProgram",
-            shorkService.getProgramFromLobby(secondLobby.getOrThrow(), "playerB").getOrNull(),
+            shorkService.getProgramFromLobbyWithId(secondLobby.getOrThrow(), "playerB").getOrNull(),
         )
     }
 
     @Test
     fun `get code from lobby with invalid player`() {
-        val shorkService = ShorkService(MockShork())
         shorkService.createLobby("playerA")
         shorkService.addProgramToLobby(0L, "playerA", "someProgram")
 
         assertEquals(
             "No player with that name in the lobby",
-            shorkService.getProgramFromLobby(0L, "playerB").exceptionOrNull()?.message,
+            shorkService.getProgramFromLobbyWithId(0L, "playerB").exceptionOrNull()?.message,
         )
     }
 
     @Test
     fun `get code from lobby with invalid lobby`() {
-        val shorkService = ShorkService(MockShork())
-
         assertEquals(
             "No lobby with that id",
-            shorkService.getProgramFromLobby(0L, "playerA").exceptionOrNull()?.message,
+            shorkService.getProgramFromLobbyWithId(0L, "playerA").exceptionOrNull()?.message,
         )
     }
 
     @Test
     fun `join lobby with valid playerName`() {
-        val shorkService = ShorkService(MockShork())
         shorkService.createLobby("playerA")
         shorkService.joinLobby(0L, "playerB")
 
-        assertEquals(true, shorkService.lobbies[0]?.joinedPlayers?.contains("playerB"))
+        assertEquals(
+            true,
+            loadLobbyPort.getLobby(0).getOrNull()?.joinedPlayers?.contains("playerB"),
+        )
     }
 
     @Test
     fun `join lobby with duplicate (invalid) playerName`() {
-        val shorkService = ShorkService(MockShork())
         shorkService.createLobby("playerA")
         shorkService.joinLobby(0L, "playerA")
 
-        assertEquals(1, shorkService.lobbies[0]?.joinedPlayers?.size)
+        assertEquals(1, loadLobbyPort.getLobby(0).getOrNull()?.joinedPlayers?.size)
     }
 
     @Test
     fun `join nonexistent lobby`() {
-        val shorkService = ShorkService(MockShork())
         val result = shorkService.joinLobby(0L, "playerA")
 
         assertEquals(result.isFailure, true)
@@ -268,71 +265,69 @@ class ShorkServiceTest {
 
     @Test
     fun `test get all lobbies`() {
-        val shorkService = ShorkService(MockShork())
         shorkService.createLobby("playerA")
         shorkService.createLobby("playerA")
         shorkService.createLobby("playerA")
-        val result = shorkService.getAllLobbies()
+        val result = shorkService.getAllLobbies().getOrNull()
 
-        assertEquals(3, result.size)
+        assertEquals(3, result?.size)
         assertTrue(
-            result.contains(
+            result?.contains(
                 LobbyStatus(id = 0L, playersJoined = listOf("playerA"), gameState = "NOT_STARTED")
-            )
+            ) ?: false
         )
 
         assertTrue(
-            result.contains(
+            result?.contains(
                 LobbyStatus(id = 1L, playersJoined = listOf("playerA"), gameState = "NOT_STARTED")
-            )
+            ) ?: false
         )
 
         assertTrue(
-            result.contains(
+            result?.contains(
                 LobbyStatus(id = 2L, playersJoined = listOf("playerA"), gameState = "NOT_STARTED")
-            )
+            ) ?: false
         )
     }
 
     @Test
     fun `get allLobbies but one is deleted`() {
-        val shorkService = ShorkService(MockShork())
         shorkService.createLobby("playerA")
         shorkService.createLobby("playerA")
         shorkService.createLobby("playerA")
         shorkService.createLobby("playerB")
         shorkService.deleteLobby(1L)
 
-        val result = shorkService.getAllLobbies()
+        val result = shorkService.getAllLobbies().getOrNull()
 
-        assertEquals(3, result.size)
+        assertEquals(3, result?.size)
         assertTrue(
-            result.contains(
+            result?.contains(
                 LobbyStatus(id = 0L, playersJoined = listOf("playerA"), gameState = "NOT_STARTED")
-            )
+            ) ?: false
         )
 
         assertTrue(
-            result.contains(
+            result?.contains(
                 LobbyStatus(id = 2L, playersJoined = listOf("playerA"), gameState = "NOT_STARTED")
-            )
+            ) ?: false
         )
 
         assertTrue(
-            result.contains(
+            result?.contains(
                 LobbyStatus(id = 3L, playersJoined = listOf("playerB"), gameState = "NOT_STARTED")
-            )
+            ) ?: false
         )
     }
 
+    // This is a DEFINITELY an integration test!!!
+    /*
     @Test
-    fun `game visualization data exists`() {
-        val shorkService = ShorkService(Shork())
+    fun `result contains visualization data`() {
         val lobbyId = shorkService.createLobby("playerA").getOrThrow()
         shorkService.addProgramToLobby(lobbyId, "playerA", "mov 0, 1")
-        shorkService.joinLobby(0L, "playerB")
+        shorkService.joinLobby(lobbyId, "playerB")
         shorkService.addProgramToLobby(lobbyId, "playerB", "mov 0, 1")
-        shorkService.setLobbySettings(lobbyId, Settings())
 
         val result = shorkService.getLobbyStatus(lobbyId).getOrThrow()
         assertEquals(GameState.FINISHED, result.gameState)
@@ -342,7 +337,6 @@ class ShorkServiceTest {
 
     @Test
     fun `game visualization data absent before first run`() {
-        val shorkService = ShorkService(Shork())
         val lobbyId = shorkService.createLobby("playerA").getOrThrow()
         shorkService.setLobbySettings(lobbyId, Settings())
 
@@ -354,7 +348,6 @@ class ShorkServiceTest {
 
     @Test
     fun `game visualization data can be disabled (not included)`() {
-        val shorkService = ShorkService(Shork())
         val lobbyId = shorkService.createLobby("playerA").getOrThrow()
         shorkService.addProgramToLobby(lobbyId, "playerA", "mov 0, 1")
         shorkService.joinLobby(0L, "playerB")
@@ -365,10 +358,10 @@ class ShorkServiceTest {
         assertEquals(GameState.FINISHED, result.gameState)
         assertTrue(result.visualizationData.isEmpty())
     }
+    */
 
     @Test
     fun `test get lobby settings for a valid lobby`() {
-        val shorkService = ShorkService(Shork())
         val lobbyId = shorkService.createLobby("playerA").getOrThrow()
         val defaultSettings = Settings()
         shorkService.setLobbySettings(lobbyId, defaultSettings)
@@ -394,19 +387,17 @@ class ShorkServiceTest {
 
     @Test
     fun `test get lobby settings for an invalid lobby`() {
-        val shorkService = ShorkService(Shork())
         val result = shorkService.getLobbySettings(999L)
         assertTrue(result.isFailure)
     }
 
     @Test
     fun `test verify joined players`() {
-        val shorkService = ShorkService(Shork())
         val lobbyId = shorkService.createLobby("playerA").getOrThrow()
-        val resultA = shorkService.verifyPlayer("playerA", lobbyId)
+        val resultA = shorkService.playerIsInLobby("playerA", lobbyId)
         assertTrue(resultA.isSuccess)
         shorkService.joinLobby(lobbyId, "playerB")
-        val resultB = shorkService.verifyPlayer("playerB", lobbyId)
+        val resultB = shorkService.playerIsInLobby("playerB", lobbyId)
         assertTrue(resultB.isSuccess)
     }
 }

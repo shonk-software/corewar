@@ -17,6 +17,7 @@ data class InterpreterSettings(
     val randomSeparation: Boolean,
 )
 
+// This should not exist if InterpreterSettings is the DO
 fun InterpreterSettings.toSettings(): Settings {
     return Settings(
         coreSize = this.coreSize,
