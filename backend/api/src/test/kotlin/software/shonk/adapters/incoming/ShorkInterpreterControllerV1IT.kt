@@ -9,18 +9,18 @@ import kotlinx.serialization.json.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import software.shonk.basicModule
 import software.shonk.domain.CompileError
 import software.shonk.domain.InterpreterSettings
 import software.shonk.domain.LobbyStatus
 import software.shonk.interpreter.Settings
-import software.shonk.module
 import software.shonk.moduleApiV1
 
 class ShorkInterpreterControllerV1IT : AbstractControllerTest() {
 
     override fun applyTestEngineApplication() {
         testEngine.application.apply {
-            module()
+            basicModule()
             moduleApiV1()
         }
     }

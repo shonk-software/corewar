@@ -14,23 +14,19 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import org.koin.ktor.plugin.koin
-import software.shonk.adapters.incoming.configureShorkInterpreterControllerV0
 import software.shonk.adapters.incoming.configureShorkInterpreterControllerV1
 import software.shonk.adapters.outgoing.MemoryLobbyManager
 import software.shonk.application.port.incoming.ShorkUseCase
-import software.shonk.application.port.incoming.V0ShorkUseCase
 import software.shonk.application.port.outgoing.DeleteLobbyPort
 import software.shonk.application.port.outgoing.LoadLobbyPort
 import software.shonk.application.port.outgoing.SaveLobbyPort
 import software.shonk.application.service.ShorkService
-import software.shonk.application.service.V0ShorkService
 import software.shonk.interpreter.IShork
 import software.shonk.interpreter.Shork
 
 fun main() {
     embeddedServer(Netty, port = 8080) {
-            module()
-            moduleApiV0()
+            basicModule()
             moduleApiV1()
             koinModule()
             staticResources()
@@ -38,7 +34,7 @@ fun main() {
         .start(wait = true)
 }
 
-fun Application.module() {
+fun Application.basicModule() {
     // Install basic middleware like CORS and content negotiation here
     install(CORS) {
         allowMethod(HttpMethod.Options)
@@ -57,15 +53,6 @@ fun Application.module() {
                 useArrayPolymorphism = false
             }
         )
-    }
-}
-
-fun Application.moduleApiV0() {
-    routing {
-        route("/api/v0") {
-            staticResources("/docs", "openapi/v0", index = "scalar.html")
-            configureShorkInterpreterControllerV0()
-        }
     }
 }
 
@@ -88,7 +75,6 @@ fun Application.koinModule() {
             module {
                 single<IShork> { Shork() }
                 single<ShorkUseCase> { ShorkService(get(), get(), get(), get()) }
-                single<V0ShorkUseCase> { V0ShorkService(get()) }
                 singleOf(::MemoryLobbyManager) {
                     bind<LoadLobbyPort>()
                     bind<SaveLobbyPort>()

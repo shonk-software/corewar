@@ -13,12 +13,10 @@ import org.koin.dsl.module
 import org.koin.test.KoinTest
 import software.shonk.adapters.outgoing.MemoryLobbyManager
 import software.shonk.application.port.incoming.ShorkUseCase
-import software.shonk.application.port.incoming.V0ShorkUseCase
 import software.shonk.application.port.outgoing.DeleteLobbyPort
 import software.shonk.application.port.outgoing.LoadLobbyPort
 import software.shonk.application.port.outgoing.SaveLobbyPort
 import software.shonk.application.service.ShorkService
-import software.shonk.application.service.V0ShorkService
 import software.shonk.interpreter.IShork
 import software.shonk.interpreter.MockShork
 
@@ -47,7 +45,6 @@ abstract class AbstractControllerTest() : KoinTest {
             module {
                 single<IShork> { MockShork() }
                 single<ShorkUseCase> { ShorkService(get(), get(), get(), get()) }
-                single<V0ShorkUseCase> { V0ShorkService(get()) }
                 singleOf(::MemoryLobbyManager) {
                     bind<LoadLobbyPort>()
                     bind<SaveLobbyPort>()
