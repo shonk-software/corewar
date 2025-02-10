@@ -15,6 +15,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import org.koin.ktor.plugin.koin
 import software.shonk.adapters.incoming.configureCreateLobbyControllerV1
+import software.shonk.adapters.incoming.configureGetProgramFromPlayerInLobbyControllerV1
 import software.shonk.adapters.incoming.configureShorkInterpreterControllerV1
 import software.shonk.adapters.outgoing.MemoryLobbyManager
 import software.shonk.application.port.incoming.CreateLobbyUseCase
@@ -67,6 +68,7 @@ fun Application.moduleApiV1() {
             staticResources("/docs", "openapi/v1", index = "scalar.html")
             configureShorkInterpreterControllerV1()
             configureCreateLobbyControllerV1()
+            configureGetProgramFromPlayerInLobbyControllerV1()
         }
     }
 }

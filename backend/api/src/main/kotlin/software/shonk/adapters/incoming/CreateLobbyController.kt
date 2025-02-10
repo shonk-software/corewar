@@ -14,7 +14,7 @@ import software.shonk.application.port.incoming.CreateLobbyUseCase
 
 fun Route.configureCreateLobbyControllerV1() {
     val logger = LoggerFactory.getLogger("CreateLobbyControllerV1")
-    val shorkUseCase by inject<CreateLobbyUseCase>()
+    val createLobbyUseCase by inject<CreateLobbyUseCase>()
 
     /**
      * Creates a new lobby and returns the id of the newly created one, which identifies the lobby
@@ -34,7 +34,9 @@ fun Route.configureCreateLobbyControllerV1() {
 
         val commandResult =
             runCatching { CreateLobbyCommand(createLobbyBody.playerName) }
-                .mapCatching { shorkUseCase.createLobby(it) } // Ensures exceptions here are caught
+                .mapCatching {
+                    createLobbyUseCase.createLobby(it)
+                } // Ensures exceptions here are caught
 
         commandResult.onFailure {
             logger.error(

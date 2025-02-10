@@ -1,5 +1,9 @@
 package software.shonk.application.port.incoming
 
+import software.shonk.adapters.incoming.GetProgramFromPlayerInLobbyCommand
+
 interface GetProgramFromPlayerInLobbyQuery {
-    fun getProgramFromPlayerInLobby(lobbyId: Long, name: String?): Result<String>
+    fun getProgramFromPlayerInLobby(
+        getProgramFromPlayerInLobbyCommand: GetProgramFromPlayerInLobbyCommand
+    ): Result<String>
 }

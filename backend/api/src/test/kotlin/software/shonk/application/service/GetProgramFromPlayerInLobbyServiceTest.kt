@@ -4,6 +4,7 @@ import io.mockk.spyk
 import kotlin.test.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import software.shonk.adapters.incoming.GetProgramFromPlayerInLobbyCommand
 import software.shonk.adapters.outgoing.MemoryLobbyManager
 import software.shonk.application.port.outgoing.LoadLobbyPort
 import software.shonk.application.port.outgoing.SaveLobbyPort
@@ -40,13 +41,17 @@ class GetProgramFromPlayerInLobbyServiceTest {
         assertEquals(
             "someProgram",
             getProgramFromPlayerInLobbyService
-                .getProgramFromPlayerInLobby(aLobbyId, "playerA")
+                .getProgramFromPlayerInLobby(
+                    GetProgramFromPlayerInLobbyCommand(aLobbyId, "playerA")
+                )
                 .getOrNull(),
         )
         assertEquals(
             "someOtherProgram",
             getProgramFromPlayerInLobbyService
-                .getProgramFromPlayerInLobby(aLobbyId, "playerB")
+                .getProgramFromPlayerInLobby(
+                    GetProgramFromPlayerInLobbyCommand(aLobbyId, "playerB")
+                )
                 .getOrNull(),
         )
     }
@@ -76,25 +81,33 @@ class GetProgramFromPlayerInLobbyServiceTest {
         assertEquals(
             "someProgram",
             getProgramFromPlayerInLobbyService
-                .getProgramFromPlayerInLobby(aLobbyId, "playerA")
+                .getProgramFromPlayerInLobby(
+                    GetProgramFromPlayerInLobbyCommand(aLobbyId, "playerA")
+                )
                 .getOrNull(),
         )
         assertEquals(
             "someOtherProgram",
             getProgramFromPlayerInLobbyService
-                .getProgramFromPlayerInLobby(aLobbyId, "playerB")
+                .getProgramFromPlayerInLobby(
+                    GetProgramFromPlayerInLobbyCommand(aLobbyId, "playerB")
+                )
                 .getOrNull(),
         )
         assertEquals(
             "differentProgram",
             getProgramFromPlayerInLobbyService
-                .getProgramFromPlayerInLobby(anotherLobbyId, "playerA")
+                .getProgramFromPlayerInLobby(
+                    GetProgramFromPlayerInLobbyCommand(anotherLobbyId, "playerA")
+                )
                 .getOrNull(),
         )
         assertEquals(
             "evenMoreDifferentProgram",
             getProgramFromPlayerInLobbyService
-                .getProgramFromPlayerInLobby(anotherLobbyId, "playerB")
+                .getProgramFromPlayerInLobby(
+                    GetProgramFromPlayerInLobbyCommand(anotherLobbyId, "playerB")
+                )
                 .getOrNull(),
         )
     }
@@ -114,7 +127,9 @@ class GetProgramFromPlayerInLobbyServiceTest {
         assertEquals(
             "No player with that name in the lobby",
             getProgramFromPlayerInLobbyService
-                .getProgramFromPlayerInLobby(aLobbyId, "playerB")
+                .getProgramFromPlayerInLobby(
+                    GetProgramFromPlayerInLobbyCommand(aLobbyId, "playerB")
+                )
                 .exceptionOrNull()
                 ?.message,
         )
@@ -125,7 +140,7 @@ class GetProgramFromPlayerInLobbyServiceTest {
         assertEquals(
             "No lobby with that id",
             getProgramFromPlayerInLobbyService
-                .getProgramFromPlayerInLobby(0L, "playerA")
+                .getProgramFromPlayerInLobby(GetProgramFromPlayerInLobbyCommand(0L, "playerA"))
                 .exceptionOrNull()
                 ?.message,
         )
