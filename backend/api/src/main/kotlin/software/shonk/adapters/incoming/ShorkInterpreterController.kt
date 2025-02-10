@@ -10,6 +10,7 @@ import io.ktor.server.routing.post
 import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
+import software.shonk.application.port.incoming.GetProgramFromPlayerInLobbyQuery
 import software.shonk.application.port.incoming.ShorkUseCase
 import software.shonk.domain.InterpreterSettings
 import software.shonk.domain.toSettings
@@ -19,6 +20,7 @@ const val UNKNOWN_ERROR_MESSAGE = "Unknown Error"
 fun Route.configureShorkInterpreterControllerV1() {
     val logger = LoggerFactory.getLogger("ShorkInterpreterControllerV1")
     val shorkUseCase by inject<ShorkUseCase>()
+    val getProgramFromPlayerInLobbyQuery by inject<GetProgramFromPlayerInLobbyQuery>()
 
     /**
      * Returns the player program code from a lobby which was specified in the path parameters. Path
@@ -39,7 +41,7 @@ fun Route.configureShorkInterpreterControllerV1() {
             call.parameters["lobbyId"]?.toLongOrNull()
                 ?: return@get call.respond(HttpStatusCode.BadRequest)
 
-        val program = shorkUseCase.getProgramFromLobbyWithId(lobbyId, player)
+        val program = getProgramFromPlayerInLobbyQuery.getProgramFromPlayerInLobby(lobbyId, player)
 
         program.onFailure {
             logger.error("Failed to get program from lobby", it)

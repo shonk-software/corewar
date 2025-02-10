@@ -70,20 +70,6 @@ class ShorkService(
         return saveLobbyPort.saveLobby(lobby)
     }
 
-    override fun getProgramFromLobbyWithId(lobbyId: Long, name: String?): Result<String> {
-        val lobby =
-            loadLobbyPort.getLobby(lobbyId).getOrElse {
-                return Result.failure(it)
-            }
-
-        val result = lobby.programs[name]
-        return if (result == null) {
-            Result.failure(IllegalArgumentException("No player with that name in the lobby"))
-        } else {
-            Result.success(result)
-        }
-    }
-
     override fun getLobbyStatus(lobbyId: Long, includeRoundInformation: Boolean): Result<Status> {
         val lobby =
             loadLobbyPort.getLobby(lobbyId).getOrElse {
