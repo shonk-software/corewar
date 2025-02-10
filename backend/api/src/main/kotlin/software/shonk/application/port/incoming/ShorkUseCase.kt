@@ -15,8 +15,6 @@ interface ShorkUseCase {
 
     fun getLobbySettings(lobbyId: Long): Result<InterpreterSettings>
 
-    fun createLobby(playerName: String): Result<Long>
-
     fun joinLobby(lobbyId: Long, playerName: String): Result<Unit>
 
     fun deleteLobby(lobbyId: Long): Result<Unit>

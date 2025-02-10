@@ -109,31 +109,6 @@ fun Route.configureShorkInterpreterControllerV1() {
     }
 
     /**
-     * Creates a new lobby and returns the id of the newly created one, which identifies the lobby
-     * uniquely. If the playerName is invalid, the create operation is aborted. The body must
-     * contain the desired playerName of the player creating the lobby. body: { "playerName":
-     * String, }
-     *
-     * Response 201: The response contains the id of the created lobby. response: { "lobbyId":
-     * String, }
-     *
-     * Response 400: Failed to create a lobby, because the playerName is invalid.
-     */
-    post("/lobby") {
-        @Serializable data class CreateLobbyBody(val playerName: String)
-
-        val createLobbyBody = call.receive<CreateLobbyBody>()
-
-        val result = shorkUseCase.createLobby(createLobbyBody.playerName)
-        result.onFailure {
-            logger.error("Failed to create lobby, player name is invalid", it)
-            call.respond(HttpStatusCode.BadRequest, it.message ?: UNKNOWN_ERROR_MESSAGE)
-        }
-        result.onSuccess {
-            call.respond(HttpStatusCode.Created, CreateLobbyResponse(it.toString()))
-        }
-    }
-    /**
      * This endpoint is used to join an existing lobby with the desired playerName. The body must
      * contain the desired playerName. If the player is already in the lobby, the join operation is
      * aborted. Players who want to join must have a unique playerName. body: { "playername":
@@ -284,7 +259,5 @@ fun Route.configureShorkInterpreterControllerV1() {
 }
 
 @Serializable data class Program(val code: String)
-
-@Serializable data class CreateLobbyResponse(val lobbyId: String)
 
 @Serializable data class SubmitCodeRequest(val code: String)

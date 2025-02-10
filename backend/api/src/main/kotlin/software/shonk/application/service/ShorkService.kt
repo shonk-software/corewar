@@ -1,25 +1,20 @@
 package software.shonk.application.service
 
-import kotlin.Result
 import software.shonk.application.port.incoming.ShorkUseCase
 import software.shonk.application.port.outgoing.DeleteLobbyPort
 import software.shonk.application.port.outgoing.LoadLobbyPort
 import software.shonk.application.port.outgoing.SaveLobbyPort
 import software.shonk.domain.*
-import software.shonk.interpreter.IShork
 import software.shonk.interpreter.Settings
 import software.shonk.interpreter.internal.compiler.Compiler
 
 const val NO_LOBBY_MESSAGE = "No lobby with that id"
 
 class ShorkService(
-    private val shork: IShork,
     private val loadLobbyPort: LoadLobbyPort,
     private val saveLobbyPort: SaveLobbyPort,
     private val deleteLobbyPort: DeleteLobbyPort,
 ) : ShorkUseCase {
-
-    private var lobbyCounter = 0L
 
     override fun setLobbySettings(lobbyId: Long, settings: Settings): Result<Unit> {
         val lobby =
@@ -115,24 +110,16 @@ class ShorkService(
         }
     }
 
-    override fun createLobby(playerName: String): Result<Long> {
-        if (isAlphaNumerical(playerName)) {
-            val newLobby = Lobby(lobbyCounter, HashMap(), shork)
-            newLobby.joinedPlayers.add(playerName)
-            if (saveLobbyPort.saveLobby(newLobby).isSuccess) {
-                return Result.success(lobbyCounter++)
-            }
-        }
-        return Result.failure(IllegalArgumentException("Your player name is invalid"))
-    }
-
     override fun joinLobby(lobbyId: Long, playerName: String): Result<Unit> {
         val lobby =
             loadLobbyPort.getLobby(lobbyId).getOrElse {
                 return Result.failure(it)
             }
 
-        if (isAlphaNumerical(playerName) && playerIsInLobby(playerName, lobbyId).isFailure) {
+        // todo restore this
+        if (
+            /*isAlphaNumerical(playerName)*/ true && playerIsInLobby(playerName, lobbyId).isFailure
+        ) {
             lobby.joinedPlayers.add(playerName)
             return saveLobbyPort.saveLobby(lobby)
         }
@@ -166,10 +153,5 @@ class ShorkService(
 
     private fun verifyPlayerName(player: String?): Boolean {
         return player == "playerA" || player == "playerB"
-    }
-
-    // todo This should be checkd in a command obj
-    private fun isAlphaNumerical(playerName: String): Boolean {
-        return playerName.matches("^[a-zA-Z0-9]+$".toRegex()) && playerName.isNotBlank()
     }
 }
