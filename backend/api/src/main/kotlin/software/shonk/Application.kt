@@ -15,6 +15,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import org.koin.ktor.plugin.koin
 import software.shonk.adapters.incoming.configureCreateLobbyControllerV1
+import software.shonk.adapters.incoming.configureGetCompilationErrorsControllerV1
 import software.shonk.adapters.incoming.configureGetProgramFromPlayerInLobbyControllerV1
 import software.shonk.adapters.incoming.configureShorkInterpreterControllerV1
 import software.shonk.adapters.outgoing.MemoryLobbyManager
@@ -71,6 +72,7 @@ fun Application.moduleApiV1() {
             configureShorkInterpreterControllerV1()
             configureCreateLobbyControllerV1()
             configureGetProgramFromPlayerInLobbyControllerV1()
+            configureGetCompilationErrorsControllerV1()
         }
     }
 }
