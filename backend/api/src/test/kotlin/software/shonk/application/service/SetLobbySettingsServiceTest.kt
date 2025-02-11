@@ -7,6 +7,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import software.shonk.adapters.incoming.SetLobbySettingsCommand
 import software.shonk.adapters.outgoing.MemoryLobbyManager
 import software.shonk.application.port.outgoing.LoadLobbyPort
 import software.shonk.application.port.outgoing.SaveLobbyPort
@@ -43,7 +44,7 @@ class SetLobbySettingsServiceTest {
         // the field being changed below suffices to fulfill the matcher!
         clearMocks(saveLobbyPort)
 
-        setLobbySettingsService.setLobbySettings(aLobbyId, someSettings)
+        setLobbySettingsService.setLobbySettings(SetLobbySettingsCommand(aLobbyId, someSettings))
         verify(exactly = 1) {
             saveLobbyPort.saveLobby(
                 match { it.id == aLobbyId && it.currentSettings == someSettings }
@@ -54,7 +55,8 @@ class SetLobbySettingsServiceTest {
     @Test
     fun `set settings for invalid lobby`() {
         val someSettings = InterpreterSettings(69, 123, "NOP", 0)
-        val result = setLobbySettingsService.setLobbySettings(0, someSettings)
+        val result =
+            setLobbySettingsService.setLobbySettings(SetLobbySettingsCommand(0, someSettings))
 
         assertFalse(result.isSuccess)
         assertEquals("No lobby with that id", result.exceptionOrNull()?.message)

@@ -43,6 +43,7 @@ fun Route.configureCreateLobbyControllerV1() {
                 "Failed to create lobby, error on service layer after passing command!",
                 it,
             )
+            // todo change this to internal server error
             call.respond(HttpStatusCode.BadRequest, it.message ?: UNKNOWN_ERROR_MESSAGE)
         }
         commandResult.onSuccess { result ->

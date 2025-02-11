@@ -1,22 +1,22 @@
 package software.shonk.application.service
 
+import software.shonk.adapters.incoming.SetLobbySettingsCommand
 import software.shonk.application.port.incoming.SetLobbySettingsUseCase
 import software.shonk.application.port.outgoing.LoadLobbyPort
 import software.shonk.application.port.outgoing.SaveLobbyPort
-import software.shonk.domain.InterpreterSettings
 
 class SetLobbySettingsService(
     private val loadLobbyPort: LoadLobbyPort,
     private val saveLobbyPort: SaveLobbyPort,
 ) : SetLobbySettingsUseCase {
 
-    override fun setLobbySettings(lobbyId: Long, settings: InterpreterSettings): Result<Unit> {
+    override fun setLobbySettings(setLobbySettingsCommand: SetLobbySettingsCommand): Result<Unit> {
         val lobby =
-            loadLobbyPort.getLobby(lobbyId).getOrElse {
+            loadLobbyPort.getLobby(setLobbySettingsCommand.lobbyId).getOrElse {
                 return Result.failure(it)
             }
 
-        lobby.setSettings(settings)
+        lobby.setSettings(setLobbySettingsCommand.settings)
         return saveLobbyPort.saveLobby(lobby)
     }
 }

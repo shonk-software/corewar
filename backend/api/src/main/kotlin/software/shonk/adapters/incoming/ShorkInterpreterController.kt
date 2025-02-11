@@ -9,16 +9,13 @@ import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
 import software.shonk.application.port.incoming.GetLobbySettingsQuery
-import software.shonk.application.port.incoming.SetLobbySettingsUseCase
 import software.shonk.application.port.incoming.ShorkUseCase
-import software.shonk.domain.InterpreterSettings
 
 const val UNKNOWN_ERROR_MESSAGE = "Unknown Error"
 
 fun Route.configureShorkInterpreterControllerV1() {
     val logger = LoggerFactory.getLogger("ShorkInterpreterControllerV1")
     val shorkUseCase by inject<ShorkUseCase>()
-    val setLobbySettingsUseCase by inject<SetLobbySettingsUseCase>()
     val getLobbySettingsQuery by inject<GetLobbySettingsQuery>()
 
     /**
@@ -195,21 +192,6 @@ fun Route.configureShorkInterpreterControllerV1() {
             )
         }
         return@get
-    }
-
-    post("/lobby/{lobbyId}/settings") {
-        val lobbyId =
-            call.parameters["lobbyId"]?.toLongOrNull()
-                ?: return@post call.respond(HttpStatusCode.BadRequest)
-
-        val incomingSettings = call.receive<InterpreterSettings>()
-        val newSettings = setLobbySettingsUseCase.setLobbySettings(lobbyId, incomingSettings)
-
-        newSettings.onFailure {
-            call.respond(HttpStatusCode.NotFound, it.message ?: UNKNOWN_ERROR_MESSAGE)
-        }
-
-        newSettings.onSuccess { call.respond(HttpStatusCode.OK, "Settings updated") }
     }
 }
 
