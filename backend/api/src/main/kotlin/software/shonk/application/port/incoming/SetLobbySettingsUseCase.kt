@@ -1,8 +1,8 @@
 package software.shonk.application.port.incoming
 
-import software.shonk.interpreter.Settings
+import software.shonk.domain.InterpreterSettings
 
 interface SetLobbySettingsUseCase {
 
-    fun setLobbySettings(lobbyId: Long, settings: Settings): Result<Unit>
+    fun setLobbySettings(lobbyId: Long, settings: InterpreterSettings): Result<Unit>
 }

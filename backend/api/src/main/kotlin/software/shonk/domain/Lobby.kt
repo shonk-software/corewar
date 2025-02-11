@@ -1,7 +1,6 @@
 package software.shonk.domain
 
 import software.shonk.interpreter.IShork
-import software.shonk.interpreter.Settings
 
 data class Lobby(
     val id: Long,
@@ -9,16 +8,16 @@ data class Lobby(
     val shork: IShork,
     var gameState: GameState = GameState.NOT_STARTED,
     var winner: Winner = Winner.DRAW,
-    var currentSettings: Settings = Settings(),
+    var currentSettings: InterpreterSettings = InterpreterSettings(),
     var joinedPlayers: MutableList<String> = mutableListOf(),
 ) {
     private var visualizationData = emptyList<RoundInformation>()
 
-    fun setSettings(settings: Settings) {
+    fun setSettings(settings: InterpreterSettings) {
         currentSettings = settings
     }
 
-    fun getSettings(): Settings {
+    fun getSettings(): InterpreterSettings {
         return currentSettings
     }
 
@@ -39,7 +38,7 @@ data class Lobby(
     }
 
     fun run() {
-        val result = shork.run(currentSettings, programs).getOrThrow()
+        val result = shork.run(currentSettings.toSettings(), programs).getOrThrow()
         visualizationData = result.roundInformation.map { it.toDomainRoundInformation() }
         val winningPlayer = result.outcome.player
         gameState = GameState.FINISHED

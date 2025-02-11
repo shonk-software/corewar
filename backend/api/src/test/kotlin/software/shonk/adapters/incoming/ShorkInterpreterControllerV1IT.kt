@@ -13,7 +13,6 @@ import software.shonk.basicModule
 import software.shonk.domain.CompileError
 import software.shonk.domain.InterpreterSettings
 import software.shonk.domain.LobbyStatus
-import software.shonk.interpreter.Settings
 import software.shonk.moduleApiV1
 
 // todo big split
@@ -797,7 +796,7 @@ class ShorkInterpreterControllerV1IT : AbstractControllerTest() {
                     .content
             val result = client.get("/api/v1/lobby/$lobbyId/settings")
             val parsedSettings = parseSettings(result)
-            val defaultSettings = Settings()
+            val defaultSettings = InterpreterSettings()
 
             assertEquals(HttpStatusCode.OK, result.status)
             assertTrue(

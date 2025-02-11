@@ -2,6 +2,7 @@ package software.shonk.application.service
 
 import io.mockk.spyk
 import kotlin.test.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import software.shonk.adapters.incoming.GetProgramFromPlayerInLobbyCommand
@@ -14,6 +15,8 @@ import software.shonk.interpreter.MockShork
 class GetProgramFromPlayerInLobbyServiceTest {
 
     lateinit var loadLobbyPort: LoadLobbyPort
+    // todo the stuff we do here with saveLobbyPort should be testhelpers that directly access the
+    // MemoryLobbyManager stuff or something similar
     lateinit var saveLobbyPort: SaveLobbyPort
     lateinit var getProgramFromPlayerInLobbyService: GetProgramFromPlayerInLobbyService
 
@@ -137,12 +140,11 @@ class GetProgramFromPlayerInLobbyServiceTest {
 
     @Test
     fun `get code from lobby with invalid lobby`() {
-        assertEquals(
-            "No lobby with that id",
-            getProgramFromPlayerInLobbyService
-                .getProgramFromPlayerInLobby(GetProgramFromPlayerInLobbyCommand(0L, "playerA"))
-                .exceptionOrNull()
-                ?.message,
-        )
+        val result =
+            getProgramFromPlayerInLobbyService.getProgramFromPlayerInLobby(
+                GetProgramFromPlayerInLobbyCommand(0L, "playerA")
+            )
+        assertFalse(result.isSuccess)
+        assertEquals("No lobby with that id", result.exceptionOrNull()?.message)
     }
 }

@@ -14,25 +14,6 @@ class ShorkService(
     private val deleteLobbyPort: DeleteLobbyPort,
 ) : ShorkUseCase {
 
-    override fun getLobbySettings(lobbyId: Long): Result<InterpreterSettings> {
-        return loadLobbyPort.getLobby(lobbyId).map { lobby ->
-            with(lobby.getSettings()) {
-                InterpreterSettings(
-                    coreSize = coreSize,
-                    instructionLimit = instructionLimit,
-                    initialInstruction = initialInstruction,
-                    maximumTicks = maximumTicks,
-                    maximumProcessesPerPlayer = maximumProcessesPerPlayer,
-                    readDistance = readDistance,
-                    writeDistance = writeDistance,
-                    minimumSeparation = minimumSeparation,
-                    separation = separation,
-                    randomSeparation = randomSeparation,
-                )
-            }
-        }
-    }
-
     override fun addProgramToLobby(lobbyId: Long, name: String?, program: String): Result<Unit> {
         val lobby =
             loadLobbyPort.getLobby(lobbyId).getOrElse {

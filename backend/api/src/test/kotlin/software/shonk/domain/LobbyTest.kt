@@ -13,7 +13,7 @@ class LobbyTest {
 
     @Test
     fun canSetSetting() {
-        val SOME_SETTINGS = Settings(69, 123, "NOP", 0)
+        val SOME_SETTINGS = InterpreterSettings(69, 123, "NOP", 0)
 
         val lobby = Lobby(id = 0, programs = HashMap(), shork = MockShork())
 

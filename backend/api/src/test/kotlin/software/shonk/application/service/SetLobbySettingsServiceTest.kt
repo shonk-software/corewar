@@ -10,9 +10,9 @@ import org.junit.jupiter.api.Test
 import software.shonk.adapters.outgoing.MemoryLobbyManager
 import software.shonk.application.port.outgoing.LoadLobbyPort
 import software.shonk.application.port.outgoing.SaveLobbyPort
+import software.shonk.domain.InterpreterSettings
 import software.shonk.domain.Lobby
 import software.shonk.interpreter.MockShork
-import software.shonk.interpreter.Settings
 
 class SetLobbySettingsServiceTest {
 
@@ -37,7 +37,7 @@ class SetLobbySettingsServiceTest {
         saveLobbyPort.saveLobby(
             Lobby(aLobbyId, hashMapOf(), MockShork(), joinedPlayers = mutableListOf("playerA"))
         )
-        val someSettings = Settings(69, 123, "NOP", 0)
+        val someSettings = InterpreterSettings(69, 123, "NOP", 0)
         // Clear recorded interactions, this is needed because the previous saveLobby call would in
         // combination with
         // the field being changed below suffices to fulfill the matcher!
@@ -53,7 +53,7 @@ class SetLobbySettingsServiceTest {
 
     @Test
     fun `set settings for invalid lobby`() {
-        val someSettings = Settings(69, 123, "NOP", 0)
+        val someSettings = InterpreterSettings(69, 123, "NOP", 0)
         val result = setLobbySettingsService.setLobbySettings(0, someSettings)
 
         assertFalse(result.isSuccess)

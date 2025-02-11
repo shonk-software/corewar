@@ -86,6 +86,7 @@ fun Application.koinModule() {
                 single<GetProgramFromPlayerInLobbyQuery> {
                     GetProgramFromPlayerInLobbyService(get())
                 }
+                single<GetLobbySettingsQuery> { GetLobbySettingsService(get()) }
                 single<GetCompilationErrorsQuery> { GetCompilationErrorsService() }
                 singleOf(::MemoryLobbyManager) {
                     bind<LoadLobbyPort>()

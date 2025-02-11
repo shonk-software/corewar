@@ -1,6 +1,5 @@
 package software.shonk.adapters.outgoing
 
-import kotlin.collections.remove
 import software.shonk.application.port.outgoing.DeleteLobbyPort
 import software.shonk.application.port.outgoing.LoadLobbyPort
 import software.shonk.application.port.outgoing.SaveLobbyPort

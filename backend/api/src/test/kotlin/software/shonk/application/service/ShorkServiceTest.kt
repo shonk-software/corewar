@@ -349,12 +349,6 @@ class ShorkServiceTest {
     */
 
     @Test
-    fun `test get lobby settings for an invalid lobby`() {
-        val result = shorkService.getLobbySettings(999L)
-        assertTrue(result.isFailure)
-    }
-
-    @Test
     fun `test verify joined players`() {
         val aLobbyId = 0L
         saveLobbyPort.saveLobby(
