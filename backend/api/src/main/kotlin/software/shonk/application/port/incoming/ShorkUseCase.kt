@@ -1,6 +1,5 @@
 package software.shonk.application.port.incoming
 
-import software.shonk.domain.CompileError
 import software.shonk.domain.InterpreterSettings
 import software.shonk.domain.LobbyStatus
 import software.shonk.domain.Status
@@ -18,8 +17,6 @@ interface ShorkUseCase {
     fun deleteLobby(lobbyId: Long): Result<Unit>
 
     fun getLobbyStatus(lobbyId: Long, includeRoundInformation: Boolean = true): Result<Status>
-
-    fun getCompilationErrors(code: String): List<CompileError>
 
     fun getAllLobbies(): Result<List<LobbyStatus>>
 }

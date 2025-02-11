@@ -19,12 +19,14 @@ import software.shonk.adapters.incoming.configureGetProgramFromPlayerInLobbyCont
 import software.shonk.adapters.incoming.configureShorkInterpreterControllerV1
 import software.shonk.adapters.outgoing.MemoryLobbyManager
 import software.shonk.application.port.incoming.CreateLobbyUseCase
+import software.shonk.application.port.incoming.GetCompilationErrorsQuery
 import software.shonk.application.port.incoming.GetProgramFromPlayerInLobbyQuery
 import software.shonk.application.port.incoming.ShorkUseCase
 import software.shonk.application.port.outgoing.DeleteLobbyPort
 import software.shonk.application.port.outgoing.LoadLobbyPort
 import software.shonk.application.port.outgoing.SaveLobbyPort
 import software.shonk.application.service.CreateLobbyService
+import software.shonk.application.service.GetCompilationErrorsService
 import software.shonk.application.service.GetProgramFromPlayerInLobbyService
 import software.shonk.application.service.ShorkService
 import software.shonk.interpreter.IShork
@@ -87,6 +89,7 @@ fun Application.koinModule() {
                 single<GetProgramFromPlayerInLobbyQuery> {
                     GetProgramFromPlayerInLobbyService(get())
                 }
+                single<GetCompilationErrorsQuery> { GetCompilationErrorsService() }
                 singleOf(::MemoryLobbyManager) {
                     bind<LoadLobbyPort>()
                     bind<SaveLobbyPort>()

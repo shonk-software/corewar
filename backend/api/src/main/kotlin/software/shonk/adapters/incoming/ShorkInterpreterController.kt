@@ -8,6 +8,7 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
+import software.shonk.application.port.incoming.GetCompilationErrorsQuery
 import software.shonk.application.port.incoming.ShorkUseCase
 import software.shonk.domain.InterpreterSettings
 import software.shonk.domain.toSettings
@@ -17,6 +18,7 @@ const val UNKNOWN_ERROR_MESSAGE = "Unknown Error"
 fun Route.configureShorkInterpreterControllerV1() {
     val logger = LoggerFactory.getLogger("ShorkInterpreterControllerV1")
     val shorkUseCase by inject<ShorkUseCase>()
+    val getCompilationErrorsQuery by inject<GetCompilationErrorsQuery>()
 
     /**
      * Path params:
@@ -186,7 +188,7 @@ fun Route.configureShorkInterpreterControllerV1() {
         @Serializable data class CompileErrorsRequest(val code: String)
 
         val compileErrorsRequest = call.receive<CompileErrorsRequest>()
-        val errors = shorkUseCase.getCompilationErrors(compileErrorsRequest.code)
+        val errors = getCompilationErrorsQuery.getCompilationErrors(compileErrorsRequest.code)
         call.respond(mapOf("errors" to errors))
     }
 
