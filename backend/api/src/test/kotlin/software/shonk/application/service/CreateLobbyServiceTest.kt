@@ -15,8 +15,10 @@ import software.shonk.interpreter.MockShork
 
 class CreateLobbyServiceTest {
 
-    lateinit var createLobbyService: CreateLobbyService
-    lateinit var saveLobbyPort: SaveLobbyPort
+    private lateinit var createLobbyService: CreateLobbyService
+    // todo the stuff we do here with saveLobbyPort should be testhelpers that directly access the
+    // MemoryLobbyManager stuff or something similar
+    private lateinit var saveLobbyPort: SaveLobbyPort
 
     // The in-memory lobby management also serves as a kind of mock here.
     @BeforeEach

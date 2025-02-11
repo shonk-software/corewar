@@ -12,14 +12,13 @@ import software.shonk.application.port.outgoing.LoadLobbyPort
 import software.shonk.application.port.outgoing.SaveLobbyPort
 import software.shonk.domain.*
 import software.shonk.interpreter.MockShork
-import software.shonk.interpreter.Settings
 
 class ShorkServiceTest {
 
-    lateinit var shorkService: ShorkService
-    lateinit var loadLobbyPort: LoadLobbyPort
-    lateinit var saveLobbyPort: SaveLobbyPort
-    lateinit var deleteLobbyPort: DeleteLobbyPort
+    private lateinit var shorkService: ShorkService
+    private lateinit var loadLobbyPort: LoadLobbyPort
+    private lateinit var saveLobbyPort: SaveLobbyPort
+    private lateinit var deleteLobbyPort: DeleteLobbyPort
 
     // The in-memory lobby management also serves as a kind of mock here.
     @BeforeEach
@@ -154,27 +153,6 @@ class ShorkServiceTest {
     @Test
     fun `add program to the lobby fails if lobby does not exist`() {
         val result = shorkService.addProgramToLobby(0L, "playerA", "someProgram")
-
-        assertEquals(true, result.isFailure)
-        assertEquals("No lobby with that id", result.exceptionOrNull()?.message)
-    }
-
-    @Test
-    fun `set settings for the lobby`() {
-        val aLobbyId = 0L
-        saveLobbyPort.saveLobby(
-            Lobby(aLobbyId, hashMapOf(), MockShork(), joinedPlayers = mutableListOf("playerA"))
-        )
-        val someSettings = Settings(69, 123, "NOP", 0)
-        shorkService.setLobbySettings(aLobbyId, someSettings)
-
-        assertEquals(someSettings, loadLobbyPort.getLobby(aLobbyId).getOrNull()?.getSettings())
-    }
-
-    @Test
-    fun `set settings for invalid lobby`() {
-        val someSettings = Settings(69, 123, "NOP", 0)
-        val result = shorkService.setLobbySettings(0, someSettings)
 
         assertEquals(true, result.isFailure)
         assertEquals("No lobby with that id", result.exceptionOrNull()?.message)
@@ -369,34 +347,6 @@ class ShorkServiceTest {
         assertTrue(result.visualizationData.isEmpty())
     }
     */
-
-    @Test
-    fun `test get lobby settings for a valid lobby`() {
-        val aLobbyId = 0L
-        saveLobbyPort.saveLobby(
-            Lobby(aLobbyId, hashMapOf(), MockShork(), joinedPlayers = mutableListOf("playerA"))
-        )
-        val defaultSettings = Settings()
-        shorkService.setLobbySettings(aLobbyId, defaultSettings)
-        val result = shorkService.getLobbySettings(aLobbyId)
-        val testSettings = result.getOrThrow()
-
-        assertTrue(
-            testSettings ==
-                InterpreterSettings(
-                    coreSize = defaultSettings.coreSize,
-                    instructionLimit = defaultSettings.instructionLimit,
-                    initialInstruction = defaultSettings.initialInstruction,
-                    maximumTicks = defaultSettings.maximumTicks,
-                    maximumProcessesPerPlayer = defaultSettings.maximumProcessesPerPlayer,
-                    readDistance = defaultSettings.readDistance,
-                    writeDistance = defaultSettings.writeDistance,
-                    minimumSeparation = defaultSettings.minimumSeparation,
-                    separation = defaultSettings.separation,
-                    randomSeparation = defaultSettings.randomSeparation,
-                )
-        )
-    }
 
     @Test
     fun `test get lobby settings for an invalid lobby`() {

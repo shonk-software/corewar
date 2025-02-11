@@ -3,12 +3,9 @@ package software.shonk.application.port.incoming
 import software.shonk.domain.InterpreterSettings
 import software.shonk.domain.LobbyStatus
 import software.shonk.domain.Status
-import software.shonk.interpreter.Settings
 
 interface ShorkUseCase {
     fun addProgramToLobby(lobbyId: Long, name: String?, program: String): Result<Unit>
-
-    fun setLobbySettings(lobbyId: Long, settings: Settings): Result<Unit>
 
     fun getLobbySettings(lobbyId: Long): Result<InterpreterSettings>
 

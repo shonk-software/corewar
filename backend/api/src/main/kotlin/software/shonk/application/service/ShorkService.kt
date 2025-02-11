@@ -5,7 +5,6 @@ import software.shonk.application.port.outgoing.DeleteLobbyPort
 import software.shonk.application.port.outgoing.LoadLobbyPort
 import software.shonk.application.port.outgoing.SaveLobbyPort
 import software.shonk.domain.*
-import software.shonk.interpreter.Settings
 
 const val NO_LOBBY_MESSAGE = "No lobby with that id"
 
@@ -14,16 +13,6 @@ class ShorkService(
     private val saveLobbyPort: SaveLobbyPort,
     private val deleteLobbyPort: DeleteLobbyPort,
 ) : ShorkUseCase {
-
-    override fun setLobbySettings(lobbyId: Long, settings: Settings): Result<Unit> {
-        val lobby =
-            loadLobbyPort.getLobby(lobbyId).getOrElse {
-                return Result.failure(it)
-            }
-
-        lobby.setSettings(settings)
-        return Result.success(Unit)
-    }
 
     override fun getLobbySettings(lobbyId: Long): Result<InterpreterSettings> {
         return loadLobbyPort.getLobby(lobbyId).map { lobby ->

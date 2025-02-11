@@ -79,4 +79,20 @@ class Settings(
             )
         )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Settings) return false
+
+        return other.coreSize == this.coreSize &&
+            other.instructionLimit == this.instructionLimit &&
+            other.initialInstruction == this.initialInstruction &&
+            other.maximumTicks == this.maximumTicks &&
+            other.maximumProcessesPerPlayer == this.maximumProcessesPerPlayer &&
+            other.readDistance == this.readDistance &&
+            other.writeDistance == this.writeDistance &&
+            other.minimumSeparation == this.minimumSeparation &&
+            other.separation == this.separation &&
+            other.randomSeparation == this.randomSeparation
+    }
 }
