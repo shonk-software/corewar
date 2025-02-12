@@ -80,7 +80,7 @@ fun Application.koinModule() {
         modules(
             module {
                 single<IShork> { Shork() }
-                single<ShorkUseCase> { ShorkService(get(), get(), get()) }
+                single<ShorkUseCase> { ShorkService(get(), get()) }
                 single<CreateLobbyUseCase> { CreateLobbyService(get(), get()) }
                 single<SetLobbySettingsUseCase> { SetLobbySettingsService(get(), get()) }
                 single<GetProgramFromPlayerInLobbyQuery> {

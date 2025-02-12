@@ -1,7 +1,6 @@
 package software.shonk.application.service
 
 import software.shonk.application.port.incoming.ShorkUseCase
-import software.shonk.application.port.outgoing.DeleteLobbyPort
 import software.shonk.application.port.outgoing.LoadLobbyPort
 import software.shonk.application.port.outgoing.SaveLobbyPort
 import software.shonk.domain.*
@@ -11,7 +10,6 @@ const val NO_LOBBY_MESSAGE = "No lobby with that id"
 class ShorkService(
     private val loadLobbyPort: LoadLobbyPort,
     private val saveLobbyPort: SaveLobbyPort,
-    private val deleteLobbyPort: DeleteLobbyPort,
 ) : ShorkUseCase {
 
     override fun addProgramToLobby(lobbyId: Long, name: String?, program: String): Result<Unit> {
@@ -83,10 +81,6 @@ class ShorkService(
             return Result.success(Unit)
         }
         return Result.failure(IllegalArgumentException("You have not joined a lobby!"))
-    }
-
-    override fun deleteLobby(lobbyId: Long): Result<Unit> {
-        return deleteLobbyPort.deleteLobby(lobbyId)
     }
 
     private fun verifyPlayerName(player: String?): Boolean {

@@ -1,7 +1,6 @@
 package software.shonk.application.service
 
 import io.mockk.spyk
-import io.mockk.verify
 import kotlin.test.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -27,7 +26,7 @@ class ShorkServiceTest {
         loadLobbyPort = lobbyManager
         saveLobbyPort = lobbyManager
         deleteLobbyPort = lobbyManager
-        shorkService = ShorkService(loadLobbyPort, saveLobbyPort, deleteLobbyPort)
+        shorkService = ShorkService(loadLobbyPort, saveLobbyPort)
     }
 
     @Test
@@ -128,18 +127,6 @@ class ShorkServiceTest {
 
         assertEquals(true, result.isFailure)
         assertEquals("Invalid player name", result.exceptionOrNull()?.message)
-    }
-
-    @Test
-    fun `delete lobby removes the lobby`() {
-        val aLobbyId = 0L
-        saveLobbyPort.saveLobby(
-            Lobby(aLobbyId, hashMapOf(), MockShork(), joinedPlayers = mutableListOf("playerA"))
-        )
-
-        shorkService.deleteLobby(aLobbyId)
-
-        verify(exactly = 1) { deleteLobbyPort.deleteLobby(any()) }
     }
 
     @Test

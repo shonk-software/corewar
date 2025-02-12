@@ -7,7 +7,5 @@ interface ShorkUseCase {
 
     fun joinLobby(lobbyId: Long, playerName: String): Result<Unit>
 
-    fun deleteLobby(lobbyId: Long): Result<Unit>
-
     fun getLobbyStatus(lobbyId: Long, includeRoundInformation: Boolean = true): Result<Status>
 }
