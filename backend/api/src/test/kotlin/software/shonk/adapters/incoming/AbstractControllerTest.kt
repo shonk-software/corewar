@@ -52,6 +52,7 @@ abstract class AbstractControllerTest() : KoinTest {
                 single<ShorkUseCase> { ShorkService(get(), get(), get()) }
                 single<GetLobbySettingsQuery> { GetLobbySettingsService(get()) }
                 single<GetCompilationErrorsQuery> { GetCompilationErrorsService() }
+                single<GetAllLobbiesQuery> { GetAllLobbiesService(get()) }
                 singleOf(::MemoryLobbyManager) {
                     bind<LoadLobbyPort>()
                     bind<SaveLobbyPort>()

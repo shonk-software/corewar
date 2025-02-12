@@ -71,11 +71,6 @@ class ShorkService(
         )
     }
 
-    // todo: why does this say lobby but returns lobby status?
-    override fun getAllLobbies(): Result<List<LobbyStatus>> {
-        return loadLobbyPort.getAllLobbies()
-    }
-
     // todo move to lobby domain object
     // todo introduce player object instead of stirng primitive
     // todo introduce lobby identifier DO instead of long

@@ -8,6 +8,7 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
+import software.shonk.application.port.incoming.GetAllLobbiesQuery
 import software.shonk.application.port.incoming.GetLobbySettingsQuery
 import software.shonk.application.port.incoming.ShorkUseCase
 
@@ -17,6 +18,7 @@ fun Route.configureShorkInterpreterControllerV1() {
     val logger = LoggerFactory.getLogger("ShorkInterpreterControllerV1")
     val shorkUseCase by inject<ShorkUseCase>()
     val getLobbySettingsQuery by inject<GetLobbySettingsQuery>()
+    val getAllLobbiesQuery by inject<GetAllLobbiesQuery>()
 
     /**
      * Path params:
@@ -163,7 +165,7 @@ fun Route.configureShorkInterpreterControllerV1() {
      */
     get("/lobby") {
         val lobbiesStatus =
-            shorkUseCase.getAllLobbies().getOrElse {
+            getAllLobbiesQuery.getAllLobbies().getOrElse {
                 call.respond(
                     HttpStatusCode.InternalServerError,
                     it.message ?: UNKNOWN_ERROR_MESSAGE,
