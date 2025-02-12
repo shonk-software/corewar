@@ -8,7 +8,6 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
-import software.shonk.application.port.incoming.JoinLobbyUseCase
 import software.shonk.application.port.incoming.ShorkUseCase
 
 const val UNKNOWN_ERROR_MESSAGE = "Unknown Error"
@@ -16,7 +15,6 @@ const val UNKNOWN_ERROR_MESSAGE = "Unknown Error"
 fun Route.configureShorkInterpreterControllerV1() {
     val logger = LoggerFactory.getLogger("ShorkInterpreterControllerV1")
     val shorkUseCase by inject<ShorkUseCase>()
-    val joinLobbyUseCase by inject<JoinLobbyUseCase>()
 
     /**
      * Path params:
@@ -74,46 +72,6 @@ fun Route.configureShorkInterpreterControllerV1() {
         }
         lobbyStatus.onSuccess { call.respond(HttpStatusCode.OK, it) }
         return@get
-    }
-
-    /**
-     * This endpoint is used to join an existing lobby with the desired playerName. The body must
-     * contain the desired playerName. If the player is already in the lobby, the join operation is
-     * aborted. Players who want to join must have a unique playerName. body: { "playername":
-     * String, }
-     *
-     * Response 200: No special response body, join was accepted.
-     *
-     * Response 404: The lobby you are trying to join doesn't exist.
-     *
-     * Response 409: Someone already joined as that player. The slot is locked and the join
-     * operation is aborted.
-     */
-    post("/lobby/{lobbyId}/join") {
-        val lobbyId =
-            call.parameters["lobbyId"]?.toLongOrNull()
-                ?: return@post call.respond(HttpStatusCode.BadRequest)
-
-        val checkLobbyExists = shorkUseCase.getLobbyStatus(lobbyId)
-
-        checkLobbyExists.onFailure {
-            logger.error("The lobby you are trying to join doesn't exist", it)
-            return@post call.respond(HttpStatusCode.NotFound)
-        }
-
-        @Serializable data class JoinLobbyBody(val playerName: String)
-
-        val joinLobbyBody = call.receive<JoinLobbyBody>()
-
-        val result = joinLobbyUseCase.joinLobby(lobbyId, joinLobbyBody.playerName)
-        result.onFailure {
-            logger.error(
-                "Someone already joined as that player. The slot is locked and the join operation is aborted",
-                it,
-            )
-            return@post call.respond(HttpStatusCode.Conflict, it.message ?: UNKNOWN_ERROR_MESSAGE)
-        }
-        result.onSuccess { call.respond(HttpStatusCode.OK, it) }
     }
 
     /**

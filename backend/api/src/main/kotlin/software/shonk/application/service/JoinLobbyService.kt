@@ -1,5 +1,6 @@
 package software.shonk.application.service
 
+import software.shonk.adapters.incoming.JoinLobbyCommand
 import software.shonk.application.port.incoming.JoinLobbyUseCase
 import software.shonk.application.port.outgoing.LoadLobbyPort
 import software.shonk.application.port.outgoing.SaveLobbyPort
@@ -8,15 +9,14 @@ class JoinLobbyService(
     private val loadLobbyPort: LoadLobbyPort,
     private val saveLobbyPort: SaveLobbyPort,
 ) : JoinLobbyUseCase {
-    override fun joinLobby(lobbyId: Long, playerName: String): Result<Unit> {
+    override fun joinLobby(joinLobbyCommand: JoinLobbyCommand): Result<Unit> {
         val lobby =
-            loadLobbyPort.getLobby(lobbyId).getOrElse {
+            loadLobbyPort.getLobby(joinLobbyCommand.lobbyId).getOrElse {
                 return Result.failure(it)
             }
 
-        // todo restore this
-        if (/*isAlphaNumerical(playerName)*/ true && !lobby.containsPlayer(playerName)) {
-            lobby.joinedPlayers.add(playerName)
+        if (!lobby.containsPlayer(joinLobbyCommand.playerName)) {
+            lobby.joinedPlayers.add(joinLobbyCommand.playerName)
             return saveLobbyPort.saveLobby(lobby)
         }
         return Result.failure(

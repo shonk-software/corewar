@@ -67,6 +67,7 @@ fun Application.moduleApiV1() {
             configureSetLobbySettingsControllerV1()
             configureGetLobbySettingsControllerV1()
             configureGetAllLobbiesControllerV1()
+            configureJoinLobbyControllerV1()
         }
     }
 }

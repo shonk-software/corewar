@@ -32,7 +32,7 @@ fun Route.configureSetLobbySettingsControllerV1() {
                 "Failed to set lobby settings, error on service layer after passing command!",
                 it,
             )
-            // todo change this to internal server error
+            // todo change this to internal server error or at least re-evaluate
             call.respond(HttpStatusCode.BadRequest, it.message ?: UNKNOWN_ERROR_MESSAGE)
         }
         newSettings.onSuccess { result ->

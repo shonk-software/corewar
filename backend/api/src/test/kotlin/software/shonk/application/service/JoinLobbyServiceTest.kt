@@ -4,6 +4,7 @@ import io.mockk.spyk
 import kotlin.test.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import software.shonk.adapters.incoming.JoinLobbyCommand
 import software.shonk.adapters.outgoing.MemoryLobbyManager
 import software.shonk.application.port.incoming.JoinLobbyUseCase
 import software.shonk.application.port.outgoing.LoadLobbyPort
@@ -32,7 +33,7 @@ class JoinLobbyServiceTest {
         saveLobbyPort.saveLobby(
             Lobby(aLobbyId, hashMapOf(), MockShork(), joinedPlayers = mutableListOf("playerA"))
         )
-        joinLobbyUseCase.joinLobby(aLobbyId, "playerB")
+        joinLobbyUseCase.joinLobby(JoinLobbyCommand(aLobbyId, "playerB"))
 
         assertEquals(
             true,
@@ -46,14 +47,14 @@ class JoinLobbyServiceTest {
         saveLobbyPort.saveLobby(
             Lobby(aLobbyId, hashMapOf(), MockShork(), joinedPlayers = mutableListOf("playerA"))
         )
-        joinLobbyUseCase.joinLobby(aLobbyId, "playerA")
+        joinLobbyUseCase.joinLobby(JoinLobbyCommand(aLobbyId, "playerA"))
 
         assertEquals(1, loadLobbyPort.getLobby(aLobbyId).getOrNull()?.joinedPlayers?.size)
     }
 
     @Test
     fun `join nonexistent lobby`() {
-        val result = joinLobbyUseCase.joinLobby(0L, "playerA")
+        val result = joinLobbyUseCase.joinLobby(JoinLobbyCommand(0L, "playerA"))
 
         assertEquals(result.isFailure, true)
     }
