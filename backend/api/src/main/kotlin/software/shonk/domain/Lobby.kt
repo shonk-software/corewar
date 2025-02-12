@@ -53,4 +53,8 @@ data class Lobby(
     fun containsPlayerAandB(): Boolean {
         return programs.containsKey("playerA") && programs.containsKey("playerB")
     }
+
+    fun containsPlayer(playerName: String): Boolean {
+        return joinedPlayers.contains(playerName)
+    }
 }

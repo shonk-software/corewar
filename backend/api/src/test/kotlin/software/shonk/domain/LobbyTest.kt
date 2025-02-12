@@ -6,6 +6,7 @@ import io.mockk.spyk
 import io.mockk.verify
 import kotlin.Result
 import kotlin.test.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import software.shonk.interpreter.*
 
@@ -112,5 +113,13 @@ class LobbyTest {
         lobby.addProgram("playerB", "someOtherProgram")
 
         verify(exactly = 1) { shork.run(any(), any()) }
+    }
+
+    @Test
+    fun `test verify joined players`() {
+        val lobby =
+            Lobby(0L, hashMapOf(), MockShork(), joinedPlayers = mutableListOf("playerA", "playerB"))
+        assertTrue(lobby.containsPlayer("playerA"))
+        assertTrue(lobby.containsPlayer("playerB"))
     }
 }

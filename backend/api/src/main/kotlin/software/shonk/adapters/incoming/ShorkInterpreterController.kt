@@ -8,6 +8,7 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
+import software.shonk.application.port.incoming.JoinLobbyUseCase
 import software.shonk.application.port.incoming.ShorkUseCase
 
 const val UNKNOWN_ERROR_MESSAGE = "Unknown Error"
@@ -15,6 +16,7 @@ const val UNKNOWN_ERROR_MESSAGE = "Unknown Error"
 fun Route.configureShorkInterpreterControllerV1() {
     val logger = LoggerFactory.getLogger("ShorkInterpreterControllerV1")
     val shorkUseCase by inject<ShorkUseCase>()
+    val joinLobbyUseCase by inject<JoinLobbyUseCase>()
 
     /**
      * Path params:
@@ -103,7 +105,7 @@ fun Route.configureShorkInterpreterControllerV1() {
 
         val joinLobbyBody = call.receive<JoinLobbyBody>()
 
-        val result = shorkUseCase.joinLobby(lobbyId, joinLobbyBody.playerName)
+        val result = joinLobbyUseCase.joinLobby(lobbyId, joinLobbyBody.playerName)
         result.onFailure {
             logger.error(
                 "Someone already joined as that player. The slot is locked and the join operation is aborted",

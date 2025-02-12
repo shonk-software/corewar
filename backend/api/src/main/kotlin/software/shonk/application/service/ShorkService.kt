@@ -27,7 +27,7 @@ class ShorkService(
             return Result.failure(IllegalArgumentException("Invalid player name"))
         }
 
-        if (playerIsInLobby(name.toString(), lobbyId).isFailure) {
+        if (!lobby.containsPlayer(name)) {
             return Result.failure(
                 IllegalStateException("You can't submit code to a lobby you have not joined!")
             )
@@ -49,38 +49,6 @@ class ShorkService(
         }
 
         return Result.success(status)
-    }
-
-    override fun joinLobby(lobbyId: Long, playerName: String): Result<Unit> {
-        val lobby =
-            loadLobbyPort.getLobby(lobbyId).getOrElse {
-                return Result.failure(it)
-            }
-
-        // todo restore this
-        if (
-            /*isAlphaNumerical(playerName)*/ true && playerIsInLobby(playerName, lobbyId).isFailure
-        ) {
-            lobby.joinedPlayers.add(playerName)
-            return saveLobbyPort.saveLobby(lobby)
-        }
-        return Result.failure(
-            IllegalArgumentException("Your player name is invalid OR Lobby doesn't exist")
-        )
-    }
-
-    // todo move to lobby domain object
-    // todo introduce player object instead of stirng primitive
-    // todo introduce lobby identifier DO instead of long
-    fun playerIsInLobby(playerName: String, lobbyId: Long): Result<Unit> {
-        val lobby =
-            loadLobbyPort.getLobby(lobbyId).getOrElse {
-                return Result.failure(it)
-            }
-        if (lobby.joinedPlayers.contains(playerName)) {
-            return Result.success(Unit)
-        }
-        return Result.failure(IllegalArgumentException("You have not joined a lobby!"))
     }
 
     private fun verifyPlayerName(player: String?): Boolean {

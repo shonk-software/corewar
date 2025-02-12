@@ -2,7 +2,6 @@ package software.shonk.application.service
 
 import io.mockk.spyk
 import kotlin.test.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import software.shonk.adapters.outgoing.MemoryLobbyManager
@@ -55,10 +54,14 @@ class ShorkServiceTest {
     fun `create lobby and playerB submits program`() {
         val lobbyId = 0L
         saveLobbyPort.saveLobby(
-            Lobby(lobbyId, hashMapOf(), MockShork(), joinedPlayers = mutableListOf("playerA"))
+            Lobby(
+                lobbyId,
+                hashMapOf(),
+                MockShork(),
+                joinedPlayers = mutableListOf("playerA", "playerB"),
+            )
         )
 
-        shorkService.joinLobby(lobbyId, "playerB")
         shorkService.addProgramToLobby(lobbyId, "playerB", "someProgram")
         val result = shorkService.getLobbyStatus(lobbyId).getOrThrow()
 
@@ -145,38 +148,6 @@ class ShorkServiceTest {
         assertEquals("No lobby with that id", result.exceptionOrNull()?.message)
     }
 
-    @Test
-    fun `join lobby with valid playerName`() {
-        val aLobbyId = 0L
-        saveLobbyPort.saveLobby(
-            Lobby(aLobbyId, hashMapOf(), MockShork(), joinedPlayers = mutableListOf("playerA"))
-        )
-        shorkService.joinLobby(aLobbyId, "playerB")
-
-        assertEquals(
-            true,
-            loadLobbyPort.getLobby(aLobbyId).getOrNull()?.joinedPlayers?.contains("playerB"),
-        )
-    }
-
-    @Test
-    fun `join lobby with duplicate (invalid) playerName`() {
-        val aLobbyId = 0L
-        saveLobbyPort.saveLobby(
-            Lobby(aLobbyId, hashMapOf(), MockShork(), joinedPlayers = mutableListOf("playerA"))
-        )
-        shorkService.joinLobby(aLobbyId, "playerA")
-
-        assertEquals(1, loadLobbyPort.getLobby(aLobbyId).getOrNull()?.joinedPlayers?.size)
-    }
-
-    @Test
-    fun `join nonexistent lobby`() {
-        val result = shorkService.joinLobby(0L, "playerA")
-
-        assertEquals(result.isFailure, true)
-    }
-
     // This is a DEFINITELY an integration test!!!
     /*
     @Test
@@ -216,17 +187,4 @@ class ShorkServiceTest {
         assertTrue(result.visualizationData.isEmpty())
     }
     */
-
-    @Test
-    fun `test verify joined players`() {
-        val aLobbyId = 0L
-        saveLobbyPort.saveLobby(
-            Lobby(aLobbyId, hashMapOf(), MockShork(), joinedPlayers = mutableListOf("playerA"))
-        )
-        val resultA = shorkService.playerIsInLobby("playerA", aLobbyId)
-        assertTrue(resultA.isSuccess)
-        shorkService.joinLobby(aLobbyId, "playerB")
-        val resultB = shorkService.playerIsInLobby("playerB", aLobbyId)
-        assertTrue(resultB.isSuccess)
-    }
 }

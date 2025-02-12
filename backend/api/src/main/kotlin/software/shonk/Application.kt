@@ -89,6 +89,7 @@ fun Application.koinModule() {
                 single<GetLobbySettingsQuery> { GetLobbySettingsService(get()) }
                 single<GetCompilationErrorsQuery> { GetCompilationErrorsService() }
                 single<GetAllLobbiesQuery> { GetAllLobbiesService(get()) }
+                single<JoinLobbyUseCase> { JoinLobbyService(get(), get()) }
                 singleOf(::MemoryLobbyManager) {
                     bind<LoadLobbyPort>()
                     bind<SaveLobbyPort>()
