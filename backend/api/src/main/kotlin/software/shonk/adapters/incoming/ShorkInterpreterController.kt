@@ -8,7 +8,6 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
-import software.shonk.application.port.incoming.GetAllLobbiesQuery
 import software.shonk.application.port.incoming.ShorkUseCase
 
 const val UNKNOWN_ERROR_MESSAGE = "Unknown Error"
@@ -16,7 +15,6 @@ const val UNKNOWN_ERROR_MESSAGE = "Unknown Error"
 fun Route.configureShorkInterpreterControllerV1() {
     val logger = LoggerFactory.getLogger("ShorkInterpreterControllerV1")
     val shorkUseCase by inject<ShorkUseCase>()
-    val getAllLobbiesQuery by inject<GetAllLobbiesQuery>()
 
     /**
      * Path params:
@@ -151,27 +149,6 @@ fun Route.configureShorkInterpreterControllerV1() {
         }
         result.onSuccess { call.respond(HttpStatusCode.OK) }
         return@post
-    }
-
-    /**
-     * Gets a list of all existing lobbies and their details. The playersJoined attribute contains a
-     * list of all playerNames that joined the lobby. Joined means joined, not code submitted!
-     *
-     * Response 200: The post operation was successful. response: <br> { "lobbies":
-     * [ { "id": number, "playersJoined": string, "gameState": One of [NOT_STARTED, RUNNING, FINISHED],
-     * }, ... ] }
-     */
-    get("/lobby") {
-        val lobbiesStatus =
-            getAllLobbiesQuery.getAllLobbies().getOrElse {
-                call.respond(
-                    HttpStatusCode.InternalServerError,
-                    it.message ?: UNKNOWN_ERROR_MESSAGE,
-                )
-                return@get
-            }
-        call.respond(HttpStatusCode.OK, mapOf("lobbies" to lobbiesStatus))
-        return@get
     }
 }
 

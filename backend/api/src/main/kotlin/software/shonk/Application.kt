@@ -66,6 +66,7 @@ fun Application.moduleApiV1() {
             configureGetCompilationErrorsControllerV1()
             configureSetLobbySettingsControllerV1()
             configureGetLobbySettingsControllerV1()
+            configureGetAllLobbiesControllerV1()
         }
     }
 }
