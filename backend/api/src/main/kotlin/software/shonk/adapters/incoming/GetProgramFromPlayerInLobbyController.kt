@@ -43,6 +43,7 @@ fun Route.configureGetProgramFromPlayerInLobbyControllerV1() {
                 "Failed to get program from player, error on service layer after passing command!",
                 it,
             )
+            // todo change to 500 (or at least check if it makes sense, prob not...) just evaluate!
             call.respond(HttpStatusCode.BadRequest, it.message ?: UNKNOWN_ERROR_MESSAGE)
         }
 

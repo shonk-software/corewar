@@ -7,6 +7,7 @@ import kotlin.test.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import software.shonk.adapters.incoming.GetLobbySettingsCommand
 import software.shonk.adapters.outgoing.MemoryLobbyManager
 import software.shonk.application.port.incoming.GetLobbySettingsQuery
 import software.shonk.application.port.outgoing.LoadLobbyPort
@@ -43,14 +44,14 @@ class GetLobbySettingsServiceTest {
         clearMocks(saveLobbyPort)
         assertEquals<InterpreterSettings?>(
             someSettings,
-            getLobbySettingsQuery.getLobbySettings(aLobbyId).getOrNull(),
+            getLobbySettingsQuery.getLobbySettings(GetLobbySettingsCommand(aLobbyId)).getOrNull(),
         )
         verify(exactly = 1) { loadLobbyPort.getLobby(aLobbyId) }
     }
 
     @Test
     fun `test get lobby settings for an invalid lobby`() {
-        val result = getLobbySettingsQuery.getLobbySettings(999L)
+        val result = getLobbySettingsQuery.getLobbySettings(GetLobbySettingsCommand(999L))
         assertFalse(result.isSuccess)
         assertEquals("No lobby with that id", result.exceptionOrNull()?.message)
     }

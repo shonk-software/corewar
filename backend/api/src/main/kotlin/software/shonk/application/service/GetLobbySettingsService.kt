@@ -1,13 +1,16 @@
 package software.shonk.application.service
 
+import software.shonk.adapters.incoming.GetLobbySettingsCommand
 import software.shonk.application.port.incoming.GetLobbySettingsQuery
 import software.shonk.application.port.outgoing.LoadLobbyPort
 import software.shonk.domain.InterpreterSettings
 
 class GetLobbySettingsService(private val loadLobbyPort: LoadLobbyPort) : GetLobbySettingsQuery {
 
-    override fun getLobbySettings(lobbyId: Long): Result<InterpreterSettings> {
-        return loadLobbyPort.getLobby(lobbyId).map { lobby ->
+    override fun getLobbySettings(
+        getLobbySettingsCommand: GetLobbySettingsCommand
+    ): Result<InterpreterSettings> {
+        return loadLobbyPort.getLobby(getLobbySettingsCommand.lobbyId).map { lobby ->
             with(lobby.getSettings()) {
                 InterpreterSettings(
                     coreSize = coreSize,
