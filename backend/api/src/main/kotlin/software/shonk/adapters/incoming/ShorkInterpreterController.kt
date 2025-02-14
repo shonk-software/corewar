@@ -9,6 +9,7 @@ import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
 import software.shonk.application.port.incoming.ShorkUseCase
+import software.shonk.domain.Player
 
 const val UNKNOWN_ERROR_MESSAGE = "Unknown Error"
 
@@ -98,17 +99,30 @@ fun Route.configureShorkInterpreterControllerV1() {
         val playerName = call.parameters["player"]
         val submitCodeRequest = call.receive<SubmitCodeRequest>()
 
-        if (shorkUseCase.getLobbyStatus(lobbyId).isFailure) {
+        if (shorkUseCase.getLobbyStatus(lobbyId).isFailure || playerName == null) {
             return@post call.respond(HttpStatusCode.NotFound)
         }
 
-        val result = shorkUseCase.addProgramToLobby(lobbyId, playerName, submitCodeRequest.code)
+        val result =
+            kotlin
+                .runCatching { Player(playerName) }
+                .mapCatching { shorkUseCase.addProgramToLobby(lobbyId, it, submitCodeRequest.code) }
 
         result.onFailure {
-            call.respond(HttpStatusCode.Forbidden, it.message ?: UNKNOWN_ERROR_MESSAGE)
+            logger.error(
+                "Failed to add program to lobby, error on service layer after passing command!",
+                it,
+            )
+            // todo change this to internal server error or at least re-evaluate
+            call.respond(HttpStatusCode.BadRequest, it.message ?: UNKNOWN_ERROR_MESSAGE)
         }
-        result.onSuccess { call.respond(HttpStatusCode.OK) }
-        return@post
+
+        result.onSuccess { wrappedResult ->
+            wrappedResult.onFailure {
+                call.respond(HttpStatusCode.Forbidden, it.message ?: UNKNOWN_ERROR_MESSAGE)
+            }
+            wrappedResult.onSuccess { call.respond(HttpStatusCode.OK) }
+        }
     }
 }
 

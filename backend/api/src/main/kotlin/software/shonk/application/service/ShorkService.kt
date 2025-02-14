@@ -12,7 +12,7 @@ class ShorkService(
     private val saveLobbyPort: SaveLobbyPort,
 ) : ShorkUseCase {
 
-    override fun addProgramToLobby(lobbyId: Long, name: String?, program: String): Result<Unit> {
+    override fun addProgramToLobby(lobbyId: Long, player: Player, program: String): Result<Unit> {
         val lobby =
             loadLobbyPort.getLobby(lobbyId).getOrElse {
                 return Result.failure(it)
@@ -23,17 +23,13 @@ class ShorkService(
             )
         }
 
-        if (name == null || !verifyPlayerName(name)) {
-            return Result.failure(IllegalArgumentException("Invalid player name"))
-        }
-
-        if (!lobby.containsPlayer(name)) {
+        if (!lobby.containsPlayer(player.name)) {
             return Result.failure(
                 IllegalStateException("You can't submit code to a lobby you have not joined!")
             )
         }
 
-        lobby.addProgram(name, program)
+        lobby.addProgram(player.name, program)
         return saveLobbyPort.saveLobby(lobby)
     }
 
@@ -49,9 +45,5 @@ class ShorkService(
         }
 
         return Result.success(status)
-    }
-
-    private fun verifyPlayerName(player: String?): Boolean {
-        return player == "playerA" || player == "playerB"
     }
 }

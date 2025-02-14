@@ -35,7 +35,7 @@ class ShorkServiceTest {
             Lobby(lobbyId, hashMapOf(), MockShork(), joinedPlayers = mutableListOf("playerA"))
         )
 
-        shorkService.addProgramToLobby(lobbyId, "playerA", "someProgram")
+        shorkService.addProgramToLobby(lobbyId, Player("playerA"), "someProgram")
         val result = shorkService.getLobbyStatus(lobbyId).getOrThrow()
 
         assertEquals(
@@ -62,7 +62,7 @@ class ShorkServiceTest {
             )
         )
 
-        shorkService.addProgramToLobby(lobbyId, "playerB", "someProgram")
+        shorkService.addProgramToLobby(lobbyId, Player("playerB"), "someProgram")
         val result = shorkService.getLobbyStatus(lobbyId).getOrThrow()
 
         assertEquals(
@@ -94,7 +94,7 @@ class ShorkServiceTest {
             )
         )
 
-        shorkService.addProgramToLobby(aLobbyId, "playerA", "someProgram")
+        shorkService.addProgramToLobby(aLobbyId, Player("playerA"), "someProgram")
         val result0 = shorkService.getLobbyStatus(aLobbyId).getOrThrow()
         assertEquals(
             result0,
@@ -121,18 +121,6 @@ class ShorkServiceTest {
     }
 
     @Test
-    fun `add code with playerName null`() {
-        val aLobbyId = 0L
-        saveLobbyPort.saveLobby(
-            Lobby(aLobbyId, hashMapOf(), MockShork(), joinedPlayers = mutableListOf("playerA"))
-        )
-        val result = shorkService.addProgramToLobby(aLobbyId, null, "someProgram")
-
-        assertEquals(true, result.isFailure)
-        assertEquals("Invalid player name", result.exceptionOrNull()?.message)
-    }
-
-    @Test
     fun `get status for the lobby fails if lobby does not exist`() {
         val result = shorkService.getLobbyStatus(0L)
 
@@ -142,7 +130,7 @@ class ShorkServiceTest {
 
     @Test
     fun `add program to the lobby fails if lobby does not exist`() {
-        val result = shorkService.addProgramToLobby(0L, "playerA", "someProgram")
+        val result = shorkService.addProgramToLobby(0L, Player("playerA"), "someProgram")
 
         assertEquals(true, result.isFailure)
         assertEquals("No lobby with that id", result.exceptionOrNull()?.message)
