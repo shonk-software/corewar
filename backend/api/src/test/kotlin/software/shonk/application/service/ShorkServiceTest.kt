@@ -36,7 +36,7 @@ class ShorkServiceTest {
         )
 
         shorkService.addProgramToLobby(lobbyId, Player("playerA"), "someProgram")
-        val result = shorkService.getLobbyStatus(lobbyId).getOrThrow()
+        val result = loadLobbyPort.getLobby(lobbyId).getOrThrow().getStatus()
 
         assertEquals(
             Status(
@@ -63,7 +63,7 @@ class ShorkServiceTest {
         )
 
         shorkService.addProgramToLobby(lobbyId, Player("playerB"), "someProgram")
-        val result = shorkService.getLobbyStatus(lobbyId).getOrThrow()
+        val result = loadLobbyPort.getLobby(lobbyId).getOrThrow().getStatus()
 
         assertEquals(
             Status(
@@ -95,7 +95,7 @@ class ShorkServiceTest {
         )
 
         shorkService.addProgramToLobby(aLobbyId, Player("playerA"), "someProgram")
-        val result0 = shorkService.getLobbyStatus(aLobbyId).getOrThrow()
+        val result0 = loadLobbyPort.getLobby(aLobbyId).getOrThrow().getStatus()
         assertEquals(
             result0,
             Status(
@@ -107,7 +107,7 @@ class ShorkServiceTest {
             ),
         )
 
-        val result1 = shorkService.getLobbyStatus(anotherLobbyId).getOrThrow()
+        val result1 = loadLobbyPort.getLobby(anotherLobbyId).getOrThrow().getStatus()
         assertEquals(
             result1,
             Status(
@@ -118,14 +118,6 @@ class ShorkServiceTest {
                 visualizationData = result1.visualizationData,
             ),
         )
-    }
-
-    @Test
-    fun `get status for the lobby fails if lobby does not exist`() {
-        val result = shorkService.getLobbyStatus(0L)
-
-        assertEquals(true, result.isFailure)
-        assertEquals("No lobby with that id", result.exceptionOrNull()?.message)
     }
 
     @Test

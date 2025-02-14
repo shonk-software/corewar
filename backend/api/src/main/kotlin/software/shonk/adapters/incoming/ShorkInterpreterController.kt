@@ -8,6 +8,7 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
+import software.shonk.application.port.incoming.GetLobbyStatusQuery
 import software.shonk.application.port.incoming.ShorkUseCase
 import software.shonk.domain.Player
 
@@ -16,6 +17,7 @@ const val UNKNOWN_ERROR_MESSAGE = "Unknown Error"
 fun Route.configureShorkInterpreterControllerV1() {
     val logger = LoggerFactory.getLogger("ShorkInterpreterControllerV1")
     val shorkUseCase by inject<ShorkUseCase>()
+    val getLobbyStatusQuery by inject<GetLobbyStatusQuery>()
 
     /**
      * Path params:
@@ -66,7 +68,7 @@ fun Route.configureShorkInterpreterControllerV1() {
         val showVisualizationData =
             call.request.queryParameters["showVisualizationData"]?.toBoolean() ?: true
 
-        val lobbyStatus = shorkUseCase.getLobbyStatus(lobbyId, showVisualizationData)
+        val lobbyStatus = getLobbyStatusQuery.getLobbyStatus(lobbyId, showVisualizationData)
         lobbyStatus.onFailure {
             logger.error("No lobby with that id exists.")
             return@get call.respond(HttpStatusCode.NotFound, it.message ?: UNKNOWN_ERROR_MESSAGE)
@@ -99,7 +101,7 @@ fun Route.configureShorkInterpreterControllerV1() {
         val playerName = call.parameters["player"]
         val submitCodeRequest = call.receive<SubmitCodeRequest>()
 
-        if (shorkUseCase.getLobbyStatus(lobbyId).isFailure || playerName == null) {
+        if (getLobbyStatusQuery.getLobbyStatus(lobbyId).isFailure || playerName == null) {
             return@post call.respond(HttpStatusCode.NotFound)
         }
 

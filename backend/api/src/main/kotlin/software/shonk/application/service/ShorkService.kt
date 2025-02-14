@@ -32,18 +32,4 @@ class ShorkService(
         lobby.addProgram(player.name, program)
         return saveLobbyPort.saveLobby(lobby)
     }
-
-    override fun getLobbyStatus(lobbyId: Long, includeRoundInformation: Boolean): Result<Status> {
-        val lobby =
-            loadLobbyPort.getLobby(lobbyId).getOrElse {
-                return Result.failure(it)
-            }
-
-        val status = lobby.getStatus()
-        if (!includeRoundInformation) {
-            status.visualizationData = emptyList()
-        }
-
-        return Result.success(status)
-    }
 }

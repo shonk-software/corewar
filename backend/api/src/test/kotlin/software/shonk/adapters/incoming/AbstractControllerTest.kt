@@ -54,6 +54,7 @@ abstract class AbstractControllerTest() : KoinTest {
                 single<GetLobbySettingsQuery> { GetLobbySettingsService(get()) }
                 single<GetCompilationErrorsQuery> { GetCompilationErrorsService() }
                 single<GetAllLobbiesQuery> { GetAllLobbiesService(get()) }
+                single<GetLobbyStatusQuery> { GetLobbyStatusService(get()) }
                 singleOf(::MemoryLobbyManager) {
                     bind<LoadLobbyPort>()
                     bind<SaveLobbyPort>()

@@ -8,13 +8,13 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
+import software.shonk.application.port.incoming.GetLobbyStatusQuery
 import software.shonk.application.port.incoming.JoinLobbyUseCase
-import software.shonk.application.port.incoming.ShorkUseCase
 
 fun Route.configureJoinLobbyControllerV1() {
 
     val logger = LoggerFactory.getLogger("JoinLobbyControllerV1")
-    val shorkUseCase by inject<ShorkUseCase>()
+    val getLobbyStatusQuery by inject<GetLobbyStatusQuery>()
     val joinLobbyUseCase by inject<JoinLobbyUseCase>()
 
     /**
@@ -36,7 +36,7 @@ fun Route.configureJoinLobbyControllerV1() {
                 ?: return@post call.respond(HttpStatusCode.BadRequest)
 
         // todo this should be in the service
-        val checkLobbyExists = shorkUseCase.getLobbyStatus(lobbyId)
+        val checkLobbyExists = getLobbyStatusQuery.getLobbyStatus(lobbyId)
 
         checkLobbyExists.onFailure {
             logger.error("The lobby you are trying to join doesn't exist", it)
