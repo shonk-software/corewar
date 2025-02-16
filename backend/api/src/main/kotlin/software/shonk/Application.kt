@@ -14,15 +14,38 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import org.koin.ktor.plugin.koin
-import software.shonk.adapters.incoming.*
-import software.shonk.adapters.outgoing.MemoryLobbyManager
-import software.shonk.application.port.incoming.*
-import software.shonk.application.port.outgoing.DeleteLobbyPort
-import software.shonk.application.port.outgoing.LoadLobbyPort
-import software.shonk.application.port.outgoing.SaveLobbyPort
-import software.shonk.application.service.*
 import software.shonk.interpreter.IShork
 import software.shonk.interpreter.Shork
+import software.shonk.interpreter.adapters.incoming.configureGetCompilationErrorsControllerV1
+import software.shonk.interpreter.adapters.incoming.configureShorkInterpreterControllerV1
+import software.shonk.interpreter.application.port.incoming.GetCompilationErrorsQuery
+import software.shonk.interpreter.application.service.GetCompilationErrorsService
+import software.shonk.lobby.adapters.incoming.configureCreateLobbyControllerV1
+import software.shonk.lobby.adapters.incoming.configureGetAllLobbiesControllerV1
+import software.shonk.lobby.adapters.incoming.configureGetLobbySettingsControllerV1
+import software.shonk.lobby.adapters.incoming.configureGetProgramFromPlayerInLobbyControllerV1
+import software.shonk.lobby.adapters.incoming.configureJoinLobbyControllerV1
+import software.shonk.lobby.adapters.incoming.configureSetLobbySettingsControllerV1
+import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
+import software.shonk.lobby.application.port.incoming.AddProgramToLobbyUseCase
+import software.shonk.lobby.application.port.incoming.CreateLobbyUseCase
+import software.shonk.lobby.application.port.incoming.GetAllLobbiesQuery
+import software.shonk.lobby.application.port.incoming.GetLobbySettingsQuery
+import software.shonk.lobby.application.port.incoming.GetLobbyStatusQuery
+import software.shonk.lobby.application.port.incoming.GetProgramFromPlayerInLobbyQuery
+import software.shonk.lobby.application.port.incoming.JoinLobbyUseCase
+import software.shonk.lobby.application.port.incoming.SetLobbySettingsUseCase
+import software.shonk.lobby.application.port.outgoing.DeleteLobbyPort
+import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
+import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
+import software.shonk.lobby.application.service.AddProgramToLobbyService
+import software.shonk.lobby.application.service.CreateLobbyService
+import software.shonk.lobby.application.service.GetAllLobbiesService
+import software.shonk.lobby.application.service.GetLobbySettingsService
+import software.shonk.lobby.application.service.GetLobbyStatusService
+import software.shonk.lobby.application.service.GetProgramFromPlayerInLobbyService
+import software.shonk.lobby.application.service.JoinLobbyService
+import software.shonk.lobby.application.service.SetLobbySettingsService
 
 fun main() {
     embeddedServer(Netty, port = 8080) {
