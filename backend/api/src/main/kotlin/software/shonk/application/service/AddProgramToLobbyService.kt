@@ -1,16 +1,15 @@
 package software.shonk.application.service
 
-import software.shonk.application.port.incoming.ShorkUseCase
+import software.shonk.application.port.incoming.AddProgramToLobbyUseCase
 import software.shonk.application.port.outgoing.LoadLobbyPort
 import software.shonk.application.port.outgoing.SaveLobbyPort
-import software.shonk.domain.*
+import software.shonk.domain.GameState
+import software.shonk.domain.Player
 
-const val NO_LOBBY_MESSAGE = "No lobby with that id"
-
-class ShorkService(
+class AddProgramToLobbyService(
     private val loadLobbyPort: LoadLobbyPort,
     private val saveLobbyPort: SaveLobbyPort,
-) : ShorkUseCase {
+) : AddProgramToLobbyUseCase {
 
     override fun addProgramToLobby(lobbyId: Long, player: Player, program: String): Result<Unit> {
         val lobby =

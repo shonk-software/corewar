@@ -8,6 +8,7 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
+import software.shonk.application.port.incoming.AddProgramToLobbyUseCase
 import software.shonk.application.port.incoming.GetLobbyStatusQuery
 import software.shonk.application.port.incoming.ShorkUseCase
 import software.shonk.domain.Player
@@ -18,6 +19,7 @@ fun Route.configureShorkInterpreterControllerV1() {
     val logger = LoggerFactory.getLogger("ShorkInterpreterControllerV1")
     val shorkUseCase by inject<ShorkUseCase>()
     val getLobbyStatusQuery by inject<GetLobbyStatusQuery>()
+    val addProgramToLobbyUseCase by inject<AddProgramToLobbyUseCase>()
 
     /**
      * Path params:
@@ -108,7 +110,9 @@ fun Route.configureShorkInterpreterControllerV1() {
         val result =
             kotlin
                 .runCatching { Player(playerName) }
-                .mapCatching { shorkUseCase.addProgramToLobby(lobbyId, it, submitCodeRequest.code) }
+                .mapCatching {
+                    addProgramToLobbyUseCase.addProgramToLobby(lobbyId, it, submitCodeRequest.code)
+                }
 
         result.onFailure {
             logger.error(

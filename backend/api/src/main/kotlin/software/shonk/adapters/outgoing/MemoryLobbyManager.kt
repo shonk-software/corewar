@@ -3,9 +3,10 @@ package software.shonk.adapters.outgoing
 import software.shonk.application.port.outgoing.DeleteLobbyPort
 import software.shonk.application.port.outgoing.LoadLobbyPort
 import software.shonk.application.port.outgoing.SaveLobbyPort
-import software.shonk.application.service.NO_LOBBY_MESSAGE
 import software.shonk.domain.Lobby
 import software.shonk.domain.LobbyStatus
+
+const val NO_LOBBY_MESSAGE = "No lobby with that id"
 
 class MemoryLobbyManager : LoadLobbyPort, SaveLobbyPort, DeleteLobbyPort {
 

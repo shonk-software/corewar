@@ -49,7 +49,7 @@ abstract class AbstractControllerTest() : KoinTest {
                 single<GetProgramFromPlayerInLobbyQuery> {
                     GetProgramFromPlayerInLobbyService(get())
                 }
-                single<ShorkUseCase> { ShorkService(get(), get()) }
+                single<AddProgramToLobbyUseCase> { AddProgramToLobbyService(get(), get()) }
                 single<JoinLobbyUseCase> { JoinLobbyService(get(), get()) }
                 single<GetLobbySettingsQuery> { GetLobbySettingsService(get()) }
                 single<GetCompilationErrorsQuery> { GetCompilationErrorsService() }

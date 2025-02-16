@@ -81,7 +81,6 @@ fun Application.koinModule() {
         modules(
             module {
                 single<IShork> { Shork() }
-                single<ShorkUseCase> { ShorkService(get(), get()) }
                 single<CreateLobbyUseCase> { CreateLobbyService(get(), get()) }
                 single<SetLobbySettingsUseCase> { SetLobbySettingsService(get(), get()) }
                 single<GetProgramFromPlayerInLobbyQuery> {
@@ -92,6 +91,7 @@ fun Application.koinModule() {
                 single<GetAllLobbiesQuery> { GetAllLobbiesService(get()) }
                 single<JoinLobbyUseCase> { JoinLobbyService(get(), get()) }
                 single<GetLobbyStatusQuery> { GetLobbyStatusService(get()) }
+                single<AddProgramToLobbyUseCase> { AddProgramToLobbyService(get(), get()) }
                 singleOf(::MemoryLobbyManager) {
                     bind<LoadLobbyPort>()
                     bind<SaveLobbyPort>()
