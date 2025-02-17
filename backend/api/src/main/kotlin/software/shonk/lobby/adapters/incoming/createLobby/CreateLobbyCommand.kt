@@ -1,4 +1,4 @@
-package software.shonk.lobby.adapters.incoming
+package software.shonk.lobby.adapters.incoming.createLobby
 
 data class CreateLobbyCommand(val playerName: String) {
     init {

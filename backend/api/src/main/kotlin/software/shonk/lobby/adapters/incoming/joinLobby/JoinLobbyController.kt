@@ -1,4 +1,4 @@
-package software.shonk.lobby.adapters.incoming
+package software.shonk.lobby.adapters.incoming.joinLobby
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -8,7 +8,8 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
-import software.shonk.interpreter.adapters.incoming.UNKNOWN_ERROR_MESSAGE
+import software.shonk.lobby.adapters.incoming.UNKNOWN_ERROR_MESSAGE
+import software.shonk.lobby.adapters.incoming.getLobbyStatus.GetLobbyStatusCommand
 import software.shonk.lobby.application.port.incoming.GetLobbyStatusQuery
 import software.shonk.lobby.application.port.incoming.JoinLobbyUseCase
 
@@ -37,7 +38,8 @@ fun Route.configureJoinLobbyControllerV1() {
                 ?: return@post call.respond(HttpStatusCode.BadRequest)
 
         // todo this should be in the service
-        val checkLobbyExists = getLobbyStatusQuery.getLobbyStatus(lobbyId)
+        // and in this constellation it can throw
+        val checkLobbyExists = getLobbyStatusQuery.getLobbyStatus(GetLobbyStatusCommand(lobbyId, false))
 
         checkLobbyExists.onFailure {
             logger.error("The lobby you are trying to join doesn't exist", it)

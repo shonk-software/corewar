@@ -1,4 +1,4 @@
-package software.shonk.lobby.adapters.incoming
+package software.shonk.lobby.adapters.incoming.getLobbySettings
 
 data class GetLobbySettingsCommand(val lobbyId: Long) {
     init {

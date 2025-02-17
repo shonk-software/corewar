@@ -1,4 +1,4 @@
-package software.shonk.lobby.adapters.incoming
+package software.shonk.lobby.adapters.incoming.setLobbySettings
 
 import software.shonk.lobby.domain.InterpreterSettings
 

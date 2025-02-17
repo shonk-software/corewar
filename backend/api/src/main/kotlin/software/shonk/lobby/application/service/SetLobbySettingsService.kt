@@ -1,6 +1,6 @@
 package software.shonk.lobby.application.service
 
-import software.shonk.lobby.adapters.incoming.SetLobbySettingsCommand
+import software.shonk.lobby.adapters.incoming.setLobbySettings.SetLobbySettingsCommand
 import software.shonk.lobby.application.port.incoming.SetLobbySettingsUseCase
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort

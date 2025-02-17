@@ -1,6 +1,5 @@
 package software.shonk.lobby.application.service
 
-import software.shonk.domain.*
 
 class ShorkServiceTest {
 

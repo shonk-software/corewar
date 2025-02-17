@@ -6,6 +6,7 @@ import kotlin.test.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import software.shonk.interpreter.MockShork
+import software.shonk.lobby.adapters.incoming.getLobbyStatus.GetLobbyStatusCommand
 import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.incoming.GetLobbyStatusQuery
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
@@ -29,7 +30,7 @@ class GetLobbyStatusServiceTest {
 
     @Test
     fun `get status for the lobby fails if lobby does not exist`() {
-        val result = getLobbyStatusQuery.getLobbyStatus(0L)
+        val result = getLobbyStatusQuery.getLobbyStatus(GetLobbyStatusCommand(0L, false))
 
         assertEquals(true, result.isFailure)
         assertEquals("No lobby with that id", result.exceptionOrNull()?.message)
@@ -50,7 +51,7 @@ class GetLobbyStatusServiceTest {
         saveLobbyPort.saveLobby(lobby)
 
         // When...
-        val result = getLobbyStatusQuery.getLobbyStatus(lobbyId).getOrThrow()
+        val result = getLobbyStatusQuery.getLobbyStatus(GetLobbyStatusCommand(lobbyId, true)).getOrThrow()
 
         // Then...
         assertTrue(result.visualizationData.isNotEmpty())
@@ -73,7 +74,7 @@ class GetLobbyStatusServiceTest {
         // When...
         val result =
             getLobbyStatusQuery
-                .getLobbyStatus(lobbyId, includeRoundInformation = false)
+                .getLobbyStatus(GetLobbyStatusCommand(lobbyId, false))
                 .getOrThrow()
 
         // Then...

@@ -1,7 +1,7 @@
 package software.shonk.lobby.application.service
 
 import kotlin.collections.get
-import software.shonk.lobby.adapters.incoming.GetProgramFromPlayerInLobbyCommand
+import software.shonk.lobby.adapters.incoming.getProgramFromPlayerInLobby.GetProgramFromPlayerInLobbyCommand
 import software.shonk.lobby.application.port.incoming.GetProgramFromPlayerInLobbyQuery
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 

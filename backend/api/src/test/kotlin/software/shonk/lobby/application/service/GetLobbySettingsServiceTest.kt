@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import software.shonk.interpreter.MockShork
-import software.shonk.lobby.adapters.incoming.GetLobbySettingsCommand
+import software.shonk.lobby.adapters.incoming.getLobbySettings.GetLobbySettingsCommand
 import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.incoming.GetLobbySettingsQuery
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort

@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import software.shonk.interpreter.MockShork
-import software.shonk.lobby.adapters.incoming.JoinLobbyCommand
+import software.shonk.lobby.adapters.incoming.joinLobby.JoinLobbyCommand
 import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.incoming.JoinLobbyUseCase
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort

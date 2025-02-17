@@ -17,15 +17,16 @@ import org.koin.ktor.plugin.koin
 import software.shonk.interpreter.IShork
 import software.shonk.interpreter.Shork
 import software.shonk.interpreter.adapters.incoming.configureGetCompilationErrorsControllerV1
-import software.shonk.interpreter.adapters.incoming.configureShorkInterpreterControllerV1
+import software.shonk.lobby.adapters.incoming.configureShorkInterpreterControllerV1
 import software.shonk.interpreter.application.port.incoming.GetCompilationErrorsQuery
 import software.shonk.interpreter.application.service.GetCompilationErrorsService
-import software.shonk.lobby.adapters.incoming.configureCreateLobbyControllerV1
-import software.shonk.lobby.adapters.incoming.configureGetAllLobbiesControllerV1
-import software.shonk.lobby.adapters.incoming.configureGetLobbySettingsControllerV1
-import software.shonk.lobby.adapters.incoming.configureGetProgramFromPlayerInLobbyControllerV1
-import software.shonk.lobby.adapters.incoming.configureJoinLobbyControllerV1
-import software.shonk.lobby.adapters.incoming.configureSetLobbySettingsControllerV1
+import software.shonk.lobby.adapters.incoming.createLobby.configureCreateLobbyControllerV1
+import software.shonk.lobby.adapters.incoming.getAllLobbies.configureGetAllLobbiesControllerV1
+import software.shonk.lobby.adapters.incoming.getLobbySettings.configureGetLobbySettingsControllerV1
+import software.shonk.lobby.adapters.incoming.getLobbyStatus.configureGetLobbyStatusControllerV1
+import software.shonk.lobby.adapters.incoming.getProgramFromPlayerInLobby.configureGetProgramFromPlayerInLobbyControllerV1
+import software.shonk.lobby.adapters.incoming.joinLobby.configureJoinLobbyControllerV1
+import software.shonk.lobby.adapters.incoming.setLobbySettings.configureSetLobbySettingsControllerV1
 import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.incoming.AddProgramToLobbyUseCase
 import software.shonk.lobby.application.port.incoming.CreateLobbyUseCase
@@ -91,6 +92,7 @@ fun Application.moduleApiV1() {
             configureGetLobbySettingsControllerV1()
             configureGetAllLobbiesControllerV1()
             configureJoinLobbyControllerV1()
+            configureGetLobbyStatusControllerV1()
         }
     }
 }

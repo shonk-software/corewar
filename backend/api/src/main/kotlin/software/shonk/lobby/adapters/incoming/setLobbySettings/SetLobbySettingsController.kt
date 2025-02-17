@@ -1,4 +1,4 @@
-package software.shonk.lobby.adapters.incoming
+package software.shonk.lobby.adapters.incoming.setLobbySettings
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
@@ -10,7 +10,7 @@ import kotlin.getValue
 import kotlin.text.toLongOrNull
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
-import software.shonk.interpreter.adapters.incoming.UNKNOWN_ERROR_MESSAGE
+import software.shonk.lobby.adapters.incoming.UNKNOWN_ERROR_MESSAGE
 import software.shonk.lobby.application.port.incoming.SetLobbySettingsUseCase
 import software.shonk.lobby.domain.InterpreterSettings
 

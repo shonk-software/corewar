@@ -1,6 +1,6 @@
 package software.shonk.lobby.application.service
 
-import software.shonk.lobby.adapters.incoming.JoinLobbyCommand
+import software.shonk.lobby.adapters.incoming.joinLobby.JoinLobbyCommand
 import software.shonk.lobby.application.port.incoming.JoinLobbyUseCase
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort

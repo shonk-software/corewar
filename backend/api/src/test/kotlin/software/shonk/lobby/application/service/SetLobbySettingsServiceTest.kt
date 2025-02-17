@@ -8,7 +8,7 @@ import kotlin.test.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import software.shonk.interpreter.MockShork
-import software.shonk.lobby.adapters.incoming.SetLobbySettingsCommand
+import software.shonk.lobby.adapters.incoming.setLobbySettings.SetLobbySettingsCommand
 import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort

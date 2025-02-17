@@ -1,4 +1,4 @@
-package software.shonk.lobby.adapters.incoming
+package software.shonk.lobby.adapters.incoming.getLobbySettings
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -6,7 +6,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
-import software.shonk.interpreter.adapters.incoming.UNKNOWN_ERROR_MESSAGE
+import software.shonk.lobby.adapters.incoming.UNKNOWN_ERROR_MESSAGE
 import software.shonk.lobby.application.port.incoming.GetLobbySettingsQuery
 
 fun Route.configureGetLobbySettingsControllerV1() {

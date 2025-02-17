@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import software.shonk.interpreter.MockShork
-import software.shonk.lobby.adapters.incoming.CreateLobbyCommand
+import software.shonk.lobby.adapters.incoming.createLobby.CreateLobbyCommand
 import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
 import software.shonk.lobby.domain.Lobby
