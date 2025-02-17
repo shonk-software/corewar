@@ -16,61 +16,107 @@ plugins {
     jacoco
 }
 
-ktfmt { kotlinLangStyle() }
-
-application { mainClass.set("software.shonk.ApplicationKt") }
-
 group = "software.shonk"
-
 version = "1.0-SNAPSHOT"
-
-repositories { mavenCentral() }
-
-dependencies { testImplementation(kotlin("test")) }
-
-dependencies { implementation(project(":shork")) }
-
-dependencies { implementation("io.insert-koin:koin-ktor:$koinVersion") }
-
-dependencies { implementation("io.insert-koin:koin-core:$koinVersion") }
-
-dependencies { implementation("io.insert-koin:koin-test-junit5:$koinVersion") }
-
-tasks.test {
-    testlogger {
-        showPassed = false
-    }
-    useJUnitPlatform()
-    finalizedBy(tasks.jacocoTestReport)
-}
-
-tasks.jacocoTestReport { dependsOn(tasks.test) }
 
 repositories {
     mavenCentral()
     maven { url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap") }
 }
 
+// todo check if syntax can be adjusted to better match the other snippets
+configurations {
+    val integrationTestImplementation by creating {
+        extendsFrom(configurations.implementation.get(), configurations.testImplementation.get())
+    }
+    val integrationTestRuntimeOnly by creating {
+        extendsFrom(configurations.runtimeOnly.get(), configurations.testRuntimeOnly.get())
+    }
+}
+
+sourceSets.create("integrationTest") {
+    kotlin.srcDir("src/integrationTest/kotlin")
+    resources.srcDir("src/integrationTest/resources")
+    compileClasspath += sourceSets["main"].output + sourceSets["test"].output
+    runtimeClasspath += output + compileClasspath
+}
+
 dependencies {
-    implementation("io.ktor:ktor-server-cors-jvm:2.3.12")
-    // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+    // Project-specific modules
+    implementation(project(":shork"))
+
+    // Ktor dependencies
+    implementation("io.ktor:ktor-server-cors-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
-    implementation("ch.qos.logback:logback-classic:$logbackVersion")
     testImplementation("io.ktor:ktor-server-test-host-jvm:$ktorVersion")
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("io.mockk:mockk:${mockkVersion}")
+
+    // Koin dependencies
+    implementation("io.insert-koin:koin-ktor:$koinVersion")
+    implementation("io.insert-koin:koin-core:$koinVersion")
+    testImplementation("io.insert-koin:koin-test-junit5:$koinVersion")
+
+    // Kotlin dependencies
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+
+    // Logging
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
+
+    // Testing
+    testImplementation(kotlin("test"))
+    testImplementation("io.mockk:mockk:$mockkVersion")
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    compilerOptions { jvmTarget.set(JvmTarget.JVM_21) }
+application {
+    mainClass.set("software.shonk.ApplicationKt")
 }
 
-tasks.withType<JavaCompile> {
-    sourceCompatibility = "21"
-    targetCompatibility = "21"
+ktfmt {
+    kotlinLangStyle()
+}
+
+tasks {
+    // Kotlin compiler options
+    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_21)
+        }
+    }
+
+    // Java compiler options
+    withType<JavaCompile> {
+        sourceCompatibility = "21"
+        targetCompatibility = "21"
+    }
+
+    // Test configuration
+    test {
+        useJUnitPlatform()
+        finalizedBy(jacocoTestReport) // Generate JaCoCo report after tests
+        testlogger {
+            showPassed = false
+        }
+    }
+
+    // todo check if syntax can be adjusted to better match the other snippets
+    val integrationTest by creating(Test::class) {
+        testClassesDirs = sourceSets["integrationTest"].output.classesDirs
+        classpath = sourceSets["integrationTest"].runtimeClasspath
+        useJUnitPlatform()
+        description = "Runs the integration tests."
+        group = "verification"
+        shouldRunAfter(test) // Ensure unit tests run first
+    }
+
+    check {
+        dependsOn(integrationTest) // Include integration tests in the "check" lifecycle
+    }
+
+    // JaCoCo test report configuration
+    jacocoTestReport {
+        dependsOn(test) // Ensure tests run before generating report
+    }
 }

@@ -40,9 +40,9 @@ tasks:
     cmds:
       - |
         if [ "$(uname)" = "Linux" ] || [ "$(uname)" = "Darwin" ]; then
-          ./gradlew test
+          ./gradlew check
         elif [ "$OS" = "Windows_NT" ]; then
-          gradlew.bat test
+          gradlew.bat check
         else
           echo "Unsupported OS"
         fi
