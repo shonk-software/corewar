@@ -1,6 +1,5 @@
 package software.shonk.lobby.application.service
 
-
 class ShorkServiceTest {
 
     // This is a DEFINITELY an integration test!!!

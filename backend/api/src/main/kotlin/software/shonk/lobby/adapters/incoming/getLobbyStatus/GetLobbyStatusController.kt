@@ -6,7 +6,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
-import software.shonk.lobby.adapters.incoming.UNKNOWN_ERROR_MESSAGE
+import software.shonk.lobby.adapters.incoming.addProgramToLobby.UNKNOWN_ERROR_MESSAGE
 import software.shonk.lobby.application.port.incoming.GetLobbyStatusQuery
 
 fun Route.configureGetLobbyStatusControllerV1() {
@@ -62,12 +62,17 @@ fun Route.configureGetLobbyStatusControllerV1() {
         val showVisualizationData =
             call.request.queryParameters["showVisualizationData"]?.toBoolean() ?: true
 
-        val lobbyStatus = kotlin.runCatching { GetLobbyStatusCommand(lobbyId, showVisualizationData) }
-            .mapCatching { getLobbyStatusQuery.getLobbyStatus(it) }
+        val lobbyStatus =
+            kotlin
+                .runCatching { GetLobbyStatusCommand(lobbyId, showVisualizationData) }
+                .mapCatching { getLobbyStatusQuery.getLobbyStatus(it) }
 
         // Check if the failures are correct, eg do they need to be swapped?
         lobbyStatus.onFailure {
-            logger.error("Failed to add program to lobby, error on service layer after passing command!", it)
+            logger.error(
+                "Failed to add program to lobby, error on service layer after passing command!",
+                it,
+            )
             // todo change this to internal server error or at least re-evaluate
             call.respond(HttpStatusCode.BadRequest, it.message ?: UNKNOWN_ERROR_MESSAGE)
         }
@@ -80,5 +85,4 @@ fun Route.configureGetLobbyStatusControllerV1() {
             result.onSuccess { call.respond(HttpStatusCode.OK, it) }
         }
     }
-
 }

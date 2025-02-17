@@ -1,19 +1,21 @@
 package software.shonk.lobby.application.service
 
+import software.shonk.lobby.adapters.incoming.addProgramToLobby.AddProgramToLobbyCommand
 import software.shonk.lobby.application.port.incoming.AddProgramToLobbyUseCase
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
 import software.shonk.lobby.domain.GameState
-import software.shonk.lobby.domain.Player
 
 class AddProgramToLobbyService(
     private val loadLobbyPort: LoadLobbyPort,
     private val saveLobbyPort: SaveLobbyPort,
 ) : AddProgramToLobbyUseCase {
 
-    override fun addProgramToLobby(lobbyId: Long, player: Player, program: String): Result<Unit> {
+    override fun addProgramToLobby(
+        addProgramToLobbyCommand: AddProgramToLobbyCommand
+    ): Result<Unit> {
         val lobby =
-            loadLobbyPort.getLobby(lobbyId).getOrElse {
+            loadLobbyPort.getLobby(addProgramToLobbyCommand.lobbyId).getOrElse {
                 return Result.failure(it)
             }
         if (lobby.gameState == GameState.FINISHED) {
@@ -22,13 +24,13 @@ class AddProgramToLobbyService(
             )
         }
 
-        if (!lobby.containsPlayer(player.name)) {
+        if (!lobby.containsPlayer(addProgramToLobbyCommand.player.name)) {
             return Result.failure(
                 IllegalStateException("You can't submit code to a lobby you have not joined!")
             )
         }
 
-        lobby.addProgram(player.name, program)
+        lobby.addProgram(addProgramToLobbyCommand.player.name, addProgramToLobbyCommand.program)
         return saveLobbyPort.saveLobby(lobby)
     }
 }

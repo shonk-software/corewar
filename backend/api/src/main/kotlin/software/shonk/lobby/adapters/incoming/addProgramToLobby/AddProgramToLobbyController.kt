@@ -1,4 +1,4 @@
-package software.shonk.lobby.adapters.incoming
+package software.shonk.lobby.adapters.incoming.addProgramToLobby
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -15,8 +15,8 @@ import software.shonk.lobby.domain.Player
 
 const val UNKNOWN_ERROR_MESSAGE = "Unknown Error"
 
-fun Route.configureShorkInterpreterControllerV1() {
-    val logger = LoggerFactory.getLogger("ShorkInterpreterControllerV1")
+fun Route.configureAddProgramToLobbyControllerV1() {
+    val logger = LoggerFactory.getLogger("AddProgramToLobbyControllerV1")
     val getLobbyStatusQuery by inject<GetLobbyStatusQuery>()
     val addProgramToLobbyUseCase by inject<AddProgramToLobbyUseCase>()
 
@@ -45,15 +45,18 @@ fun Route.configureShorkInterpreterControllerV1() {
         val submitCodeRequest = call.receive<SubmitCodeRequest>()
 
         // todo this can throw an exception for negative lobbyIds!!! try to catch and map to result
-        if (getLobbyStatusQuery.getLobbyStatus(GetLobbyStatusCommand(lobbyId, false)).isFailure || playerName == null) {
+        if (
+            getLobbyStatusQuery.getLobbyStatus(GetLobbyStatusCommand(lobbyId, false)).isFailure ||
+                playerName == null
+        ) {
             return@post call.respond(HttpStatusCode.NotFound)
         }
 
         val result =
-            runCatching { Player(playerName) }
-                .mapCatching {
-                    addProgramToLobbyUseCase.addProgramToLobby(lobbyId, it, submitCodeRequest.code)
+            runCatching {
+                    AddProgramToLobbyCommand(lobbyId, Player(playerName), submitCodeRequest.code)
                 }
+                .mapCatching { addProgramToLobbyUseCase.addProgramToLobby(it) }
 
         result.onFailure {
             logger.error(
@@ -72,7 +75,5 @@ fun Route.configureShorkInterpreterControllerV1() {
         }
     }
 }
-
-@Serializable data class Program(val code: String)
 
 @Serializable data class SubmitCodeRequest(val code: String)

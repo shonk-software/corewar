@@ -17,9 +17,9 @@ import org.koin.ktor.plugin.koin
 import software.shonk.interpreter.IShork
 import software.shonk.interpreter.Shork
 import software.shonk.interpreter.adapters.incoming.configureGetCompilationErrorsControllerV1
-import software.shonk.lobby.adapters.incoming.configureShorkInterpreterControllerV1
 import software.shonk.interpreter.application.port.incoming.GetCompilationErrorsQuery
 import software.shonk.interpreter.application.service.GetCompilationErrorsService
+import software.shonk.lobby.adapters.incoming.addProgramToLobby.configureAddProgramToLobbyControllerV1
 import software.shonk.lobby.adapters.incoming.createLobby.configureCreateLobbyControllerV1
 import software.shonk.lobby.adapters.incoming.getAllLobbies.configureGetAllLobbiesControllerV1
 import software.shonk.lobby.adapters.incoming.getLobbySettings.configureGetLobbySettingsControllerV1
@@ -84,7 +84,7 @@ fun Application.moduleApiV1() {
     routing {
         route("/api/v1") {
             staticResources("/docs", "openapi/v1", index = "scalar.html")
-            configureShorkInterpreterControllerV1()
+            configureAddProgramToLobbyControllerV1()
             configureCreateLobbyControllerV1()
             configureGetProgramFromPlayerInLobbyControllerV1()
             configureGetCompilationErrorsControllerV1()

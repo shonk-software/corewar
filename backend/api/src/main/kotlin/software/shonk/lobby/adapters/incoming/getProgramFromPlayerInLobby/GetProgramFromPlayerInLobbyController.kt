@@ -7,10 +7,10 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import kotlin.getValue
 import kotlin.text.toLongOrNull
+import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
-import software.shonk.lobby.adapters.incoming.Program
-import software.shonk.lobby.adapters.incoming.UNKNOWN_ERROR_MESSAGE
+import software.shonk.lobby.adapters.incoming.addProgramToLobby.UNKNOWN_ERROR_MESSAGE
 import software.shonk.lobby.application.port.incoming.GetProgramFromPlayerInLobbyQuery
 
 fun Route.configureGetProgramFromPlayerInLobbyControllerV1() {
@@ -62,3 +62,5 @@ fun Route.configureGetProgramFromPlayerInLobbyControllerV1() {
         }
     }
 }
+
+@Serializable data class Program(val code: String)

@@ -1,7 +1,7 @@
 package software.shonk.lobby.application.port.incoming
 
-import software.shonk.lobby.domain.Player
+import software.shonk.lobby.adapters.incoming.addProgramToLobby.AddProgramToLobbyCommand
 
 interface AddProgramToLobbyUseCase {
-    fun addProgramToLobby(lobbyId: Long, player: Player, program: String): Result<Unit>
+    fun addProgramToLobby(addProgramToLobbyCommand: AddProgramToLobbyCommand): Result<Unit>
 }

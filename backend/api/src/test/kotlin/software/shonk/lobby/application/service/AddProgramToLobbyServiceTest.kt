@@ -7,6 +7,7 @@ import kotlin.test.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import software.shonk.interpreter.MockShork
+import software.shonk.lobby.adapters.incoming.addProgramToLobby.AddProgramToLobbyCommand
 import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.incoming.AddProgramToLobbyUseCase
 import software.shonk.lobby.application.port.outgoing.DeleteLobbyPort
@@ -41,7 +42,9 @@ class AddProgramToLobbyServiceTest {
         clearAllMocks()
 
         // When ...
-        addProgramToLobbyUseCase.addProgramToLobby(lobbyId, Player("playerA"), "someProgram")
+        addProgramToLobbyUseCase.addProgramToLobby(
+            AddProgramToLobbyCommand(lobbyId, Player("playerA"), "someProgram")
+        )
 
         // Then ...
         verify(exactly = 1) {
@@ -66,7 +69,9 @@ class AddProgramToLobbyServiceTest {
         clearAllMocks()
 
         // When ...
-        addProgramToLobbyUseCase.addProgramToLobby(lobbyId, Player("playerB"), "someProgram")
+        addProgramToLobbyUseCase.addProgramToLobby(
+            AddProgramToLobbyCommand(lobbyId, Player("playerB"), "someProgram")
+        )
 
         // Then ...
         verify(exactly = 1) {
@@ -84,7 +89,9 @@ class AddProgramToLobbyServiceTest {
     @Test
     fun `add program to the lobby fails if lobby does not exist`() {
         val result =
-            addProgramToLobbyUseCase.addProgramToLobby(0L, Player("playerA"), "someProgram")
+            addProgramToLobbyUseCase.addProgramToLobby(
+                AddProgramToLobbyCommand(0L, Player("playerA"), "someProgram")
+            )
 
         assertEquals(true, result.isFailure)
         assertEquals("No lobby with that id", result.exceptionOrNull()?.message)

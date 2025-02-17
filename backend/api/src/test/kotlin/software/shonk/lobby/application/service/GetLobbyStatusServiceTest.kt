@@ -51,7 +51,8 @@ class GetLobbyStatusServiceTest {
         saveLobbyPort.saveLobby(lobby)
 
         // When...
-        val result = getLobbyStatusQuery.getLobbyStatus(GetLobbyStatusCommand(lobbyId, true)).getOrThrow()
+        val result =
+            getLobbyStatusQuery.getLobbyStatus(GetLobbyStatusCommand(lobbyId, true)).getOrThrow()
 
         // Then...
         assertTrue(result.visualizationData.isNotEmpty())
@@ -73,9 +74,7 @@ class GetLobbyStatusServiceTest {
 
         // When...
         val result =
-            getLobbyStatusQuery
-                .getLobbyStatus(GetLobbyStatusCommand(lobbyId, false))
-                .getOrThrow()
+            getLobbyStatusQuery.getLobbyStatus(GetLobbyStatusCommand(lobbyId, false)).getOrThrow()
 
         // Then...
         assertTrue(result.visualizationData.isEmpty())
