@@ -17,6 +17,10 @@ fun Route.configureCreateLobbyControllerV1() {
     val logger = LoggerFactory.getLogger("CreateLobbyControllerV1")
     val createLobbyUseCase by inject<CreateLobbyUseCase>()
 
+    @Serializable data class CreateLobbyBody(val playerName: String)
+
+    @Serializable data class CreateLobbyResponse(val lobbyId: String)
+
     /**
      * Creates a new lobby and returns the id of the newly created one, which identifies the lobby
      * uniquely. If the playerName is invalid, the create operation is aborted. The body must
@@ -29,34 +33,53 @@ fun Route.configureCreateLobbyControllerV1() {
      * Response 400: Failed to create a lobby, because the playerName is invalid.
      */
     post("/lobby") {
-        @Serializable data class CreateLobbyBody(val playerName: String)
-
-        val createLobbyBody = call.receive<CreateLobbyBody>()
-
-        val commandResult =
-            runCatching { CreateLobbyCommand(createLobbyBody.playerName) }
-                .mapCatching {
-                    createLobbyUseCase.createLobby(it)
-                } // Ensures exceptions here are caught
-
-        commandResult.onFailure {
-            logger.error(
-                "Failed to create lobby, error on service layer after passing command!",
-                it,
-            )
-            // todo change this to internal server error
-            call.respond(HttpStatusCode.BadRequest, it.message ?: UNKNOWN_ERROR_MESSAGE)
+        val createLobbyBodyResult = runCatching { call.receive<CreateLobbyBody>() }
+        createLobbyBodyResult.onFailure {
+            logger.error("Unable to extract parameters from request...", it)
+            call.respond(HttpStatusCode.BadRequest, "Player name is missing")
+            return@post
         }
-        commandResult.onSuccess { result ->
-            result.onFailure {
-                logger.error("Failed to create lobby, player name failed basic validation", it)
-                call.respond(HttpStatusCode.BadRequest, it.message ?: UNKNOWN_ERROR_MESSAGE)
+
+        val createLobbyBody = createLobbyBodyResult.getOrThrow()
+        val buildCreateLobbyCommandResult = runCatching {
+            CreateLobbyCommand(createLobbyBody.playerName)
+        }
+        buildCreateLobbyCommandResult.onFailure {
+            when (it) {
+                is IllegalArgumentException -> {
+                    logger.error(
+                        "Parameters for createLobbyCommand construction failed basic validation...",
+                        it,
+                    )
+                    call.respond(HttpStatusCode.BadRequest, it.message ?: UNKNOWN_ERROR_MESSAGE)
+                    return@post
+                }
             }
-            result.onSuccess {
-                call.respond(HttpStatusCode.Created, CreateLobbyResponse(it.toString()))
+        }
+
+        val createLobbyResult =
+            createLobbyUseCase.createLobby(buildCreateLobbyCommandResult.getOrThrow())
+
+        createLobbyResult.onSuccess {
+            call.respond(HttpStatusCode.Created, CreateLobbyResponse(it.toString()))
+        }
+        createLobbyResult.onFailure {
+            when (it) {
+                // Write Exception when we don't have any known Exceptions that throw here to
+                // already have the structure
+                // for when actual ones get added. Change the matching to be 'else' branch for 500
+                // then
+                is Exception -> {
+                    logger.error(
+                        "Failed to create lobby, unknown error on service layer after passing command!",
+                        it,
+                    )
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        it.message ?: UNKNOWN_ERROR_MESSAGE,
+                    )
+                }
             }
         }
     }
 }
-
-@Serializable data class CreateLobbyResponse(val lobbyId: String)

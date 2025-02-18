@@ -67,7 +67,7 @@ fun Route.configureGetLobbyStatusControllerV1() {
             when (it) {
                 is IllegalArgumentException -> {
                     logger.error(
-                        "Parameters for getLobbyStatus construction failed basic validation...",
+                        "Parameters for getLobbyStatusCommand construction failed basic validation...",
                         it,
                     )
                     call.respond(HttpStatusCode.BadRequest, it.message ?: UNKNOWN_ERROR_MESSAGE)
@@ -79,14 +79,27 @@ fun Route.configureGetLobbyStatusControllerV1() {
         val lobbyStatusResult =
             getLobbyStatusQuery.getLobbyStatus(buildGetLobbyStatusCommandResult.getOrThrow())
 
+        // todo introduce serialization DTO thingy for the respose, as in createLobbyController for
+        // consistency sake
+        // and to avoid running into root level array vuln in the future (is this still a thing?
+        // :eyes:)
         lobbyStatusResult.onSuccess { call.respond(HttpStatusCode.OK, it) }
         lobbyStatusResult.onFailure {
             when (it) {
                 is LobbyNotFoundException -> {
-                    logger.error(
-                        "Failed to add program to lobby, error on service layer after passing command!"
-                    )
+                    // todo should this really be an error log? this is no technical fault, but a
+                    // domain error
+                    logger.error("Failed to get lobby status, requested lobby does not exist!")
                     call.respond(HttpStatusCode.NotFound, it.message ?: UNKNOWN_ERROR_MESSAGE)
+                }
+                else -> {
+                    logger.error(
+                        "Failed to get lobby status, unknown error on service layer after passing command!"
+                    )
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        it.message ?: UNKNOWN_ERROR_MESSAGE,
+                    )
                 }
             }
         }
