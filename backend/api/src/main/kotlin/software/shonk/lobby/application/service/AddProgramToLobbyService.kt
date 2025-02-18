@@ -24,13 +24,16 @@ class AddProgramToLobbyService(
             )
         }
 
-        if (!lobby.containsPlayer(addProgramToLobbyCommand.player.name)) {
+        if (!lobby.containsPlayer(addProgramToLobbyCommand.playerNameString.name)) {
             return Result.failure(
                 IllegalStateException("You can't submit code to a lobby you have not joined!")
             )
         }
 
-        lobby.addProgram(addProgramToLobbyCommand.player.name, addProgramToLobbyCommand.program)
+        lobby.addProgram(
+            addProgramToLobbyCommand.playerNameString.name,
+            addProgramToLobbyCommand.program,
+        )
         return saveLobbyPort.saveLobby(lobby)
     }
 }

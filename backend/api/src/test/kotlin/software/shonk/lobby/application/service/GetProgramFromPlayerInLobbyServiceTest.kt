@@ -11,6 +11,7 @@ import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
 import software.shonk.lobby.domain.Lobby
+import software.shonk.lobby.domain.LobbyNotFoundException
 
 class GetProgramFromPlayerInLobbyServiceTest {
 
@@ -140,11 +141,15 @@ class GetProgramFromPlayerInLobbyServiceTest {
 
     @Test
     fun `get code from lobby with invalid lobby`() {
+        val aLobbyIdThatDoesNotExist = 0L
         val result =
             getProgramFromPlayerInLobbyService.getProgramFromPlayerInLobby(
-                GetProgramFromPlayerInLobbyCommand(0L, "playerA")
+                GetProgramFromPlayerInLobbyCommand(aLobbyIdThatDoesNotExist, "playerA")
             )
         assertFalse(result.isSuccess)
-        assertEquals("No lobby with that id", result.exceptionOrNull()?.message)
+        assertEquals(
+            LobbyNotFoundException(aLobbyIdThatDoesNotExist).message,
+            result.exceptionOrNull()?.message,
+        )
     }
 }

@@ -1,6 +1,6 @@
 package software.shonk.lobby.domain
 
-data class Player(val name: String) {
+data class PlayerNameString(val name: String) {
     init {
         require(isAlphaNumerical(name)) { "Name must only consist of valid characters" }
         require(name.isNotBlank()) { "Name must not be blank" }

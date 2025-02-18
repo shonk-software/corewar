@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory
 import software.shonk.lobby.adapters.incoming.getLobbyStatus.GetLobbyStatusCommand
 import software.shonk.lobby.application.port.incoming.AddProgramToLobbyUseCase
 import software.shonk.lobby.application.port.incoming.GetLobbyStatusQuery
-import software.shonk.lobby.domain.Player
+import software.shonk.lobby.domain.PlayerNameString
 
 const val UNKNOWN_ERROR_MESSAGE = "Unknown Error"
 
@@ -54,7 +54,11 @@ fun Route.configureAddProgramToLobbyControllerV1() {
 
         val result =
             runCatching {
-                    AddProgramToLobbyCommand(lobbyId, Player(playerName), submitCodeRequest.code)
+                    AddProgramToLobbyCommand(
+                        lobbyId,
+                        PlayerNameString(playerName),
+                        submitCodeRequest.code,
+                    )
                 }
                 .mapCatching { addProgramToLobbyUseCase.addProgramToLobby(it) }
 

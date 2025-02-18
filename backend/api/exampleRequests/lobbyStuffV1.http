@@ -12,6 +12,10 @@ GET http://localhost:8080/api/v1/lobby/0/status
 
 ###
 
+GET http://localhost:8080/api/v1/lobby/-1/status
+
+###
+
 GET http://localhost:8080/api/v1/lobby/0/status?showVisualizationData=true
 
 ###

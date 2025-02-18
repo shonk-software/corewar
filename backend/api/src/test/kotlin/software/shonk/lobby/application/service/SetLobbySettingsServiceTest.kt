@@ -14,6 +14,7 @@ import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
 import software.shonk.lobby.domain.InterpreterSettings
 import software.shonk.lobby.domain.Lobby
+import software.shonk.lobby.domain.LobbyNotFoundException
 
 class SetLobbySettingsServiceTest {
 
@@ -52,13 +53,21 @@ class SetLobbySettingsServiceTest {
         }
     }
 
+    // todo this might already be an integration test with how its using the memoryLobbyManager,
+    // maybe take another look
     @Test
     fun `set settings for invalid lobby`() {
+        val aLobbyIdThatDoesNotExist = 0L
         val someSettings = InterpreterSettings(69, 123, "NOP", 0)
         val result =
-            setLobbySettingsService.setLobbySettings(SetLobbySettingsCommand(0, someSettings))
+            setLobbySettingsService.setLobbySettings(
+                SetLobbySettingsCommand(aLobbyIdThatDoesNotExist, someSettings)
+            )
 
         assertFalse(result.isSuccess)
-        assertEquals("No lobby with that id", result.exceptionOrNull()?.message)
+        assertEquals(
+            LobbyNotFoundException(aLobbyIdThatDoesNotExist).message,
+            result.exceptionOrNull()?.message,
+        )
     }
 }

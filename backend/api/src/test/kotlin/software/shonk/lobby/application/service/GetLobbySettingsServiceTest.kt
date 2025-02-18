@@ -15,6 +15,7 @@ import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
 import software.shonk.lobby.domain.InterpreterSettings
 import software.shonk.lobby.domain.Lobby
+import software.shonk.lobby.domain.LobbyNotFoundException
 
 class GetLobbySettingsServiceTest {
 
@@ -51,8 +52,15 @@ class GetLobbySettingsServiceTest {
 
     @Test
     fun `test get lobby settings for an invalid lobby`() {
-        val result = getLobbySettingsQuery.getLobbySettings(GetLobbySettingsCommand(999L))
+        val aLobbyIdThatDoesNotExist = 999L
+        val result =
+            getLobbySettingsQuery.getLobbySettings(
+                GetLobbySettingsCommand(aLobbyIdThatDoesNotExist)
+            )
         assertFalse(result.isSuccess)
-        assertEquals("No lobby with that id", result.exceptionOrNull()?.message)
+        assertEquals(
+            LobbyNotFoundException(aLobbyIdThatDoesNotExist).message,
+            result.exceptionOrNull()?.message,
+        )
     }
 }

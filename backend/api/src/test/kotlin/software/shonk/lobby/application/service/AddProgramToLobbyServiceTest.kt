@@ -4,6 +4,8 @@ import io.mockk.clearAllMocks
 import io.mockk.spyk
 import io.mockk.verify
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import software.shonk.interpreter.MockShork
@@ -14,7 +16,8 @@ import software.shonk.lobby.application.port.outgoing.DeleteLobbyPort
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
 import software.shonk.lobby.domain.Lobby
-import software.shonk.lobby.domain.Player
+import software.shonk.lobby.domain.LobbyNotFoundException
+import software.shonk.lobby.domain.PlayerNameString
 
 class AddProgramToLobbyServiceTest {
     private lateinit var addProgramToLobbyUseCase: AddProgramToLobbyUseCase
@@ -43,7 +46,7 @@ class AddProgramToLobbyServiceTest {
 
         // When ...
         addProgramToLobbyUseCase.addProgramToLobby(
-            AddProgramToLobbyCommand(lobbyId, Player("playerA"), "someProgram")
+            AddProgramToLobbyCommand(lobbyId, PlayerNameString("playerA"), "someProgram")
         )
 
         // Then ...
@@ -70,7 +73,7 @@ class AddProgramToLobbyServiceTest {
 
         // When ...
         addProgramToLobbyUseCase.addProgramToLobby(
-            AddProgramToLobbyCommand(lobbyId, Player("playerB"), "someProgram")
+            AddProgramToLobbyCommand(lobbyId, PlayerNameString("playerB"), "someProgram")
         )
 
         // Then ...
@@ -88,12 +91,20 @@ class AddProgramToLobbyServiceTest {
 
     @Test
     fun `add program to the lobby fails if lobby does not exist`() {
+        val aLobbyIdThatDoesNotExist = 0L
         val result =
             addProgramToLobbyUseCase.addProgramToLobby(
-                AddProgramToLobbyCommand(0L, Player("playerA"), "someProgram")
+                AddProgramToLobbyCommand(
+                    aLobbyIdThatDoesNotExist,
+                    PlayerNameString("playerA"),
+                    "someProgram",
+                )
             )
 
-        assertEquals(true, result.isFailure)
-        assertEquals("No lobby with that id", result.exceptionOrNull()?.message)
+        assertTrue { result.isFailure }
+        assertEquals(
+            LobbyNotFoundException(aLobbyIdThatDoesNotExist).message,
+            result.exceptionOrNull()?.message,
+        )
     }
 }

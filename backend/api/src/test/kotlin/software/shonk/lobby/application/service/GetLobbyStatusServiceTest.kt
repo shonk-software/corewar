@@ -12,6 +12,7 @@ import software.shonk.lobby.application.port.incoming.GetLobbyStatusQuery
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
 import software.shonk.lobby.domain.Lobby
+import software.shonk.lobby.domain.LobbyNotFoundException
 
 class GetLobbyStatusServiceTest {
 
@@ -30,10 +31,17 @@ class GetLobbyStatusServiceTest {
 
     @Test
     fun `get status for the lobby fails if lobby does not exist`() {
-        val result = getLobbyStatusQuery.getLobbyStatus(GetLobbyStatusCommand(0L, false))
+        val aLobbyIdThatDoesNotExist = 0L
+        val result =
+            getLobbyStatusQuery.getLobbyStatus(
+                GetLobbyStatusCommand(aLobbyIdThatDoesNotExist, false)
+            )
 
         assertEquals(true, result.isFailure)
-        assertEquals("No lobby with that id", result.exceptionOrNull()?.message)
+        assertEquals(
+            LobbyNotFoundException(aLobbyIdThatDoesNotExist).message,
+            result.exceptionOrNull()?.message,
+        )
     }
 
     @Test

@@ -4,9 +4,8 @@ import software.shonk.lobby.application.port.outgoing.DeleteLobbyPort
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
 import software.shonk.lobby.domain.Lobby
+import software.shonk.lobby.domain.LobbyNotFoundException
 import software.shonk.lobby.domain.LobbyStatus
-
-const val NO_LOBBY_MESSAGE = "No lobby with that id"
 
 class MemoryLobbyManager : LoadLobbyPort, SaveLobbyPort, DeleteLobbyPort {
 
@@ -14,7 +13,7 @@ class MemoryLobbyManager : LoadLobbyPort, SaveLobbyPort, DeleteLobbyPort {
 
     override fun getLobby(lobbyId: Long): Result<Lobby> {
         return lobbies[lobbyId]?.let { Result.success(it) }
-            ?: Result.failure(IllegalArgumentException(NO_LOBBY_MESSAGE))
+            ?: Result.failure(LobbyNotFoundException(lobbyId))
     }
 
     override fun getAllLobbies(): Result<List<LobbyStatus>> {
