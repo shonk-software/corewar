@@ -53,7 +53,7 @@ class GetLobbyStatusControllerIT : KoinTest {
     }
 
     @Test
-    fun `get lobby status with lobby id that doesn't exist`() = testApplication {
+    fun `404 when lobby id doesn't exist`() = testApplication {
         // Setup
         application {
             basicModule()
@@ -68,6 +68,24 @@ class GetLobbyStatusControllerIT : KoinTest {
         // Then...
         assertEquals(HttpStatusCode.NotFound, result.status)
         assert(result.bodyAsText().contains("Lobby with id 1 not found!"))
+    }
+
+    @Test
+    fun `400 when lobby id fails validation`() = testApplication {
+        // Setup
+        application {
+            basicModule()
+            moduleApiV1()
+        }
+
+        // Given...
+
+        // When...
+        val result = client.get("/api/v1/lobby/-1/status")
+
+        // Then...
+        assertEquals(HttpStatusCode.BadRequest, result.status)
+        assert(result.bodyAsText().contains("Failed to parse Lobby id: -1"))
     }
 
     @Test
