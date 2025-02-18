@@ -14,7 +14,7 @@ import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
 import software.shonk.lobby.domain.InterpreterSettings
 import software.shonk.lobby.domain.Lobby
-import software.shonk.lobby.domain.LobbyNotFoundException
+import software.shonk.lobby.domain.exceptions.LobbyNotFoundException
 
 class SetLobbySettingsServiceTest {
 

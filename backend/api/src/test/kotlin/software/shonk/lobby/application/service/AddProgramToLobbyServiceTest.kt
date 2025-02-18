@@ -3,8 +3,6 @@ package software.shonk.lobby.application.service
 import io.mockk.clearAllMocks
 import io.mockk.spyk
 import io.mockk.verify
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -16,8 +14,9 @@ import software.shonk.lobby.application.port.outgoing.DeleteLobbyPort
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
 import software.shonk.lobby.domain.Lobby
-import software.shonk.lobby.domain.LobbyNotFoundException
 import software.shonk.lobby.domain.PlayerNameString
+import software.shonk.lobby.domain.exceptions.LobbyNotFoundException
+import kotlin.test.assertEquals
 
 class AddProgramToLobbyServiceTest {
     private lateinit var addProgramToLobbyUseCase: AddProgramToLobbyUseCase

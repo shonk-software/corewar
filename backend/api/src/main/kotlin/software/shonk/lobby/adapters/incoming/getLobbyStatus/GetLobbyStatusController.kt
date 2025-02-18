@@ -8,13 +8,12 @@ import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
 import software.shonk.lobby.adapters.incoming.addProgramToLobby.UNKNOWN_ERROR_MESSAGE
 import software.shonk.lobby.application.port.incoming.GetLobbyStatusQuery
-import software.shonk.lobby.domain.LobbyNotFoundException
+import software.shonk.lobby.domain.exceptions.LobbyNotFoundException
 
 fun Route.configureGetLobbyStatusControllerV1() {
     val logger = LoggerFactory.getLogger("GetLobbyStatusControllerV1")
     val getLobbyStatusQuery by inject<GetLobbyStatusQuery>()
 
-    // todo proper integration testing
     /**
      * Path params:
      * - lobbyId: The id of the lobby, whose status you want to get.
@@ -57,18 +56,14 @@ fun Route.configureGetLobbyStatusControllerV1() {
      * number, "memoryWrites": number, "processDied": boolean, } ] }
      */
     get("lobby/{lobbyId}/status") {
-        val lobbyId =
-            call.parameters["lobbyId"]?.toLongOrNull()
-                ?: return@get call.respond(HttpStatusCode.BadRequest, "Unable to parse lobbyId!")
+        val lobbyId = call.parameters["lobbyId"]
+        val showVisualizationData = call.request.queryParameters["showVisualizationData"]
 
-        val showVisualizationData =
-            call.request.queryParameters["showVisualizationData"]?.toBoolean() != false
+        val buildGetLobbyStatusCommandResult = runCatching {
+            GetLobbyStatusCommand(lobbyId, showVisualizationData)
+        }
 
-        val lobbyStatus =
-            runCatching { GetLobbyStatusCommand(lobbyId, showVisualizationData) }
-                .mapCatching { getLobbyStatusQuery.getLobbyStatus(it) }
-
-        lobbyStatus.onFailure {
+        buildGetLobbyStatusCommandResult.onFailure {
             when (it) {
                 is IllegalArgumentException -> {
                     logger.error(
@@ -76,20 +71,22 @@ fun Route.configureGetLobbyStatusControllerV1() {
                         it,
                     )
                     call.respond(HttpStatusCode.BadRequest, it.message ?: UNKNOWN_ERROR_MESSAGE)
+                    return@get
                 }
             }
         }
 
-        lobbyStatus.onSuccess { result ->
-            result.onSuccess { call.respond(HttpStatusCode.OK, it) }
-            result.onFailure {
-                when (it) {
-                    is LobbyNotFoundException -> {
-                        logger.error(
-                            "Failed to add program to lobby, error on service layer after passing command!"
-                        )
-                        call.respond(HttpStatusCode.NotFound, it.message ?: UNKNOWN_ERROR_MESSAGE)
-                    }
+        val lobbyStatusResult =
+            getLobbyStatusQuery.getLobbyStatus(buildGetLobbyStatusCommandResult.getOrThrow())
+
+        lobbyStatusResult.onSuccess { call.respond(HttpStatusCode.OK, it) }
+        lobbyStatusResult.onFailure {
+            when (it) {
+                is LobbyNotFoundException -> {
+                    logger.error(
+                        "Failed to add program to lobby, error on service layer after passing command!"
+                    )
+                    call.respond(HttpStatusCode.NotFound, it.message ?: UNKNOWN_ERROR_MESSAGE)
                 }
             }
         }

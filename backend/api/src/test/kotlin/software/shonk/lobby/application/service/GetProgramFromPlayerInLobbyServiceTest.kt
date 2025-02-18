@@ -11,7 +11,7 @@ import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
 import software.shonk.lobby.domain.Lobby
-import software.shonk.lobby.domain.LobbyNotFoundException
+import software.shonk.lobby.domain.exceptions.LobbyNotFoundException
 
 class GetProgramFromPlayerInLobbyServiceTest {
 

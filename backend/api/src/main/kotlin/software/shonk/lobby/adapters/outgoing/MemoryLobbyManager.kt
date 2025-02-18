@@ -4,8 +4,8 @@ import software.shonk.lobby.application.port.outgoing.DeleteLobbyPort
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
 import software.shonk.lobby.domain.Lobby
-import software.shonk.lobby.domain.LobbyNotFoundException
 import software.shonk.lobby.domain.LobbyStatus
+import software.shonk.lobby.domain.exceptions.LobbyNotFoundException
 
 class MemoryLobbyManager : LoadLobbyPort, SaveLobbyPort, DeleteLobbyPort {
 
