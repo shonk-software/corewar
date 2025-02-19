@@ -11,6 +11,7 @@ import software.shonk.lobby.application.port.incoming.JoinLobbyUseCase
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
 import software.shonk.lobby.domain.Lobby
+import software.shonk.lobby.domain.PlayerNameString
 
 class JoinLobbyServiceTest {
 
@@ -33,7 +34,7 @@ class JoinLobbyServiceTest {
         saveLobbyPort.saveLobby(
             Lobby(aLobbyId, hashMapOf(), MockShork(), joinedPlayers = mutableListOf("playerA"))
         )
-        joinLobbyUseCase.joinLobby(JoinLobbyCommand(aLobbyId, "playerB"))
+        joinLobbyUseCase.joinLobby(JoinLobbyCommand(aLobbyId, PlayerNameString("playerB")))
 
         assertEquals(
             true,
@@ -47,14 +48,14 @@ class JoinLobbyServiceTest {
         saveLobbyPort.saveLobby(
             Lobby(aLobbyId, hashMapOf(), MockShork(), joinedPlayers = mutableListOf("playerA"))
         )
-        joinLobbyUseCase.joinLobby(JoinLobbyCommand(aLobbyId, "playerA"))
+        joinLobbyUseCase.joinLobby(JoinLobbyCommand(aLobbyId, PlayerNameString("playerA")))
 
         assertEquals(1, loadLobbyPort.getLobby(aLobbyId).getOrNull()?.joinedPlayers?.size)
     }
 
     @Test
     fun `join nonexistent lobby`() {
-        val result = joinLobbyUseCase.joinLobby(JoinLobbyCommand(0L, "playerA"))
+        val result = joinLobbyUseCase.joinLobby(JoinLobbyCommand(0L, PlayerNameString("playerA")))
 
         assertEquals(result.isFailure, true)
     }

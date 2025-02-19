@@ -4,6 +4,7 @@ import software.shonk.lobby.adapters.incoming.joinLobby.JoinLobbyCommand
 import software.shonk.lobby.application.port.incoming.JoinLobbyUseCase
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
+import software.shonk.lobby.domain.exceptions.PlayerAlreadyJoinedLobbyException
 
 class JoinLobbyService(
     private val loadLobbyPort: LoadLobbyPort,
@@ -15,12 +16,15 @@ class JoinLobbyService(
                 return Result.failure(it)
             }
 
-        if (!lobby.containsPlayer(joinLobbyCommand.playerName)) {
-            lobby.joinedPlayers.add(joinLobbyCommand.playerName)
-            return saveLobbyPort.saveLobby(lobby)
+        if (lobby.containsPlayer(joinLobbyCommand.playerName.name)) {
+            return Result.failure(
+                PlayerAlreadyJoinedLobbyException(
+                    joinLobbyCommand.playerName,
+                    joinLobbyCommand.lobbyId,
+                )
+            )
         }
-        return Result.failure(
-            IllegalArgumentException("Your player name is invalid OR Lobby doesn't exist")
-        )
+        lobby.joinedPlayers.add(joinLobbyCommand.playerName.name)
+        return saveLobbyPort.saveLobby(lobby)
     }
 }

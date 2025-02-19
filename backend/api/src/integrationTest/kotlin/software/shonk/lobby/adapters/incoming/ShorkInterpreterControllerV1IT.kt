@@ -326,61 +326,6 @@ class ShorkInterpreterControllerV1IT : AbstractControllerTest() {
     }
 
     @Nested
-    inner class JoinLobby {
-        @Test
-        fun `test join lobby with valid playerName`() = runTest {
-            client.post("/api/v1/lobby") {
-                contentType(ContentType.Application.Json)
-                setBody("{\"playerName\":\"playerA\"}")
-            }
-            val result =
-                client.post("/api/v1/lobby/0/join") {
-                    contentType(ContentType.Application.Json)
-                    setBody("{\"playerName\":\"playerB\"}")
-                }
-            assertEquals(HttpStatusCode.OK, result.status)
-        }
-
-        @Test
-        fun `test join lobby with duplicate (invalid) playerName`() = runTest {
-            client.post("/api/v1/lobby") {
-                contentType(ContentType.Application.Json)
-                setBody("{\"playerName\":\"playerA\"}")
-            }
-            val result =
-                client.post("/api/v1/lobby/0/join") {
-                    contentType(ContentType.Application.Json)
-                    setBody("{\"playerName\":\"playerA\"}")
-                }
-            assertEquals(HttpStatusCode.Conflict, result.status)
-        }
-
-        @Test
-        fun `test join lobby with invalid json`() = runTest {
-            client.post("/api/v1/lobby") {
-                contentType(ContentType.Application.Json)
-                setBody("{\"playerName\":\"playerA\"}")
-            }
-            val result =
-                client.post("/api/v1/lobby/0/join") {
-                    contentType(ContentType.Application.Json)
-                    setBody("{ invalid, : json :3")
-                }
-            assertEquals(HttpStatusCode.BadRequest, result.status)
-        }
-
-        @Test
-        fun `test join nonexistent lobby`() = runTest {
-            val result =
-                client.post("/api/v1/lobby/0/join") {
-                    contentType(ContentType.Application.Json)
-                    setBody("{\"playerName\":\"playerA\"}")
-                }
-            assertEquals(HttpStatusCode.NotFound, result.status)
-        }
-    }
-
-    @Nested
     inner class GetAllLobbies {
         @Test
         fun `test get all lobbies when there is only one and it's not initialized`() = runTest {

@@ -9,15 +9,17 @@ import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
 import software.shonk.lobby.adapters.incoming.addProgramToLobby.UNKNOWN_ERROR_MESSAGE
-import software.shonk.lobby.adapters.incoming.getLobbyStatus.GetLobbyStatusCommand
-import software.shonk.lobby.application.port.incoming.GetLobbyStatusQuery
 import software.shonk.lobby.application.port.incoming.JoinLobbyUseCase
+import software.shonk.lobby.domain.PlayerNameString
+import software.shonk.lobby.domain.exceptions.LobbyNotFoundException
+import software.shonk.lobby.domain.exceptions.PlayerAlreadyJoinedLobbyException
 
 fun Route.configureJoinLobbyControllerV1() {
 
     val logger = LoggerFactory.getLogger("JoinLobbyControllerV1")
-    val getLobbyStatusQuery by inject<GetLobbyStatusQuery>()
     val joinLobbyUseCase by inject<JoinLobbyUseCase>()
+
+    @Serializable data class JoinLobbyBody(val playerName: String)
 
     /**
      * This endpoint is used to join an existing lobby with the desired playerName. The body must
@@ -33,43 +35,66 @@ fun Route.configureJoinLobbyControllerV1() {
      * operation is aborted.
      */
     post("/lobby/{lobbyId}/join") {
+
+        // todo move parsing to command construction
         val lobbyId =
             call.parameters["lobbyId"]?.toLongOrNull()
                 ?: return@post call.respond(HttpStatusCode.BadRequest)
 
-        // todo this should be in the service
-        // and in this constellation it can throw
-        val checkLobbyExists =
-            getLobbyStatusQuery.getLobbyStatus(GetLobbyStatusCommand(lobbyId, false))
-
-        checkLobbyExists.onFailure {
-            logger.error("The lobby you are trying to join doesn't exist", it)
-            return@post call.respond(HttpStatusCode.NotFound)
+        val joinLobbyBodyResult = runCatching { call.receive<JoinLobbyBody>() }
+        joinLobbyBodyResult.onFailure {
+            logger.error("Unable to extract parameters from request...", it)
+            call.respond(HttpStatusCode.BadRequest, "Player name is missing")
+            return@post
         }
 
-        @Serializable data class JoinLobbyBody(val playerName: String)
+        val joinLobbyBody = joinLobbyBodyResult.getOrThrow()
 
-        val joinLobbyBody = call.receive<JoinLobbyBody>()
+        val constructJoinLobbyCommandResult = runCatching {
+            JoinLobbyCommand(lobbyId, PlayerNameString(joinLobbyBody.playerName))
+        }
+
+        constructJoinLobbyCommandResult.onFailure {
+            when (it) {
+                is IllegalArgumentException -> {
+                    logger.error(
+                        "Parameters for joinLobbyCommand construction failed basic validation...",
+                        it,
+                    )
+                    call.respond(HttpStatusCode.BadRequest, it.message ?: UNKNOWN_ERROR_MESSAGE)
+                    return@post
+                }
+            }
+        }
 
         val joinLobbyResult =
-            runCatching { JoinLobbyCommand(lobbyId, joinLobbyBody.playerName) }
-                .mapCatching { joinLobbyUseCase.joinLobby(it) }
+            joinLobbyUseCase.joinLobby(constructJoinLobbyCommandResult.getOrThrow())
 
+        joinLobbyResult.onSuccess { call.respond(HttpStatusCode.OK, it) }
         joinLobbyResult.onFailure {
-            logger.error("Failed to join lobby, error on service layer after passing command!", it)
-            // todo change this to internal server error or at least re-evaluate
-            call.respond(HttpStatusCode.BadRequest, it.message ?: UNKNOWN_ERROR_MESSAGE)
-        }
-
-        joinLobbyResult.onSuccess { result ->
-            result.onFailure {
-                logger.error(
-                    "Someone already joined as that player. The slot is locked and the join operation is aborted",
-                    it,
-                )
-                call.respond(HttpStatusCode.Conflict, it.message ?: UNKNOWN_ERROR_MESSAGE)
+            when (it) {
+                is LobbyNotFoundException -> {
+                    logger.error("Failed to join Lobby, requested lobby does not exist!", it)
+                    call.respond(HttpStatusCode.NotFound, it.message ?: UNKNOWN_ERROR_MESSAGE)
+                }
+                is PlayerAlreadyJoinedLobbyException -> {
+                    logger.error(
+                        "Someone already joined as that player. The slot is locked and the join operation is aborted",
+                        it,
+                    )
+                    call.respond(HttpStatusCode.Conflict, it.message ?: UNKNOWN_ERROR_MESSAGE)
+                }
+                else -> {
+                    logger.error(
+                        "Failed to join lobby, unknown error on service layer after passing command!",
+                        it,
+                    )
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        it.message ?: UNKNOWN_ERROR_MESSAGE,
+                    )
+                }
             }
-            result.onSuccess { call.respond(HttpStatusCode.OK, it) }
         }
     }
 }
