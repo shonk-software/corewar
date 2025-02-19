@@ -1,0 +1,8 @@
+###
+# Submit code for player A, will run until the end of the game
+POST http://localhost:8080/api/v1/redcode/compile/errors
+Content-Type: application/json
+
+{
+  "code": "mov 0, 1"
+}

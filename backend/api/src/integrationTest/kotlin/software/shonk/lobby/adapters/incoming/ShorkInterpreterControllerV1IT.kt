@@ -3,14 +3,12 @@ package software.shonk.lobby.adapters.incoming
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import software.shonk.basicModule
-import software.shonk.interpreter.domain.CompileError
 import software.shonk.lobby.domain.InterpreterSettings
 import software.shonk.lobby.domain.LobbyStatus
 import software.shonk.moduleApiV1
@@ -24,55 +22,6 @@ class ShorkInterpreterControllerV1IT : AbstractControllerTest() {
             moduleApiV1()
         }
     }
-
-    @Serializable data class Program(val code: String)
-
-    // Workaround for content negotiation plugin bullshit
-    fun Program.json() = Json.encodeToString(Program.serializer(), this)
-
-    @Serializable data class CompileErrorResponse(val errors: List<CompileError>)
-
-    @Serializable data class JoinLobbyRequest(val playerName: String)
-
-    fun JoinLobbyRequest.json() = Json.encodeToString(JoinLobbyRequest.serializer(), this)
-
-    @Serializable data class JoinLobbyResponse(val lobbyId: Long)
-
-    @Serializable
-    data class VisualizationData(
-        val playerId: String,
-        val programCounterBefore: Int,
-        val programCounterAfter: Int,
-        val programCountersOfOtherProcesses: List<Int>,
-        val memoryReads: List<Int>,
-        val memoryWrites: List<Int>,
-        val processDied: Boolean,
-    )
-
-    @Serializable
-    enum class GameState {
-        NOT_STARTED,
-        RUNNING,
-        FINISHED,
-    }
-
-    @Serializable
-    enum class GameWinner {
-        A,
-        B,
-        DRAW,
-    }
-
-    @Serializable data class GameResult(val winner: GameWinner)
-
-    @Serializable
-    data class LobbyStatusResponse(
-        val playerASubmitted: Boolean,
-        val playerBSubmitted: Boolean,
-        val gameState: GameState,
-        val result: GameResult,
-        val visualizationData: List<VisualizationData>,
-    )
 
     private suspend fun parseStatus(response: HttpResponse): Map<String, String> {
         val responseJson = Json.parseToJsonElement(response.bodyAsText()).jsonObject
@@ -403,45 +352,6 @@ class ShorkInterpreterControllerV1IT : AbstractControllerTest() {
                     )
                 )
             }
-    }
-
-    @Nested
-    inner class RedcodeCompileErrors {
-        @Test
-        fun `test compile invalid json`() = runTest {
-            val result =
-                client.post("/api/v1/redcode/compile/errors") {
-                    contentType(ContentType.Application.Json)
-                    setBody("{ invalid, : json >:3c")
-                }
-
-            assertEquals(HttpStatusCode.BadRequest, result.status)
-        }
-
-        @Test
-        fun `test compile no errors`() = runTest {
-            val result =
-                client.post("/api/v1/redcode/compile/errors") {
-                    contentType(ContentType.Application.Json)
-                    setBody(Program("MOV 0, 1").json())
-                }
-
-            assertEquals(HttpStatusCode.OK, result.status)
-        }
-
-        @Test
-        fun `test compile with errors`() = runTest {
-            val result =
-                client.post("/api/v1/redcode/compile/errors") {
-                    contentType(ContentType.Application.Json)
-                    setBody(Program("ASduhsdlfuhsdf dlfasuihfals Totally valid code :333").json())
-                }
-
-            assertEquals(HttpStatusCode.OK, result.status)
-            val response =
-                Json.decodeFromString(CompileErrorResponse.serializer(), result.bodyAsText())
-            assertTrue(response.errors.isNotEmpty())
-        }
     }
 
     @Nested
