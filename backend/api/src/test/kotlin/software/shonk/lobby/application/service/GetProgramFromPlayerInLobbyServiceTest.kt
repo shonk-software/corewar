@@ -11,6 +11,7 @@ import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
 import software.shonk.lobby.domain.Lobby
+import software.shonk.lobby.domain.PlayerNameString
 import software.shonk.lobby.domain.exceptions.LobbyNotFoundException
 
 class GetProgramFromPlayerInLobbyServiceTest {
@@ -46,7 +47,7 @@ class GetProgramFromPlayerInLobbyServiceTest {
             "someProgram",
             getProgramFromPlayerInLobbyService
                 .getProgramFromPlayerInLobby(
-                    GetProgramFromPlayerInLobbyCommand(aLobbyId, "playerA")
+                    GetProgramFromPlayerInLobbyCommand(aLobbyId, PlayerNameString("playerA"))
                 )
                 .getOrNull(),
         )
@@ -54,7 +55,7 @@ class GetProgramFromPlayerInLobbyServiceTest {
             "someOtherProgram",
             getProgramFromPlayerInLobbyService
                 .getProgramFromPlayerInLobby(
-                    GetProgramFromPlayerInLobbyCommand(aLobbyId, "playerB")
+                    GetProgramFromPlayerInLobbyCommand(aLobbyId, PlayerNameString("playerB"))
                 )
                 .getOrNull(),
         )
@@ -86,7 +87,7 @@ class GetProgramFromPlayerInLobbyServiceTest {
             "someProgram",
             getProgramFromPlayerInLobbyService
                 .getProgramFromPlayerInLobby(
-                    GetProgramFromPlayerInLobbyCommand(aLobbyId, "playerA")
+                    GetProgramFromPlayerInLobbyCommand(aLobbyId, PlayerNameString("playerA"))
                 )
                 .getOrNull(),
         )
@@ -94,7 +95,7 @@ class GetProgramFromPlayerInLobbyServiceTest {
             "someOtherProgram",
             getProgramFromPlayerInLobbyService
                 .getProgramFromPlayerInLobby(
-                    GetProgramFromPlayerInLobbyCommand(aLobbyId, "playerB")
+                    GetProgramFromPlayerInLobbyCommand(aLobbyId, PlayerNameString("playerB"))
                 )
                 .getOrNull(),
         )
@@ -102,7 +103,7 @@ class GetProgramFromPlayerInLobbyServiceTest {
             "differentProgram",
             getProgramFromPlayerInLobbyService
                 .getProgramFromPlayerInLobby(
-                    GetProgramFromPlayerInLobbyCommand(anotherLobbyId, "playerA")
+                    GetProgramFromPlayerInLobbyCommand(anotherLobbyId, PlayerNameString("playerA"))
                 )
                 .getOrNull(),
         )
@@ -110,7 +111,7 @@ class GetProgramFromPlayerInLobbyServiceTest {
             "evenMoreDifferentProgram",
             getProgramFromPlayerInLobbyService
                 .getProgramFromPlayerInLobby(
-                    GetProgramFromPlayerInLobbyCommand(anotherLobbyId, "playerB")
+                    GetProgramFromPlayerInLobbyCommand(anotherLobbyId, PlayerNameString("playerB"))
                 )
                 .getOrNull(),
         )
@@ -129,10 +130,10 @@ class GetProgramFromPlayerInLobbyServiceTest {
         )
 
         assertEquals(
-            "No player with that name in the lobby",
+            "Player playerB has not joined lobby 0 yet",
             getProgramFromPlayerInLobbyService
                 .getProgramFromPlayerInLobby(
-                    GetProgramFromPlayerInLobbyCommand(aLobbyId, "playerB")
+                    GetProgramFromPlayerInLobbyCommand(aLobbyId, PlayerNameString("playerB"))
                 )
                 .exceptionOrNull()
                 ?.message,
@@ -144,7 +145,10 @@ class GetProgramFromPlayerInLobbyServiceTest {
         val aLobbyIdThatDoesNotExist = 0L
         val result =
             getProgramFromPlayerInLobbyService.getProgramFromPlayerInLobby(
-                GetProgramFromPlayerInLobbyCommand(aLobbyIdThatDoesNotExist, "playerA")
+                GetProgramFromPlayerInLobbyCommand(
+                    aLobbyIdThatDoesNotExist,
+                    PlayerNameString("playerA"),
+                )
             )
         assertFalse(result.isSuccess)
         assertEquals(

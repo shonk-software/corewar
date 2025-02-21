@@ -1,17 +1,25 @@
 package software.shonk.lobby.adapters.incoming.getProgramFromPlayerInLobby
 
+import software.shonk.lobby.domain.PlayerNameString
+
 // todo move all these error messages into cool objects and stuff and organize them
-data class GetProgramFromPlayerInLobbyCommand(val lobbyId: Long, val playerName: String?) {
+data class GetProgramFromPlayerInLobbyCommand(
+    val lobbyId: Long,
+    val playerNameString: PlayerNameString,
+) {
     init {
-        require(playerName != null) { "Player must not be null" }
         require(lobbyId >= 0) { "The Lobby id must be non-negative." }
-        require(playerName.isNotBlank() && isAlphaNumerical(playerName)) {
-            "Your player name is invalid"
-        }
     }
 
-    // todo move to PlayerName class once it exists
-    private fun isAlphaNumerical(playerName: String): Boolean {
-        return playerName.matches("^[a-zA-Z0-9]+$".toRegex()) && playerName.isNotBlank()
+    constructor(
+        lobbyIdString: String?,
+        playerName: PlayerNameString,
+    ) : this(parseLobbyId(lobbyIdString), playerName)
+
+    companion object {
+        fun parseLobbyId(lobbyIdString: String?): Long {
+            return lobbyIdString?.toLongOrNull()?.takeIf { it >= 0 }
+                ?: throw IllegalArgumentException("Failed to parse Lobby id: $lobbyIdString")
+        }
     }
 }
