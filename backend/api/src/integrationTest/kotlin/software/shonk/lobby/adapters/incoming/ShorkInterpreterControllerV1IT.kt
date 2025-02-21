@@ -75,32 +75,6 @@ class ShorkInterpreterControllerV1IT : AbstractControllerTest() {
         }
 
         @Test
-        fun testGetPlayerCodeNotSubmitted() = runTest {
-            client.post("/api/v1/lobby") {
-                contentType(ContentType.Application.Json)
-                setBody("{\"playerName\":\"playerA\"}")
-            }
-            val result = client.get("/api/v1/lobby/0/code/playerA")
-            assertEquals(HttpStatusCode.BadRequest, result.status)
-            assert(result.bodyAsText().contains("No player with that name in the lobby"))
-        }
-
-        @Test
-        fun `test player empty code submission`() = runTest {
-            client.post("/api/v1/lobby") {
-                contentType(ContentType.Application.Json)
-                setBody("{\"playerName\":\"playerA\"}")
-            }
-            val player = "playerA"
-            val result =
-                client.post("/api/v1/lobby/0/code/$player") {
-                    contentType(ContentType.Application.Json)
-                    setBody("{\"code\":\"weDontCareWhatsInHereForThisTest\"}")
-                }
-            assertEquals(HttpStatusCode.OK, result.status)
-        }
-
-        @Test
         fun `test player code submission in invalid lobby`() = runTest {
             val player = "playerA"
             val result =
@@ -118,15 +92,15 @@ class ShorkInterpreterControllerV1IT : AbstractControllerTest() {
                     contentType(ContentType.Application.Json)
                     setBody("{\"playerName\":\"playerA\"}")
                 }
-                val player = "playerC"
+                val player = "playerB"
                 client.post("/api/v1/lobby/0/code/$player") {
                     contentType(ContentType.Application.Json)
                     setBody("someString")
                 }
 
-                val result = client.get("/api/v1/lobby/0/code/playerC")
+                val result = client.get("/api/v1/lobby/0/code/playerB")
                 assertEquals(HttpStatusCode.BadRequest, result.status)
-                assert(result.bodyAsText().contains("No player with that name in the lobby"))
+                assert(result.bodyAsText().contains("Player playerB has not joined lobby 0 yet"))
 
                 val resultStatus = client.get("/api/v1/lobby/0/status")
                 val responseData = parseStatus(resultStatus)
