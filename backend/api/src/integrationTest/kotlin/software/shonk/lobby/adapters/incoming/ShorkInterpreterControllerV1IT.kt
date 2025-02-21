@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import software.shonk.basicModule
 import software.shonk.lobby.domain.InterpreterSettings
-import software.shonk.lobby.domain.LobbyStatus
 import software.shonk.moduleApiV1
 
 // todo big split
@@ -35,15 +34,9 @@ class ShorkInterpreterControllerV1IT : AbstractControllerTest() {
         )
     }
 
-    private suspend fun parseAllLobbies(response: HttpResponse): List<LobbyStatus> {
-        val responseJson = Json.parseToJsonElement(response.bodyAsText()).jsonObject
-        val lobbiesArray = responseJson["lobbies"]!!.jsonArray
-        return lobbiesArray.map { Json.decodeFromJsonElement<LobbyStatus>(it) }
-    }
-
     private suspend fun parseSettings(response: HttpResponse): InterpreterSettings {
         val responseJson = Json.parseToJsonElement(response.bodyAsText()).jsonObject
-        val settingsJson = responseJson["settings"]!!.jsonObject["interpreterSettings"]!!.jsonObject
+        val settingsJson = responseJson["settings"]!!.jsonObject
         return Json.decodeFromJsonElement(settingsJson)
     }
 
@@ -271,49 +264,6 @@ class ShorkInterpreterControllerV1IT : AbstractControllerTest() {
                     setBody("{\"code\":\"PlayerCode\"}")
                 }
             assertEquals(HttpStatusCode.OK, resultB.status)
-        }
-    }
-
-    @Nested
-    inner class GetLobbySettings {
-        @Test
-        fun `test get lobby settings for an existing lobby`() = runTest {
-            val clientLobby =
-                client.post("/api/v1/lobby") {
-                    contentType(ContentType.Application.Json)
-                    setBody("{\"playerName\":\"playerA\"}")
-                }
-            val lobbyId =
-                Json.parseToJsonElement(clientLobby.bodyAsText())
-                    .jsonObject["lobbyId"]!!
-                    .jsonPrimitive
-                    .content
-            val result = client.get("/api/v1/lobby/$lobbyId/settings")
-            val parsedSettings = parseSettings(result)
-            val defaultSettings = InterpreterSettings()
-
-            assertEquals(HttpStatusCode.OK, result.status)
-            assertTrue(
-                parsedSettings ==
-                    InterpreterSettings(
-                        coreSize = defaultSettings.coreSize,
-                        instructionLimit = defaultSettings.instructionLimit,
-                        initialInstruction = defaultSettings.initialInstruction,
-                        maximumTicks = defaultSettings.maximumTicks,
-                        maximumProcessesPerPlayer = defaultSettings.maximumProcessesPerPlayer,
-                        readDistance = defaultSettings.readDistance,
-                        writeDistance = defaultSettings.writeDistance,
-                        minimumSeparation = defaultSettings.minimumSeparation,
-                        separation = defaultSettings.separation,
-                        randomSeparation = defaultSettings.randomSeparation,
-                    )
-            )
-        }
-
-        @Test
-        fun `test get lobby settings for a non-existing lobby`() = runTest {
-            val result = client.get("/api/v1/lobby/0/settings")
-            assertEquals(HttpStatusCode.NotFound, result.status)
         }
     }
 
