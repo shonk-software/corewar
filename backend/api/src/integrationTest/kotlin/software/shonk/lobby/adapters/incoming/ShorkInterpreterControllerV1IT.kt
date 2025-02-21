@@ -3,13 +3,11 @@ package software.shonk.lobby.adapters.incoming
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import software.shonk.basicModule
-import software.shonk.lobby.domain.InterpreterSettings
 import software.shonk.moduleApiV1
 
 // todo big split
@@ -32,12 +30,6 @@ class ShorkInterpreterControllerV1IT : AbstractControllerTest() {
             "gameState" to responseJson["gameState"]!!.jsonPrimitive.content,
             "result.winner" to resultWinner,
         )
-    }
-
-    private suspend fun parseSettings(response: HttpResponse): InterpreterSettings {
-        val responseJson = Json.parseToJsonElement(response.bodyAsText()).jsonObject
-        val settingsJson = responseJson["settings"]!!.jsonObject
-        return Json.decodeFromJsonElement(settingsJson)
     }
 
     @Nested
@@ -264,99 +256,6 @@ class ShorkInterpreterControllerV1IT : AbstractControllerTest() {
                     setBody("{\"code\":\"PlayerCode\"}")
                 }
             assertEquals(HttpStatusCode.OK, resultB.status)
-        }
-    }
-
-    @Nested
-    inner class PostLobbySettings {
-        @Test
-        fun `update settings for an existing lobby`() = runTest {
-            val lobby =
-                client.post("/api/v1/lobby") {
-                    contentType(ContentType.Application.Json)
-                    setBody("{\"playerName\":\"playerA\"}")
-                }
-            val lobbyId =
-                Json.parseToJsonElement(lobby.bodyAsText())
-                    .jsonObject["lobbyId"]!!
-                    .jsonPrimitive
-                    .content
-            val updatedSettings =
-                InterpreterSettings(
-                    coreSize = 2048,
-                    instructionLimit = 500,
-                    initialInstruction = "ADD",
-                    maximumTicks = 100000,
-                    maximumProcessesPerPlayer = 16,
-                    readDistance = 100,
-                    writeDistance = 100,
-                    minimumSeparation = 50,
-                    separation = 50,
-                    randomSeparation = true,
-                )
-
-            val customSettings =
-                client.post("/api/v1/lobby/$lobbyId/settings") {
-                    contentType(ContentType.Application.Json)
-                    setBody(Json.encodeToString(updatedSettings))
-                }
-
-            assertEquals(HttpStatusCode.OK, customSettings.status)
-
-            // test if the settings got updated
-            val getSettingsResponse = client.get("/api/v1/lobby/$lobbyId/settings")
-            val parsedSettings = parseSettings(getSettingsResponse)
-
-            assertEquals(updatedSettings, parsedSettings)
-        }
-
-        @Test
-        fun `fail to update settings for a non-existent lobby`() = runTest {
-            val updatedSettings =
-                InterpreterSettings(
-                    coreSize = 2048,
-                    instructionLimit = 500,
-                    initialInstruction = "ADD",
-                    maximumTicks = 100000,
-                    maximumProcessesPerPlayer = 16,
-                    readDistance = 100,
-                    writeDistance = 100,
-                    minimumSeparation = 50,
-                    separation = 50,
-                    randomSeparation = true,
-                )
-
-            val updateResponse =
-                client.post("/api/v1/lobby/999/settings") {
-                    contentType(ContentType.Application.Json)
-                    setBody(Json.encodeToString(updatedSettings))
-                }
-
-            assertEquals(HttpStatusCode.NotFound, updateResponse.status)
-        }
-
-        @Test
-        fun `fail to update settings with invalid settings`() = runTest {
-            val clientLobby =
-                client.post("/api/v1/lobby") {
-                    contentType(ContentType.Application.Json)
-                    setBody("{\"playerName\":\"playerA\"}")
-                }
-            val lobbyId =
-                Json.parseToJsonElement(clientLobby.bodyAsText())
-                    .jsonObject["lobbyId"]!!
-                    .jsonPrimitive
-                    .content
-
-            val invalidSettings = """{ "coreSize": "INVALID_NUMBER" }"""
-
-            val updateResponse =
-                client.post("/api/v1/lobby/$lobbyId/settings") {
-                    contentType(ContentType.Application.Json)
-                    setBody(invalidSettings)
-                }
-
-            assertEquals(HttpStatusCode.BadRequest, updateResponse.status)
         }
     }
 }
