@@ -5,6 +5,8 @@ import software.shonk.lobby.application.port.incoming.AddProgramToLobbyUseCase
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
 import software.shonk.lobby.domain.GameState
+import software.shonk.lobby.domain.exceptions.LobbyAlreadyCompletedException
+import software.shonk.lobby.domain.exceptions.PlayerNotInLobbyException
 
 class AddProgramToLobbyService(
     private val loadLobbyPort: LoadLobbyPort,
@@ -19,14 +21,12 @@ class AddProgramToLobbyService(
                 return Result.failure(it)
             }
         if (lobby.gameState == GameState.FINISHED) {
-            return Result.failure(
-                IllegalStateException("You can't submit code to a lobby that is finished!")
-            )
+            return Result.failure(LobbyAlreadyCompletedException(addProgramToLobbyCommand.lobbyId))
         }
 
         if (!lobby.containsPlayer(addProgramToLobbyCommand.playerNameString.name)) {
             return Result.failure(
-                IllegalStateException("You can't submit code to a lobby you have not joined!")
+                PlayerNotInLobbyException(addProgramToLobbyCommand.playerNameString, lobby.id)
             )
         }
 
