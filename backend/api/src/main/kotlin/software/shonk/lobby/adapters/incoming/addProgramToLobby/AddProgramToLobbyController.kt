@@ -8,17 +8,20 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
-import software.shonk.lobby.adapters.incoming.getLobbyStatus.GetLobbyStatusCommand
 import software.shonk.lobby.application.port.incoming.AddProgramToLobbyUseCase
-import software.shonk.lobby.application.port.incoming.GetLobbyStatusQuery
 import software.shonk.lobby.domain.PlayerNameString
+import software.shonk.lobby.domain.exceptions.LobbyAlreadyCompletedException
+import software.shonk.lobby.domain.exceptions.LobbyNotFoundException
+import software.shonk.lobby.domain.exceptions.PlayerNotInLobbyException
 
 const val UNKNOWN_ERROR_MESSAGE = "Unknown Error"
 
 fun Route.configureAddProgramToLobbyControllerV1() {
+
     val logger = LoggerFactory.getLogger("AddProgramToLobbyControllerV1")
-    val getLobbyStatusQuery by inject<GetLobbyStatusQuery>()
     val addProgramToLobbyUseCase by inject<AddProgramToLobbyUseCase>()
+
+    @Serializable data class SubmitCodeRequest(val code: String)
 
     /**
      * Posts the player code to a specific lobby, which is specified in the path parameters. If the
@@ -37,47 +40,64 @@ fun Route.configureAddProgramToLobbyControllerV1() {
      * Response 404: The lobby doesn't exist.
      */
     post("/lobby/{lobbyId}/code/{player}") {
-        val lobbyId =
-            call.parameters["lobbyId"]?.toLongOrNull()
-                ?: return@post call.respond(HttpStatusCode.BadRequest)
-
+        val lobbyId = call.parameters["lobbyId"]
         val playerName = call.parameters["player"]
-        val submitCodeRequest = call.receive<SubmitCodeRequest>()
+        val submitCodeRequestResult = runCatching { call.receive<SubmitCodeRequest>() }
+        submitCodeRequestResult.onFailure {
+            logger.error("Unable to extract parameters from request...", it)
+            call.respond(HttpStatusCode.BadRequest, "Code is missing")
+            return@post
+        }
 
-        // todo this can throw an exception for negative lobbyIds!!! try to catch and map to result
-        if (
-            getLobbyStatusQuery.getLobbyStatus(GetLobbyStatusCommand(lobbyId, false)).isFailure ||
-                playerName == null
-        ) {
-            return@post call.respond(HttpStatusCode.NotFound)
+        val submitCodeRequest = submitCodeRequestResult.getOrThrow()
+        val constructAddProgramToLobbyCommandResult = runCatching {
+            require(playerName != null) { "Name must not be null" }
+            AddProgramToLobbyCommand(lobbyId, PlayerNameString(playerName), submitCodeRequest.code)
+        }
+
+        constructAddProgramToLobbyCommandResult.onFailure {
+            logger.error(
+                "Parameters for addProgramToLobbyCommand construction failed basic validation...",
+                it,
+            )
+            call.respond(HttpStatusCode.BadRequest, it.message ?: UNKNOWN_ERROR_MESSAGE)
+            return@post
         }
 
         val result =
-            runCatching {
-                    AddProgramToLobbyCommand(
-                        lobbyId,
-                        PlayerNameString(playerName),
-                        submitCodeRequest.code,
+            addProgramToLobbyUseCase.addProgramToLobby(
+                constructAddProgramToLobbyCommandResult.getOrThrow()
+            )
+        result.onSuccess { call.respond(HttpStatusCode.OK) }
+        result.onFailure {
+            when (it) {
+                is LobbyNotFoundException -> {
+                    logger.error("Failed to add program to lobby, lobby does not exist")
+                    call.respond(HttpStatusCode.NotFound, it.message ?: UNKNOWN_ERROR_MESSAGE)
+                }
+                // todo add to docs
+                is PlayerNotInLobbyException -> {
+                    logger.error(
+                        "Failed to add program to player, player did not join lobby yet",
+                        it,
+                    )
+                    call.respond(HttpStatusCode.Forbidden, it.message ?: UNKNOWN_ERROR_MESSAGE)
+                }
+                is LobbyAlreadyCompletedException -> {
+                    logger.error("Failed to add program to lobby, lobby already completed")
+                    call.respond(HttpStatusCode.Forbidden, it.message ?: UNKNOWN_ERROR_MESSAGE)
+                }
+                else -> {
+                    logger.error(
+                        "Failed to get lobby status, unknown error on service layer after passing command!",
+                        it,
+                    )
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        it.message ?: UNKNOWN_ERROR_MESSAGE,
                     )
                 }
-                .mapCatching { addProgramToLobbyUseCase.addProgramToLobby(it) }
-
-        result.onFailure {
-            logger.error(
-                "Failed to add program to lobby, error on service layer after passing command!",
-                it,
-            )
-            // todo change this to internal server error or at least re-evaluate
-            call.respond(HttpStatusCode.BadRequest, it.message ?: UNKNOWN_ERROR_MESSAGE)
-        }
-
-        result.onSuccess { wrappedResult ->
-            wrappedResult.onFailure {
-                call.respond(HttpStatusCode.Forbidden, it.message ?: UNKNOWN_ERROR_MESSAGE)
             }
-            wrappedResult.onSuccess { call.respond(HttpStatusCode.OK) }
         }
     }
 }
-
-@Serializable data class SubmitCodeRequest(val code: String)
