@@ -15,15 +15,18 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.get
+import software.shonk.ANOTHER_VALID_PLAYERNAME
+import software.shonk.AN_INVALID_PLAYERNAME
+import software.shonk.A_LOBBY_ID_THAT_HAS_NOT_BEEN_CREATED
+import software.shonk.A_VALID_LOBBY_ID
+import software.shonk.A_VALID_PLAYERNAME
+import software.shonk.aLobby
 import software.shonk.basicModule
-import software.shonk.interpreter.MockShork
 import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.incoming.JoinLobbyUseCase
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
 import software.shonk.lobby.application.service.JoinLobbyService
-import software.shonk.lobby.domain.GameState
-import software.shonk.lobby.domain.Lobby
 import software.shonk.moduleApiV1
 
 class JoinLobbyControllerIT : KoinTest {
@@ -53,31 +56,27 @@ class JoinLobbyControllerIT : KoinTest {
                 basicModule()
                 moduleApiV1()
             }
+
             // Given...
             val saveLobby = get<SaveLobbyPort>()
-            // todo Testfactory?
-            val aLobby =
-                Lobby(
-                    id = 0,
-                    programs = hashMapOf<String, String>(),
-                    shork = MockShork(),
-                    gameState = GameState.NOT_STARTED,
-                    joinedPlayers = mutableListOf("playerA"),
-                )
-            saveLobby.saveLobby(aLobby)
+            saveLobby.saveLobby(
+                aLobby(id = A_VALID_LOBBY_ID, joinedPlayers = mutableListOf(A_VALID_PLAYERNAME))
+            )
+            clearAllMocks()
 
             // When...
-            clearAllMocks()
             val result =
-                client.post("/api/v1/lobby/0/join") {
+                client.post("/api/v1/lobby/$A_VALID_LOBBY_ID/join") {
                     contentType(ContentType.Application.Json)
-                    setBody("{\"playerName\":\"playerB\"}")
+                    setBody("{\"playerName\":\"$ANOTHER_VALID_PLAYERNAME\"}")
                 }
 
             // Then...
             assertEquals(HttpStatusCode.OK, result.status)
             verify(exactly = 1) {
-                saveLobby.saveLobby(match { it -> it.joinedPlayers.contains("playerB") })
+                saveLobby.saveLobby(
+                    match { it -> it.joinedPlayers.contains(ANOTHER_VALID_PLAYERNAME) }
+                )
             }
         }
 
@@ -89,25 +88,19 @@ class JoinLobbyControllerIT : KoinTest {
                 basicModule()
                 moduleApiV1()
             }
+
             // Given...
             val saveLobby = get<SaveLobbyPort>()
-            // todo Testfactory?
-            val aLobby =
-                Lobby(
-                    id = 0,
-                    programs = hashMapOf<String, String>(),
-                    shork = MockShork(),
-                    gameState = GameState.NOT_STARTED,
-                    joinedPlayers = mutableListOf("playerA"),
-                )
-            saveLobby.saveLobby(aLobby)
+            saveLobby.saveLobby(
+                aLobby(id = A_VALID_LOBBY_ID, joinedPlayers = mutableListOf(A_VALID_PLAYERNAME))
+            )
+            clearAllMocks()
 
             // When...
-            clearAllMocks()
             val result =
-                client.post("/api/v1/lobby/0/join") {
+                client.post("/api/v1/lobby/$A_VALID_LOBBY_ID/join") {
                     contentType(ContentType.Application.Json)
-                    setBody("{\"playerName\":\"playerA\"}")
+                    setBody("{\"playerName\":\"$A_VALID_PLAYERNAME\"}")
                 }
 
             // Then...
@@ -123,25 +116,17 @@ class JoinLobbyControllerIT : KoinTest {
                 basicModule()
                 moduleApiV1()
             }
+
             // Given...
             val saveLobby = get<SaveLobbyPort>()
-            // todo Testfactory?
-            val aLobby =
-                Lobby(
-                    id = 0,
-                    programs = hashMapOf<String, String>(),
-                    shork = MockShork(),
-                    gameState = GameState.NOT_STARTED,
-                    joinedPlayers = mutableListOf("playerA"),
-                )
-            saveLobby.saveLobby(aLobby)
+            saveLobby.saveLobby(aLobby(id = A_VALID_LOBBY_ID))
+            clearAllMocks()
 
             // When...
-            clearAllMocks()
             val result =
-                client.post("/api/v1/lobby/0/join") {
+                client.post("/api/v1/lobby/$A_VALID_LOBBY_ID/join") {
                     contentType(ContentType.Application.Json)
-                    setBody("{\"playerName\":\"invalid name :3\"}")
+                    setBody("{\"playerName\":\"$AN_INVALID_PLAYERNAME\"}")
                 }
 
             // Then...
@@ -157,23 +142,15 @@ class JoinLobbyControllerIT : KoinTest {
                 basicModule()
                 moduleApiV1()
             }
+
             // Given...
             val saveLobby = get<SaveLobbyPort>()
-            // todo Testfactory?
-            val aLobby =
-                Lobby(
-                    id = 0,
-                    programs = hashMapOf<String, String>(),
-                    shork = MockShork(),
-                    gameState = GameState.NOT_STARTED,
-                    joinedPlayers = mutableListOf("playerA"),
-                )
-            saveLobby.saveLobby(aLobby)
+            saveLobby.saveLobby(aLobby(id = A_VALID_LOBBY_ID))
 
             // When...
             clearAllMocks()
             val result =
-                client.post("/api/v1/lobby/0/join") {
+                client.post("/api/v1/lobby/$A_VALID_LOBBY_ID/join") {
                     contentType(ContentType.Application.Json)
                     setBody("{}")
                 }
@@ -191,15 +168,16 @@ class JoinLobbyControllerIT : KoinTest {
                 basicModule()
                 moduleApiV1()
             }
+
             // Given...
             val saveLobby = get<SaveLobbyPort>()
+            clearAllMocks()
 
             // When...
-            clearAllMocks()
             val result =
-                client.post("/api/v1/lobby/0/join") {
+                client.post("/api/v1/lobby/$A_LOBBY_ID_THAT_HAS_NOT_BEEN_CREATED/join") {
                     contentType(ContentType.Application.Json)
-                    setBody("{\"playerName\":\"playerA\"}")
+                    setBody("{\"playerName\":\"$A_VALID_PLAYERNAME\"}")
                 }
 
             // Then...

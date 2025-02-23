@@ -17,6 +17,7 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.KoinTest
+import software.shonk.A_REDCODE_PROGRAM
 import software.shonk.basicModule
 import software.shonk.interpreter.application.port.incoming.GetCompilationErrorsQuery
 import software.shonk.interpreter.application.service.GetCompilationErrorsService
@@ -57,7 +58,7 @@ class GetCompilationErrorsControllerIT : KoinTest {
         val result =
             client.post("/api/v1/redcode/compile/errors") {
                 contentType(ContentType.Application.Json)
-                setBody("{ invalid, : json >:3c")
+                setBody("{ \"invalid\" : \"json >:3c\"")
             }
 
         // Then...
@@ -79,7 +80,7 @@ class GetCompilationErrorsControllerIT : KoinTest {
         val result =
             client.post("/api/v1/redcode/compile/errors") {
                 contentType(ContentType.Application.Json)
-                setBody(Program("MOV 0, 1"))
+                setBody(Program(A_REDCODE_PROGRAM))
             }
 
         // Then...

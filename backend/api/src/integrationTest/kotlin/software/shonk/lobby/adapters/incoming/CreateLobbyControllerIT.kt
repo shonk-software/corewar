@@ -18,6 +18,9 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.get
+import software.shonk.AN_INVALID_PLAYERNAME
+import software.shonk.A_VALID_PLAYERNAME
+import software.shonk.CREATE_LOBBY_ENDPOINT
 import software.shonk.basicModule
 import software.shonk.interpreter.IShork
 import software.shonk.interpreter.MockShork
@@ -59,22 +62,21 @@ class CreateLobbyControllerIT : KoinTest {
 
             // Given...
             val saveLobbyPort = get<SaveLobbyPort>()
+            clearAllMocks()
 
             // When...
-            clearAllMocks()
-            // todo testfactory
-            val result =
-                client.post("/api/v1/lobby") {
+            val response =
+                client.post(CREATE_LOBBY_ENDPOINT) {
                     contentType(ContentType.Application.Json)
-                    setBody("{\"playerName\":\"playerA\"}")
+                    setBody("{\"playerName\":\"$A_VALID_PLAYERNAME\"}")
                 }
 
             // Then...
-            assertEquals(HttpStatusCode.Created, result.status)
+            assertEquals(HttpStatusCode.Created, response.status)
 
-            val lobbyId = Json.decodeFromString<LobbyIdDTO>(result.bodyAsText())
+            val lobbyIdFromResponse = Json.decodeFromString<LobbyIdDTO>(response.bodyAsText())
             verify(exactly = 1) {
-                saveLobbyPort.saveLobby(match { it -> it.id == lobbyId.lobbyId })
+                saveLobbyPort.saveLobby(match { it -> it.id == lobbyIdFromResponse.lobbyId })
             }
         }
 
@@ -89,19 +91,19 @@ class CreateLobbyControllerIT : KoinTest {
 
             // Given...
             val saveLobbyPort = get<SaveLobbyPort>()
+            clearAllMocks()
 
             // When...
-            clearAllMocks()
-            // todo testfactory
-            val result =
-                client.post("/api/v1/lobby") {
+            val response =
+                client.post(CREATE_LOBBY_ENDPOINT) {
                     contentType(ContentType.Application.Json)
-                    setBody("{\"playerName\":\"invalidName :3\"}")
+                    setBody("{\"playerName\":\"$AN_INVALID_PLAYERNAME\"}")
                 }
 
             // Then...
-            assertEquals(HttpStatusCode.BadRequest, result.status)
-            assertEquals("Your player name is invalid", result.bodyAsText())
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+            // todo decide if this exact text should be tested here
+            assertEquals("Your player name is invalid", response.bodyAsText())
 
             verify(exactly = 0) { saveLobbyPort.saveLobby(any()) }
         }
@@ -117,19 +119,19 @@ class CreateLobbyControllerIT : KoinTest {
 
             // Given...
             val saveLobbyPort = get<SaveLobbyPort>()
+            clearAllMocks()
 
             // When...
-            clearAllMocks()
-            // todo testfactory
-            val result =
-                client.post("/api/v1/lobby") {
+            val response =
+                client.post(CREATE_LOBBY_ENDPOINT) {
                     contentType(ContentType.Application.Json)
                     setBody("{}")
                 }
 
             // Then...
-            assertEquals(HttpStatusCode.BadRequest, result.status)
-            assertEquals("Player name is missing", result.bodyAsText())
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+            // todo decide if this exact text should be tested here
+            assertEquals("Player name is missing", response.bodyAsText())
 
             verify(exactly = 0) { saveLobbyPort.saveLobby(any()) }
         }

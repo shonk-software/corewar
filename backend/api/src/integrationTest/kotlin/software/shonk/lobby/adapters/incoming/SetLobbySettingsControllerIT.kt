@@ -17,17 +17,19 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.get
+import software.shonk.AN_INVALID_LOBBY_ID
+import software.shonk.A_LOBBY_ID_THAT_HAS_NOT_BEEN_CREATED
+import software.shonk.A_VALID_LOBBY_ID
+import software.shonk.A_VALID_PLAYERNAME
+import software.shonk.aLobby
 import software.shonk.basicModule
-import software.shonk.interpreter.MockShork
 import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.incoming.SetLobbySettingsUseCase
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
 import software.shonk.lobby.application.service.SetLobbySettingsService
-import software.shonk.lobby.domain.GameState
-import software.shonk.lobby.domain.InterpreterSettings
-import software.shonk.lobby.domain.Lobby
 import software.shonk.moduleApiV1
+import software.shonk.someValidInterpreterSettings
 
 class SetLobbySettingsControllerIT : KoinTest {
 
@@ -58,36 +60,16 @@ class SetLobbySettingsControllerIT : KoinTest {
 
         // Given...
         val saveLobby = get<SaveLobbyPort>()
-        val aLobbyId = 0L
-        // todo Testfactory?
-        val aLobby =
-            Lobby(
-                id = aLobbyId,
-                programs = hashMapOf(),
-                shork = MockShork(),
-                gameState = GameState.NOT_STARTED,
-                joinedPlayers = mutableListOf("playerA"),
-            )
-        saveLobby.saveLobby(aLobby)
+        saveLobby.saveLobby(
+            aLobby(id = A_VALID_LOBBY_ID, joinedPlayers = mutableListOf(A_VALID_PLAYERNAME))
+        )
 
-        val updatedSettings =
-            InterpreterSettings(
-                coreSize = 2048,
-                instructionLimit = 500,
-                initialInstruction = "ADD",
-                maximumTicks = 100000,
-                maximumProcessesPerPlayer = 16,
-                readDistance = 100,
-                writeDistance = 100,
-                minimumSeparation = 50,
-                separation = 50,
-                randomSeparation = true,
-            )
+        val updatedSettings = someValidInterpreterSettings()
         clearAllMocks()
 
         // When...
         val response =
-            client.post("/api/v1/lobby/$aLobbyId/settings") {
+            client.post("/api/v1/lobby/$A_VALID_LOBBY_ID/settings") {
                 contentType(ContentType.Application.Json)
                 setBody(Json.encodeToString(updatedSettings))
             }
@@ -109,36 +91,16 @@ class SetLobbySettingsControllerIT : KoinTest {
 
         // Given...
         val saveLobby = get<SaveLobbyPort>()
-        val aLobbyId = 0L
-        // todo Testfactory?
-        val aLobby =
-            Lobby(
-                id = aLobbyId,
-                programs = hashMapOf(),
-                shork = MockShork(),
-                gameState = GameState.NOT_STARTED,
-                joinedPlayers = mutableListOf("playerA"),
-            )
-        saveLobby.saveLobby(aLobby)
+        saveLobby.saveLobby(
+            aLobby(id = A_VALID_LOBBY_ID, joinedPlayers = mutableListOf(A_VALID_PLAYERNAME))
+        )
 
-        val updatedSettings =
-            InterpreterSettings(
-                coreSize = 2048,
-                instructionLimit = 500,
-                initialInstruction = "ADD",
-                maximumTicks = 100000,
-                maximumProcessesPerPlayer = 16,
-                readDistance = 100,
-                writeDistance = 100,
-                minimumSeparation = 50,
-                separation = 50,
-                randomSeparation = true,
-            )
+        val updatedSettings = someValidInterpreterSettings()
         clearAllMocks()
 
         // When...
         val response =
-            client.post("/api/v1/lobby/999/settings") {
+            client.post("/api/v1/lobby/$A_LOBBY_ID_THAT_HAS_NOT_BEEN_CREATED/settings") {
                 contentType(ContentType.Application.Json)
                 setBody(Json.encodeToString(updatedSettings))
             }
@@ -159,22 +121,14 @@ class SetLobbySettingsControllerIT : KoinTest {
 
             // Given...
             val saveLobby = get<SaveLobbyPort>()
-            val aLobbyId = 0L
-            // todo Testfactory?
-            val aLobby =
-                Lobby(
-                    id = aLobbyId,
-                    programs = hashMapOf(),
-                    shork = MockShork(),
-                    gameState = GameState.NOT_STARTED,
-                    joinedPlayers = mutableListOf("playerA"),
-                )
-            saveLobby.saveLobby(aLobby)
+            saveLobby.saveLobby(
+                aLobby(id = A_VALID_LOBBY_ID, joinedPlayers = mutableListOf(A_VALID_PLAYERNAME))
+            )
             clearAllMocks()
 
             // When...
             val updateResponse =
-                client.post("/api/v1/lobby/$aLobbyId/settings") {
+                client.post("/api/v1/lobby/$A_VALID_LOBBY_ID/settings") {
                     contentType(ContentType.Application.Json)
                     setBody("{\"coreSize\":\"invalid value :3\"}")
                 }
@@ -195,14 +149,13 @@ class SetLobbySettingsControllerIT : KoinTest {
 
             // Given...
             val saveLobby = get<SaveLobbyPort>()
-            val anInvalidLobbyId = -1L
-            clearAllMocks()
+            val updatedSettings = someValidInterpreterSettings()
 
             // When...
             val updateResponse =
-                client.post("/api/v1/lobby/$anInvalidLobbyId/settings") {
+                client.post("/api/v1/lobby/$AN_INVALID_LOBBY_ID/settings") {
                     contentType(ContentType.Application.Json)
-                    setBody("{\"coreSize\":\"128\"}")
+                    setBody(Json.encodeToString(updatedSettings))
                 }
 
             // Then...

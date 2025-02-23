@@ -18,8 +18,11 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.get
+import software.shonk.ANOTHER_VALID_LOBBY_ID
+import software.shonk.A_VALID_LOBBY_ID
+import software.shonk.GET_ALL_LOBBIES_ENDPOINT
+import software.shonk.aLobby
 import software.shonk.basicModule
-import software.shonk.interpreter.MockShork
 import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.incoming.GetAllLobbiesQuery
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
@@ -61,7 +64,7 @@ class GetAllLobbiesControllerIT : KoinTest {
         // Given...
 
         // When...
-        val result = client.get("/api/v1/lobby")
+        val result = client.get(GET_ALL_LOBBIES_ENDPOINT)
 
         // Then...
         assertEquals(HttpStatusCode.OK, result.status)
@@ -80,31 +83,17 @@ class GetAllLobbiesControllerIT : KoinTest {
 
         // Given...
         val saveLobby = get<SaveLobbyPort>()
-        // todo Testfactory?
         val aLobby =
-            Lobby(
-                id = 0,
-                programs =
-                    hashMapOf<String, String>(
-                        "playerA" to "someString",
-                        "playerB" to "someOtherString",
-                    ),
-                shork = MockShork(),
+            aLobby(
+                id = A_VALID_LOBBY_ID,
+                programs = hashMapOf("playerA" to "someString", "playerB" to "someOtherString"),
                 gameState = GameState.FINISHED,
                 winner = Winner.B,
-                currentSettings = InterpreterSettings(),
                 joinedPlayers = mutableListOf("playerA", "playerB"),
             )
-        val anotherLobby =
-            Lobby(
-                id = 1,
-                programs = hashMapOf(),
-                shork = MockShork(),
-                gameState = GameState.NOT_STARTED,
-                currentSettings = InterpreterSettings(),
-                joinedPlayers = mutableListOf("playerA"),
-            )
         saveLobby.saveLobby(aLobby)
+        val anotherLobby =
+            aLobby(id = ANOTHER_VALID_LOBBY_ID, joinedPlayers = mutableListOf("playerA"))
         saveLobby.saveLobby(anotherLobby)
 
         // When...
