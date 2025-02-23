@@ -15,16 +15,13 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.get
-import software.shonk.basicModule
-import software.shonk.interpreter.MockShork
+import software.shonk.*
 import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.incoming.AddProgramToLobbyUseCase
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
 import software.shonk.lobby.application.service.AddProgramToLobbyService
 import software.shonk.lobby.domain.GameState
-import software.shonk.lobby.domain.Lobby
-import software.shonk.moduleApiV1
 
 class AddProgramToLobbyControllerIT : KoinTest {
 
@@ -55,32 +52,27 @@ class AddProgramToLobbyControllerIT : KoinTest {
 
         // Given...
         val saveLobby = get<SaveLobbyPort>()
-        val aLobbyId = 0L
-        val aProgram = "someString"
-        // todo Testfactory?
-        val aLobby =
-            Lobby(
-                id = aLobbyId,
-                programs = hashMapOf(),
-                shork = MockShork(),
-                gameState = GameState.NOT_STARTED,
-                joinedPlayers = mutableListOf("playerA"),
-            )
-        saveLobby.saveLobby(aLobby)
+        saveLobby.saveLobby(
+            aLobby(id = A_VALID_LOBBY_ID, joinedPlayers = mutableListOf(A_VALID_PLAYERNAME))
+        )
         clearAllMocks()
 
         // When...
         val response =
-            client.post("/api/v1/lobby/$aLobbyId/code/playerA") {
+            client.post("/api/v1/lobby/$A_VALID_LOBBY_ID/code/$A_VALID_PLAYERNAME") {
                 contentType(ContentType.Application.Json)
-                setBody("{\"code\": \"$aProgram\"}")
+                setBody("{\"code\": \"$A_REDCODE_PROGRAM\"}")
             }
 
         // Then...
         assertEquals(HttpStatusCode.OK, response.status)
         verify(exactly = 1) {
+            // todo adjust linter or just split so this reads nicer | maybe helper?
             saveLobby.saveLobby(
-                match { it -> it.id == aLobbyId && it.programs["playerA"] == aProgram }
+                match { it ->
+                    it.id == A_VALID_LOBBY_ID &&
+                        it.programs[A_VALID_PLAYERNAME] == A_REDCODE_PROGRAM
+                }
             )
         }
     }
@@ -95,13 +87,12 @@ class AddProgramToLobbyControllerIT : KoinTest {
 
         // Given...
         val saveLobby = get<SaveLobbyPort>()
-        val anInvalidLobbyId = -1L
 
         // When...
         val response =
-            client.post("/api/v1/lobby/$anInvalidLobbyId/code/playerA") {
+            client.post("/api/v1/lobby/$AN_INVALID_LOBBY_ID/code/$A_VALID_PLAYERNAME") {
                 contentType(ContentType.Application.Json)
-                setBody("{\"code\": \"MOV 0, 1\"}")
+                setBody("{\"code\": \"$A_REDCODE_PROGRAM\"}")
             }
 
         // Then...
@@ -120,14 +111,12 @@ class AddProgramToLobbyControllerIT : KoinTest {
 
             // Given...
             val saveLobby = get<SaveLobbyPort>()
-            val aLobbyId = 0L
-            val anInvalidPlayerName = "an invalid playername :3"
 
             // When...
             val response =
-                client.post("/api/v1/lobby/$aLobbyId/code/$anInvalidPlayerName") {
+                client.post("/api/v1/lobby/$A_VALID_LOBBY_ID/code/$AN_INVALID_PLAYERNAME") {
                     contentType(ContentType.Application.Json)
-                    setBody("{\"code\": \"MOV 0, 1\"}")
+                    setBody("{\"code\": \"$A_REDCODE_PROGRAM\"}")
                 }
 
             // Then...
@@ -146,24 +135,16 @@ class AddProgramToLobbyControllerIT : KoinTest {
 
             // Given...
             val saveLobby = get<SaveLobbyPort>()
-            val aLobbyId = 0L
-            // todo Testfactory?
-            val aLobby =
-                Lobby(
-                    id = aLobbyId,
-                    programs = hashMapOf(),
-                    shork = MockShork(),
-                    gameState = GameState.NOT_STARTED,
-                    joinedPlayers = mutableListOf("playerA"),
-                )
-            saveLobby.saveLobby(aLobby)
+            saveLobby.saveLobby(
+                aLobby(id = A_VALID_LOBBY_ID, joinedPlayers = mutableListOf(A_VALID_PLAYERNAME))
+            )
             clearAllMocks()
 
             // When...
             val response =
-                client.post("/api/v1/lobby/$aLobbyId/code/playerB") {
+                client.post("/api/v1/lobby/$A_VALID_LOBBY_ID/code/$ANOTHER_VALID_PLAYERNAME") {
                     contentType(ContentType.Application.Json)
-                    setBody("{\"code\": \"MOV 0, 1\"}")
+                    setBody("{\"code\": \"$A_REDCODE_PROGRAM\"}")
                 }
 
             // Then...
@@ -181,22 +162,14 @@ class AddProgramToLobbyControllerIT : KoinTest {
 
         // Given...
         val saveLobby = get<SaveLobbyPort>()
-        val aLobbyId = 0L
-        // todo Testfactory?
-        val aLobby =
-            Lobby(
-                id = aLobbyId,
-                programs = hashMapOf(),
-                shork = MockShork(),
-                gameState = GameState.NOT_STARTED,
-                joinedPlayers = mutableListOf("playerA"),
-            )
-        saveLobby.saveLobby(aLobby)
+        saveLobby.saveLobby(
+            aLobby(id = A_VALID_LOBBY_ID, joinedPlayers = mutableListOf(A_VALID_PLAYERNAME))
+        )
         clearAllMocks()
 
         // When...
         val response =
-            client.post("/api/v1/lobby/$aLobbyId/code/playerA") {
+            client.post("/api/v1/lobby/$A_VALID_LOBBY_ID/code/$A_VALID_PLAYERNAME") {
                 contentType(ContentType.Application.Json)
                 setBody("{}")
             }
@@ -219,9 +192,11 @@ class AddProgramToLobbyControllerIT : KoinTest {
 
         // When...
         val response =
-            client.post("/api/v1/lobby/0/code/playerA") {
+            client.post(
+                "/api/v1/lobby/$A_LOBBY_ID_THAT_HAS_NOT_BEEN_CREATED/code/$A_VALID_PLAYERNAME"
+            ) {
                 contentType(ContentType.Application.Json)
-                setBody("{\"code\": \"MOV 0, 1\"}")
+                setBody("{\"code\": \"$A_REDCODE_PROGRAM\"}")
             }
 
         // Then...
@@ -240,24 +215,25 @@ class AddProgramToLobbyControllerIT : KoinTest {
 
             // Given...
             val saveLobby = get<SaveLobbyPort>()
-            val aLobbyId = 0L
-            // todo Testfactory?
-            val aLobby =
-                Lobby(
-                    id = aLobbyId,
-                    programs = hashMapOf("playerA" to "MOV, 0, 1", "playerB" to "MOV, 0, 1"),
-                    shork = MockShork(),
+            saveLobby.saveLobby(
+                aLobby(
+                    id = A_VALID_LOBBY_ID,
+                    programs =
+                        hashMapOf(
+                            A_VALID_PLAYERNAME to A_REDCODE_PROGRAM,
+                            ANOTHER_VALID_PLAYERNAME to A_REDCODE_PROGRAM,
+                        ),
                     gameState = GameState.FINISHED,
-                    joinedPlayers = mutableListOf("playerA", "playerB"),
+                    joinedPlayers = mutableListOf(A_VALID_PLAYERNAME, ANOTHER_VALID_PLAYERNAME),
                 )
-            saveLobby.saveLobby(aLobby)
+            )
             clearAllMocks()
 
             // When...
             val response =
-                client.post("/api/v1/lobby/$aLobbyId/code/playerA") {
+                client.post("/api/v1/lobby/$A_VALID_LOBBY_ID/code/$A_VALID_PLAYERNAME") {
                     contentType(ContentType.Application.Json)
-                    setBody("{\"code\": \"MOV 0, 1\"}")
+                    setBody("{\"code\": \"$A_REDCODE_PROGRAM\"}")
                 }
 
             // Then...

@@ -18,19 +18,15 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.get
-import software.shonk.basicModule
-import software.shonk.interpreter.MockShork
+import software.shonk.*
 import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.incoming.GetLobbyStatusQuery
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
 import software.shonk.lobby.application.service.GetLobbyStatusService
 import software.shonk.lobby.domain.GameState
-import software.shonk.lobby.domain.InterpreterSettings
-import software.shonk.lobby.domain.Lobby
 import software.shonk.lobby.domain.Status
 import software.shonk.lobby.domain.Winner
-import software.shonk.moduleApiV1
 
 class GetLobbyStatusControllerIT : KoinTest {
 
@@ -63,11 +59,15 @@ class GetLobbyStatusControllerIT : KoinTest {
         // Given...
 
         // When...
-        val result = client.get("/api/v1/lobby/1/status")
+        val result = client.get("/api/v1/lobby/$A_LOBBY_ID_THAT_HAS_NOT_BEEN_CREATED/status")
 
         // Then...
         assertEquals(HttpStatusCode.NotFound, result.status)
-        assert(result.bodyAsText().contains("Lobby with id 1 not found!"))
+        assert(
+            result
+                .bodyAsText()
+                .contains("Lobby with id $A_LOBBY_ID_THAT_HAS_NOT_BEEN_CREATED not found!")
+        )
     }
 
     @Test
@@ -81,11 +81,11 @@ class GetLobbyStatusControllerIT : KoinTest {
         // Given...
 
         // When...
-        val result = client.get("/api/v1/lobby/-1/status")
+        val result = client.get("/api/v1/lobby/$AN_INVALID_LOBBY_ID/status")
 
         // Then...
         assertEquals(HttpStatusCode.BadRequest, result.status)
-        assert(result.bodyAsText().contains("Failed to parse Lobby id: -1"))
+        assert(result.bodyAsText().contains("Failed to parse Lobby id: $AN_INVALID_LOBBY_ID"))
     }
 
     @Test
@@ -98,35 +98,32 @@ class GetLobbyStatusControllerIT : KoinTest {
 
         // Given...
         val saveLobby = get<SaveLobbyPort>()
-        // todo Testfactory?
-        val aLobby =
-            Lobby(
-                id = 0,
+        saveLobby.saveLobby(
+            aLobby(
+                id = A_VALID_LOBBY_ID,
                 programs =
-                    hashMapOf<String, String>(
-                        "playerA" to "someString",
-                        "playerB" to "someOtherString",
+                    hashMapOf(
+                        A_VALID_PLAYERNAME to A_REDCODE_PROGRAM,
+                        ANOTHER_VALID_PLAYERNAME to A_REDCODE_PROGRAM,
                     ),
-                shork = MockShork(),
                 gameState = GameState.FINISHED,
                 winner = Winner.B,
-                currentSettings = InterpreterSettings(),
-                joinedPlayers = mutableListOf("playerA", "playerB"),
+                joinedPlayers = mutableListOf(A_VALID_PLAYERNAME, ANOTHER_VALID_PLAYERNAME),
             )
-        saveLobby.saveLobby(aLobby)
+        )
 
         // When...
-        val response = client.get("/api/v1/lobby/0/status")
+        val response = client.get("/api/v1/lobby/$A_VALID_LOBBY_ID/status")
 
         // Then...
         assertEquals(HttpStatusCode.OK, response.status)
 
-        val lobbyStatus = Json.decodeFromString<Status>(response.bodyAsText())
-        assertNotNull(lobbyStatus)
-        assertTrue(lobbyStatus.playerASubmitted)
-        assertTrue(lobbyStatus.playerBSubmitted)
-        assertEquals(GameState.FINISHED, lobbyStatus.gameState)
-        assertEquals(Winner.B, lobbyStatus.result.winner)
+        val lobbyStatusResponse = Json.decodeFromString<Status>(response.bodyAsText())
+        assertNotNull(lobbyStatusResponse)
+        assertTrue(lobbyStatusResponse.playerASubmitted)
+        assertTrue(lobbyStatusResponse.playerBSubmitted)
+        assertEquals(GameState.FINISHED, lobbyStatusResponse.gameState)
+        assertEquals(Winner.B, lobbyStatusResponse.result.winner)
     }
 
     @Test
@@ -139,19 +136,12 @@ class GetLobbyStatusControllerIT : KoinTest {
 
         // Given...
         val saveLobby = get<SaveLobbyPort>()
-        // todo Testfactory?
-        val aLobby =
-            Lobby(
-                id = 0,
-                programs = hashMapOf<String, String>(),
-                shork = MockShork(),
-                currentSettings = InterpreterSettings(),
-                joinedPlayers = mutableListOf("playerA"),
-            )
-        saveLobby.saveLobby(aLobby)
+        saveLobby.saveLobby(
+            aLobby(id = A_VALID_LOBBY_ID, joinedPlayers = mutableListOf(A_VALID_PLAYERNAME))
+        )
 
         // When...
-        val lobbyStatusResponse = client.get("/api/v1/lobby/${aLobby.id}/status")
+        val lobbyStatusResponse = client.get("/api/v1/lobby/$A_VALID_LOBBY_ID/status")
 
         // Then
         assertEquals(HttpStatusCode.OK, lobbyStatusResponse.status)
@@ -171,24 +161,20 @@ class GetLobbyStatusControllerIT : KoinTest {
 
         // Given...
         val saveLobby = get<SaveLobbyPort>()
-        // todo Testfactory?
-        val aLobby =
-            Lobby(
-                id = 0,
+        saveLobby.saveLobby(
+            aLobbyThatHasAlreadyRun(
+                id = A_VALID_LOBBY_ID,
                 programs =
-                    hashMapOf<String, String>("playerA" to "MOV 0, 1", "playerB" to "MOV 0, 1"),
-                shork = MockShork(),
-                currentSettings = InterpreterSettings(),
-                joinedPlayers = mutableListOf("playerA", "playerB"),
+                    hashMapOf(
+                        A_VALID_PLAYERNAME to A_REDCODE_PROGRAM,
+                        ANOTHER_VALID_PLAYERNAME to A_REDCODE_PROGRAM,
+                    ),
+                joinedPlayers = mutableListOf(A_VALID_PLAYERNAME, ANOTHER_VALID_PLAYERNAME),
             )
-        // todo we should not have to call run here, but instead a testfactory method should provide
-        // us with a lobby,
-        // that is already run as we need it and contains the correct visualization data
-        aLobby.run()
-        saveLobby.saveLobby(aLobby)
+        )
 
         // When...
-        val lobbyStatusResponse = client.get("/api/v1/lobby/${aLobby.id}/status")
+        val lobbyStatusResponse = client.get("/api/v1/lobby/$A_VALID_LOBBY_ID/status")
 
         // Then...
         assertEquals(HttpStatusCode.OK, lobbyStatusResponse.status)
@@ -200,7 +186,7 @@ class GetLobbyStatusControllerIT : KoinTest {
         // Also available when we specifically toggle it to true...
         // When...
         val lobbyStatusResponseExplicitInclude =
-            client.get("/api/v1/lobby/${aLobby.id}/status?showVisualizationData=true")
+            client.get("/api/v1/lobby/$A_VALID_LOBBY_ID/status?showVisualizationData=true")
 
         // Then...
         assertEquals(HttpStatusCode.OK, lobbyStatusResponseExplicitInclude.status)
@@ -221,25 +207,21 @@ class GetLobbyStatusControllerIT : KoinTest {
 
         // Given...
         val saveLobby = get<SaveLobbyPort>()
-        // todo Testfactory?
-        val aLobby =
-            Lobby(
-                id = 0,
+        saveLobby.saveLobby(
+            aLobbyThatHasAlreadyRun(
+                id = A_VALID_LOBBY_ID,
                 programs =
-                    hashMapOf<String, String>("playerA" to "MOV 0, 1", "playerB" to "MOV 0, 1"),
-                shork = MockShork(),
-                currentSettings = InterpreterSettings(),
-                joinedPlayers = mutableListOf("playerA", "playerB"),
+                    hashMapOf(
+                        A_VALID_PLAYERNAME to A_REDCODE_PROGRAM,
+                        ANOTHER_VALID_PLAYERNAME to A_REDCODE_PROGRAM,
+                    ),
+                joinedPlayers = mutableListOf(A_VALID_PLAYERNAME, ANOTHER_VALID_PLAYERNAME),
             )
-        // todo we should not have to call run here, but instead a testfactory method should provide
-        // us with a lobby,
-        // that is already run as we need it and contains the correct visualization data
-        aLobby.run()
-        saveLobby.saveLobby(aLobby)
+        )
 
         // When...
         val lobbyStatusResponse =
-            client.get("/api/v1/lobby/${aLobby.id}/status?showVisualizationData=false")
+            client.get("/api/v1/lobby/$A_VALID_LOBBY_ID/status?showVisualizationData=false")
 
         // Then...
         assertEquals(HttpStatusCode.OK, lobbyStatusResponse.status)
