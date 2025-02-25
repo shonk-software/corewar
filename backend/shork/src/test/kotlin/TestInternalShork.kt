@@ -1,5 +1,5 @@
-import kotlin.test.assertEquals
 import mocks.KillProgramInstruction
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import software.shonk.interpreter.internal.FinishedState

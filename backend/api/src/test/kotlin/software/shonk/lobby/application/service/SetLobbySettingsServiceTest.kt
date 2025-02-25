@@ -3,28 +3,22 @@ package software.shonk.lobby.application.service
 import io.mockk.clearMocks
 import io.mockk.spyk
 import io.mockk.verify
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import software.shonk.interpreter.MockShork
+import software.shonk.*
 import software.shonk.lobby.adapters.incoming.setLobbySettings.SetLobbySettingsCommand
 import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
-import software.shonk.lobby.domain.InterpreterSettings
-import software.shonk.lobby.domain.Lobby
 import software.shonk.lobby.domain.exceptions.LobbyNotFoundException
 
 class SetLobbySettingsServiceTest {
 
     private lateinit var setLobbySettingsService: SetLobbySettingsService
-    // todo the stuff we do here with saveLobbyPort should be testhelpers that directly access the
-    // MemoryLobbyManager stuff or something similar
     private lateinit var saveLobbyPort: SaveLobbyPort
     private lateinit var loadLobbyPort: LoadLobbyPort
 
-    // The in-memory lobby management also serves as a kind of mock here.
     @BeforeEach
     fun setUp() {
         val lobbyManager = spyk<MemoryLobbyManager>()
@@ -34,40 +28,42 @@ class SetLobbySettingsServiceTest {
     }
 
     @Test
-    fun `set settings for the lobby`() {
-        val aLobbyId = 0L
+    fun `set settings for a valid, existing lobby succeeds and updates the settings`() {
+        // Given...
         saveLobbyPort.saveLobby(
-            Lobby(aLobbyId, hashMapOf(), MockShork(), joinedPlayers = mutableListOf("playerA"))
+            aLobby(A_VALID_LOBBY_ID, joinedPlayers = mutableListOf(A_VALID_PLAYERNAME))
         )
-        val someSettings = InterpreterSettings(69, 123, "NOP", 0)
-        // Clear recorded interactions, this is needed because the previous saveLobby call would in
-        // combination with
-        // the field being changed below suffices to fulfill the matcher!
+        val someSettings = someValidInterpreterSettings()
         clearMocks(saveLobbyPort)
 
-        setLobbySettingsService.setLobbySettings(SetLobbySettingsCommand(aLobbyId, someSettings))
+        // When...
+        val result =
+            setLobbySettingsService.setLobbySettings(
+                SetLobbySettingsCommand(A_VALID_LOBBY_ID, someSettings)
+            )
+
+        // Then...
+        assertTrue(result.isSuccess)
         verify(exactly = 1) {
             saveLobbyPort.saveLobby(
-                match { it.id == aLobbyId && it.currentSettings == someSettings }
+                match { it.id == A_VALID_LOBBY_ID && it.currentSettings == someSettings }
             )
         }
     }
 
-    // todo this might already be an integration test with how its using the memoryLobbyManager,
-    // maybe take another look
     @Test
-    fun `set settings for invalid lobby`() {
-        val aLobbyIdThatDoesNotExist = 0L
-        val someSettings = InterpreterSettings(69, 123, "NOP", 0)
+    fun `set settings for a lobby that does not exist fails with LobbyNotFoundException`() {
+        // Given...
+        val someSettings = someValidInterpreterSettings()
+
+        // When...
         val result =
             setLobbySettingsService.setLobbySettings(
-                SetLobbySettingsCommand(aLobbyIdThatDoesNotExist, someSettings)
+                SetLobbySettingsCommand(A_LOBBY_ID_THAT_HAS_NOT_BEEN_CREATED, someSettings)
             )
 
-        assertFalse(result.isSuccess)
-        assertEquals(
-            LobbyNotFoundException(aLobbyIdThatDoesNotExist).message,
-            result.exceptionOrNull()?.message,
-        )
+        // Then...
+        assertTrue(result.isFailure)
+        assertTrue { result.exceptionOrNull() is LobbyNotFoundException }
     }
 }

@@ -1,7 +1,7 @@
 package instruction
 
 import getDefaultInternalSettings
-import kotlin.test.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import software.shonk.interpreter.internal.InternalShork
@@ -12,6 +12,7 @@ import software.shonk.interpreter.internal.instruction.Sub
 import software.shonk.interpreter.internal.process.Process
 import software.shonk.interpreter.internal.program.Program
 
+// todo refactor vanilla kotlin asserts to matching JUNIT5 asserts
 internal class TestSub {
 
     private val dat = Dat(5, 7, AddressMode.IMMEDIATE, AddressMode.IMMEDIATE, Modifier.A)

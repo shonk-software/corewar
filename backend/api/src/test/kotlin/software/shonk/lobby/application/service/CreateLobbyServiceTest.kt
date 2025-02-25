@@ -5,8 +5,11 @@ import io.mockk.spyk
 import io.mockk.verify
 import io.mockk.verifySequence
 import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import software.shonk.ANOTHER_VALID_PLAYERNAME
+import software.shonk.A_VALID_PLAYERNAME
 import software.shonk.interpreter.MockShork
 import software.shonk.lobby.adapters.incoming.createLobby.CreateLobbyCommand
 import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
@@ -16,8 +19,6 @@ import software.shonk.lobby.domain.Lobby
 class CreateLobbyServiceTest {
 
     private lateinit var createLobbyService: CreateLobbyService
-    // todo the stuff we do here with saveLobbyPort should be testhelpers that directly access the
-    // MemoryLobbyManager stuff or something similar
     private lateinit var saveLobbyPort: SaveLobbyPort
 
     // The in-memory lobby management also serves as a kind of mock here.
@@ -29,28 +30,35 @@ class CreateLobbyServiceTest {
     }
 
     @Test
-    fun `create lobby containing playnerame when valid playername is given`() {
-        val validPlayername = "playerA"
-        createLobbyService.createLobby(CreateLobbyCommand(validPlayername))
+    fun `creating lobby containing playnerame when valid playername is given succeeds`() {
+        // Given...
 
+        // When...
+        val result = createLobbyService.createLobby(CreateLobbyCommand(A_VALID_PLAYERNAME))
+
+        // Then...
+        assertTrue(result.isSuccess)
         verify(exactly = 1) {
-            saveLobbyPort.saveLobby(match { it -> it.joinedPlayers.contains(validPlayername) })
+            saveLobbyPort.saveLobby(match { it -> it.joinedPlayers.contains(A_VALID_PLAYERNAME) })
         }
     }
 
     @Test
     fun `two lobbies created after one another have different ids`() {
+        // Given...
         val lobbySlot1 = slot<Lobby>()
         val lobbySlot2 = slot<Lobby>()
 
-        createLobbyService.createLobby(CreateLobbyCommand("playerA"))
-        createLobbyService.createLobby(CreateLobbyCommand("playerB"))
+        // When...
+        createLobbyService.createLobby(CreateLobbyCommand(A_VALID_PLAYERNAME))
+        createLobbyService.createLobby(CreateLobbyCommand(ANOTHER_VALID_PLAYERNAME))
 
+        // Then
+        verify(exactly = 2) { saveLobbyPort.saveLobby(any()) }
         verifySequence {
             saveLobbyPort.saveLobby(capture(lobbySlot1))
             saveLobbyPort.saveLobby(capture(lobbySlot2))
         }
-
         assertNotEquals(lobbySlot1.captured.id, lobbySlot2.captured.id)
     }
 }

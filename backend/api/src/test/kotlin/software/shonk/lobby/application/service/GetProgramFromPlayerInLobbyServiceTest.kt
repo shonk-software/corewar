@@ -1,24 +1,22 @@
 package software.shonk.lobby.application.service
 
 import io.mockk.spyk
-import kotlin.test.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import software.shonk.interpreter.MockShork
+import software.shonk.*
 import software.shonk.lobby.adapters.incoming.getProgramFromPlayerInLobby.GetProgramFromPlayerInLobbyCommand
 import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
-import software.shonk.lobby.domain.Lobby
 import software.shonk.lobby.domain.PlayerNameString
 import software.shonk.lobby.domain.exceptions.LobbyNotFoundException
+import software.shonk.lobby.domain.exceptions.NoCodeForPlayerException
+import software.shonk.lobby.domain.exceptions.PlayerNotInLobbyException
 
 class GetProgramFromPlayerInLobbyServiceTest {
 
     lateinit var loadLobbyPort: LoadLobbyPort
-    // todo the stuff we do here with saveLobbyPort should be testhelpers that directly access the
-    // MemoryLobbyManager stuff or something similar
     lateinit var saveLobbyPort: SaveLobbyPort
     lateinit var getProgramFromPlayerInLobbyService: GetProgramFromPlayerInLobbyService
 
@@ -32,128 +30,97 @@ class GetProgramFromPlayerInLobbyServiceTest {
     }
 
     @Test
-    fun `get code from lobby`() {
-        val aLobbyId = 0L
+    fun `get code from two players that submitted code in an existing lobby`() {
+        // Given...
         saveLobbyPort.saveLobby(
-            Lobby(
-                aLobbyId,
-                hashMapOf("playerA" to "someProgram", "playerB" to "someOtherProgram"),
-                MockShork(),
-                joinedPlayers = mutableListOf("playerA", "playerB"),
+            aLobby(
+                A_VALID_LOBBY_ID,
+                hashMapOf(
+                    A_VALID_PLAYERNAME to A_REDCODE_PROGRAM,
+                    ANOTHER_VALID_PLAYERNAME to ANOTHER_REDCODE_PROGRAM,
+                ),
+                joinedPlayers = mutableListOf(A_VALID_PLAYERNAME, ANOTHER_VALID_PLAYERNAME),
             )
         )
 
-        assertEquals(
-            "someProgram",
-            getProgramFromPlayerInLobbyService
-                .getProgramFromPlayerInLobby(
-                    GetProgramFromPlayerInLobbyCommand(aLobbyId, PlayerNameString("playerA"))
+        // When...
+        val playerAResponse =
+            getProgramFromPlayerInLobbyService.getProgramFromPlayerInLobby(
+                GetProgramFromPlayerInLobbyCommand(
+                    A_VALID_LOBBY_ID,
+                    PlayerNameString(A_VALID_PLAYERNAME),
                 )
-                .getOrNull(),
-        )
-        assertEquals(
-            "someOtherProgram",
-            getProgramFromPlayerInLobbyService
-                .getProgramFromPlayerInLobby(
-                    GetProgramFromPlayerInLobbyCommand(aLobbyId, PlayerNameString("playerB"))
+            )
+        val playerBResponse =
+            getProgramFromPlayerInLobbyService.getProgramFromPlayerInLobby(
+                GetProgramFromPlayerInLobbyCommand(
+                    A_VALID_LOBBY_ID,
+                    PlayerNameString(ANOTHER_VALID_PLAYERNAME),
                 )
-                .getOrNull(),
-        )
+            )
+
+        // Then...
+        assertEquals(A_REDCODE_PROGRAM, playerAResponse.getOrNull())
+        assertEquals(ANOTHER_REDCODE_PROGRAM, playerBResponse.getOrNull())
     }
 
     @Test
-    fun `get code from multiple independent lobbies`() {
-        val aLobbyId = 0L
+    fun `get code from lobby with player who has not submitted anything throws NoCodeForPlayerException`() {
+        // Given...
         saveLobbyPort.saveLobby(
-            Lobby(
-                aLobbyId,
-                hashMapOf("playerA" to "someProgram", "playerB" to "someOtherProgram"),
-                MockShork(),
-                joinedPlayers = mutableListOf("playerA", "playerB"),
-            )
+            aLobby(A_VALID_LOBBY_ID, joinedPlayers = mutableListOf(A_VALID_PLAYERNAME))
         )
 
-        val anotherLobbyId = 1L
-        saveLobbyPort.saveLobby(
-            Lobby(
-                anotherLobbyId,
-                hashMapOf("playerA" to "differentProgram", "playerB" to "evenMoreDifferentProgram"),
-                MockShork(),
-                joinedPlayers = mutableListOf("playerA", "playerB"),
-            )
-        )
-
-        assertEquals(
-            "someProgram",
-            getProgramFromPlayerInLobbyService
-                .getProgramFromPlayerInLobby(
-                    GetProgramFromPlayerInLobbyCommand(aLobbyId, PlayerNameString("playerA"))
-                )
-                .getOrNull(),
-        )
-        assertEquals(
-            "someOtherProgram",
-            getProgramFromPlayerInLobbyService
-                .getProgramFromPlayerInLobby(
-                    GetProgramFromPlayerInLobbyCommand(aLobbyId, PlayerNameString("playerB"))
-                )
-                .getOrNull(),
-        )
-        assertEquals(
-            "differentProgram",
-            getProgramFromPlayerInLobbyService
-                .getProgramFromPlayerInLobby(
-                    GetProgramFromPlayerInLobbyCommand(anotherLobbyId, PlayerNameString("playerA"))
-                )
-                .getOrNull(),
-        )
-        assertEquals(
-            "evenMoreDifferentProgram",
-            getProgramFromPlayerInLobbyService
-                .getProgramFromPlayerInLobby(
-                    GetProgramFromPlayerInLobbyCommand(anotherLobbyId, PlayerNameString("playerB"))
-                )
-                .getOrNull(),
-        )
-    }
-
-    @Test
-    fun `get code from lobby with player who has not submitted anything`() {
-        val aLobbyId = 0L
-        saveLobbyPort.saveLobby(
-            Lobby(
-                aLobbyId,
-                hashMapOf("playerA" to "someProgram"),
-                MockShork(),
-                joinedPlayers = mutableListOf("playerA"),
-            )
-        )
-
-        assertEquals(
-            "Player playerB has not joined lobby 0 yet",
-            getProgramFromPlayerInLobbyService
-                .getProgramFromPlayerInLobby(
-                    GetProgramFromPlayerInLobbyCommand(aLobbyId, PlayerNameString("playerB"))
-                )
-                .exceptionOrNull()
-                ?.message,
-        )
-    }
-
-    @Test
-    fun `get code from lobby with invalid lobby`() {
-        val aLobbyIdThatDoesNotExist = 0L
+        // When...
         val result =
             getProgramFromPlayerInLobbyService.getProgramFromPlayerInLobby(
                 GetProgramFromPlayerInLobbyCommand(
-                    aLobbyIdThatDoesNotExist,
-                    PlayerNameString("playerA"),
+                    A_VALID_LOBBY_ID,
+                    PlayerNameString(A_VALID_PLAYERNAME),
                 )
             )
-        assertFalse(result.isSuccess)
-        assertEquals(
-            LobbyNotFoundException(aLobbyIdThatDoesNotExist).message,
-            result.exceptionOrNull()?.message,
+
+        // Then...
+        assertTrue { result.isFailure }
+        assertTrue { result.exceptionOrNull() is NoCodeForPlayerException }
+    }
+
+    @Test
+    fun `get code from lobby with player who has joined throws PlayerNotInLobbyException`() {
+        // Given...
+        saveLobbyPort.saveLobby(
+            aLobby(A_VALID_LOBBY_ID, joinedPlayers = mutableListOf(A_VALID_PLAYERNAME))
         )
+
+        // When...
+        val result =
+            getProgramFromPlayerInLobbyService.getProgramFromPlayerInLobby(
+                GetProgramFromPlayerInLobbyCommand(
+                    A_VALID_LOBBY_ID,
+                    PlayerNameString(ANOTHER_VALID_PLAYERNAME),
+                )
+            )
+
+        // Then...
+        assertTrue { result.isFailure }
+        assertTrue { result.exceptionOrNull() is PlayerNotInLobbyException }
+    }
+
+    @Test
+    fun `get code from lobby lobby that does not exist fails with LobbyNotFoundException`() {
+        // Given...
+
+        // When...
+        val result =
+            getProgramFromPlayerInLobbyService.getProgramFromPlayerInLobby(
+                GetProgramFromPlayerInLobbyCommand(
+                    A_LOBBY_ID_THAT_HAS_NOT_BEEN_CREATED,
+                    PlayerNameString(A_VALID_PLAYERNAME),
+                )
+            )
+
+        // Then...
+        assertTrue { result.isFailure }
+        assertTrue { result.exceptionOrNull() is LobbyNotFoundException }
     }
 }

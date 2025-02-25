@@ -1,17 +1,20 @@
 package software.shonk.lobby.application.service
 
+import io.mockk.clearAllMocks
 import io.mockk.spyk
-import kotlin.test.assertEquals
+import io.mockk.verify
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import software.shonk.interpreter.MockShork
+import software.shonk.*
 import software.shonk.lobby.adapters.incoming.joinLobby.JoinLobbyCommand
 import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.incoming.JoinLobbyUseCase
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
-import software.shonk.lobby.domain.Lobby
 import software.shonk.lobby.domain.PlayerNameString
+import software.shonk.lobby.domain.exceptions.LobbyNotFoundException
+import software.shonk.lobby.domain.exceptions.PlayerAlreadyJoinedLobbyException
 
 class JoinLobbyServiceTest {
 
@@ -19,7 +22,6 @@ class JoinLobbyServiceTest {
     private lateinit var loadLobbyPort: LoadLobbyPort
     private lateinit var saveLobbyPort: SaveLobbyPort
 
-    // The in-memory lobby management also serves as a kind of mock here.
     @BeforeEach
     fun setUp() {
         val lobbyManager = spyk<MemoryLobbyManager>()
@@ -29,34 +31,71 @@ class JoinLobbyServiceTest {
     }
 
     @Test
-    fun `join lobby with valid playerName`() {
-        val aLobbyId = 0L
+    fun `join lobby with valid playerName updates lobby to now include the joined player`() {
+        // Given...
         saveLobbyPort.saveLobby(
-            Lobby(aLobbyId, hashMapOf(), MockShork(), joinedPlayers = mutableListOf("playerA"))
+            aLobby(A_VALID_LOBBY_ID, joinedPlayers = mutableListOf(A_VALID_PLAYERNAME))
         )
-        joinLobbyUseCase.joinLobby(JoinLobbyCommand(aLobbyId, PlayerNameString("playerB")))
+        clearAllMocks()
 
-        assertEquals(
-            true,
-            loadLobbyPort.getLobby(aLobbyId).getOrNull()?.joinedPlayers?.contains("playerB"),
-        )
+        // When...
+        val result =
+            joinLobbyUseCase.joinLobby(
+                JoinLobbyCommand(A_VALID_LOBBY_ID, PlayerNameString(ANOTHER_VALID_PLAYERNAME))
+            )
+
+        // Then...
+        assertTrue(result.isSuccess)
+        verify(exactly = 1) {
+            saveLobbyPort.saveLobby(
+                match { lobby ->
+                    lobby.id == A_VALID_LOBBY_ID &&
+                        lobby.joinedPlayers.contains(ANOTHER_VALID_PLAYERNAME)
+                }
+            )
+        }
     }
 
     @Test
-    fun `join lobby with duplicate (invalid) playerName`() {
-        val aLobbyId = 0L
+    fun `join lobby with duplicate playerName throws PlayerAlreadyJoinedLobbyException`() {
+        // Given...
         saveLobbyPort.saveLobby(
-            Lobby(aLobbyId, hashMapOf(), MockShork(), joinedPlayers = mutableListOf("playerA"))
+            aLobby(A_VALID_LOBBY_ID, joinedPlayers = mutableListOf(A_VALID_PLAYERNAME))
         )
-        joinLobbyUseCase.joinLobby(JoinLobbyCommand(aLobbyId, PlayerNameString("playerA")))
+        clearAllMocks()
 
-        assertEquals(1, loadLobbyPort.getLobby(aLobbyId).getOrNull()?.joinedPlayers?.size)
+        // When...
+        val result =
+            joinLobbyUseCase.joinLobby(
+                JoinLobbyCommand(A_VALID_LOBBY_ID, PlayerNameString(A_VALID_PLAYERNAME))
+            )
+
+        // Then...
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is PlayerAlreadyJoinedLobbyException)
+        verify(exactly = 0) {
+            saveLobbyPort.saveLobby(match { lobby -> lobby.id == A_VALID_LOBBY_ID })
+        }
     }
 
     @Test
-    fun `join nonexistent lobby`() {
-        val result = joinLobbyUseCase.joinLobby(JoinLobbyCommand(0L, PlayerNameString("playerA")))
+    fun `trying to join a nonexistent lobby fails with LobbyNotFoundException`() {
+        // Given...
 
-        assertEquals(result.isFailure, true)
+        // When...
+        val result =
+            joinLobbyUseCase.joinLobby(
+                JoinLobbyCommand(
+                    A_LOBBY_ID_THAT_HAS_NOT_BEEN_CREATED,
+                    PlayerNameString(A_VALID_PLAYERNAME),
+                )
+            )
+
+        // Then...
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is LobbyNotFoundException)
+        verify(exactly = 0) {
+            saveLobbyPort.saveLobby(match { lobby -> lobby.id == A_VALID_LOBBY_ID })
+        }
     }
 }
