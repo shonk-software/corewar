@@ -2,9 +2,9 @@ package program
 
 import assertExecutionCountAtAddress
 import getDefaultInternalSettings
-import kotlin.test.assertEquals
 import mocks.MockGameDataCollector
 import mocks.MockInstruction
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import software.shonk.interpreter.internal.InternalShork

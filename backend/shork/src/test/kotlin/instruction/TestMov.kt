@@ -1,7 +1,7 @@
 package instruction
 
 import getDefaultInternalSettings
-import kotlin.test.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import software.shonk.interpreter.internal.InternalShork
@@ -12,6 +12,7 @@ import software.shonk.interpreter.internal.instruction.Mov
 import software.shonk.interpreter.internal.process.Process
 import software.shonk.interpreter.internal.program.Program
 
+// todo refactor basic asserts to junit asserts
 internal class TestMov {
 
     private val dat = Dat(0, 0, AddressMode.IMMEDIATE, AddressMode.IMMEDIATE, Modifier.A)

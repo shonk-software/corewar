@@ -1,16 +1,15 @@
 package software.shonk.lobby.application.service
 
 import io.mockk.spyk
-import kotlin.test.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import software.shonk.interpreter.MockShork
+import software.shonk.*
 import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.incoming.GetAllLobbiesQuery
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
-import software.shonk.lobby.domain.Lobby
 import software.shonk.lobby.domain.LobbyStatus
 
 class GetAllLobbiesServiceTest {
@@ -29,33 +28,28 @@ class GetAllLobbiesServiceTest {
     }
 
     @Test
-    fun `test get all lobbies`() {
-        val aLobbyId = 0L
+    fun `get all lobbies returns all existing lobbies`() {
+        // Given...
         saveLobbyPort.saveLobby(
-            Lobby(aLobbyId, hashMapOf(), MockShork(), joinedPlayers = mutableListOf("playerA"))
+            aLobby(id = A_VALID_LOBBY_ID, joinedPlayers = mutableListOf(A_VALID_PLAYERNAME))
         )
-        val anotherLobbyId = 1L
         saveLobbyPort.saveLobby(
-            Lobby(
-                anotherLobbyId,
-                hashMapOf(),
-                MockShork(),
-                joinedPlayers = mutableListOf("playerA"),
-            )
+            aLobby(id = ANOTHER_VALID_LOBBY_ID, joinedPlayers = mutableListOf(A_VALID_PLAYERNAME))
         )
-        val aThirdLobbyId = 2L
         saveLobbyPort.saveLobby(
-            Lobby(aThirdLobbyId, hashMapOf(), MockShork(), joinedPlayers = mutableListOf("playerA"))
+            aLobby(id = A_THIRD_VALID_LOBBY_ID, joinedPlayers = mutableListOf(A_VALID_PLAYERNAME))
         )
 
+        // When
         val result = getAllLobbiesQuery.getAllLobbies().getOrNull()
 
+        // Then...
         assertEquals(3, result?.size)
         assertTrue(
             result?.contains(
                 LobbyStatus(
-                    id = aLobbyId,
-                    playersJoined = listOf("playerA"),
+                    id = A_VALID_LOBBY_ID,
+                    playersJoined = listOf(A_VALID_PLAYERNAME),
                     gameState = "NOT_STARTED",
                 )
             ) ?: false
@@ -64,8 +58,8 @@ class GetAllLobbiesServiceTest {
         assertTrue(
             result?.contains(
                 LobbyStatus(
-                    id = anotherLobbyId,
-                    playersJoined = listOf("playerA"),
+                    id = ANOTHER_VALID_LOBBY_ID,
+                    playersJoined = listOf(A_VALID_PLAYERNAME),
                     gameState = "NOT_STARTED",
                 )
             ) ?: false
@@ -74,8 +68,8 @@ class GetAllLobbiesServiceTest {
         assertTrue(
             result?.contains(
                 LobbyStatus(
-                    id = aThirdLobbyId,
-                    playersJoined = listOf("playerA"),
+                    id = A_THIRD_VALID_LOBBY_ID,
+                    playersJoined = listOf(A_VALID_PLAYERNAME),
                     gameState = "NOT_STARTED",
                 )
             ) ?: false

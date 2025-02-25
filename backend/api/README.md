@@ -11,3 +11,4 @@ Hit localhost:8080/api with GET for a basic hello world.
 
 ## Stuff
  - The controllers should not do any direct validation. This should be delegated to the constructors of the commands!
+ - Avoid mocks wherever possible and instead rely on simple in-memory adapters and fakes.
