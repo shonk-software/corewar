@@ -82,6 +82,38 @@ class SetLobbySettingsControllerIT : KoinTest {
     }
 
     @Test
+    fun `updating only one part of the settings for an existing lobby returns 200`() =
+        testApplication {
+            // Setup
+            application {
+                basicModule()
+                moduleApiV1()
+            }
+
+            // Given...
+            val saveLobby = get<SaveLobbyPort>()
+            saveLobby.saveLobby(
+                aLobby(id = A_VALID_LOBBY_ID, joinedPlayers = mutableListOf(A_VALID_PLAYERNAME))
+            )
+
+            val newCoreSize = 1234
+            clearAllMocks()
+
+            // When...
+            val response =
+                client.post("/api/v1/lobby/$A_VALID_LOBBY_ID/settings") {
+                    contentType(ContentType.Application.Json)
+                    setBody("{\"coreSize\": $newCoreSize}")
+                }
+
+            // Then...
+            assertEquals(HttpStatusCode.OK, response.status)
+            verify(exactly = 1) {
+                saveLobby.saveLobby(match { it -> it.currentSettings.coreSize == newCoreSize })
+            }
+        }
+
+    @Test
     fun `trying to update settings for a non-existent lobby returns 404`() = testApplication {
         // Setup
         application {

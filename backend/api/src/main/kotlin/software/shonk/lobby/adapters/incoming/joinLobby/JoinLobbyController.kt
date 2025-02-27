@@ -35,12 +35,7 @@ fun Route.configureJoinLobbyControllerV1() {
      * operation is aborted.
      */
     post("/lobby/{lobbyId}/join") {
-
-        // todo move parsing to command construction
-        val lobbyId =
-            call.parameters["lobbyId"]?.toLongOrNull()
-                ?: return@post call.respond(HttpStatusCode.BadRequest)
-
+        val lobbyId = call.parameters["lobbyId"]
         val joinLobbyBodyResult = runCatching { call.receive<JoinLobbyBody>() }
         joinLobbyBodyResult.onFailure {
             logger.error("Unable to extract parameters from request...", it)
@@ -49,7 +44,6 @@ fun Route.configureJoinLobbyControllerV1() {
         }
 
         val joinLobbyBody = joinLobbyBodyResult.getOrThrow()
-
         val constructJoinLobbyCommandResult = runCatching {
             JoinLobbyCommand(lobbyId, PlayerNameString(joinLobbyBody.playerName))
         }
