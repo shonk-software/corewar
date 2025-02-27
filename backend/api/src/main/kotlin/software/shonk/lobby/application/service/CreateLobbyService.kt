@@ -13,7 +13,7 @@ class CreateLobbyService(private val shork: IShork, private var saveLobbyPort: S
 
     override fun createLobby(createLobbyCommand: CreateLobbyCommand): Result<Long> {
         val newLobby = Lobby(lobbyCounter, HashMap(), shork)
-        newLobby.joinedPlayers.add(createLobbyCommand.playerName)
+        newLobby.joinedPlayers.add(createLobbyCommand.playerName.name)
         val saveResult = saveLobbyPort.saveLobby(newLobby)
         saveResult.onSuccess {
             return Result.success(lobbyCounter++)

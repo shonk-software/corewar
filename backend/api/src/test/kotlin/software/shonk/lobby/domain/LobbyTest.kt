@@ -4,11 +4,13 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
-import kotlin.Result
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import software.shonk.interpreter.*
+import software.shonk.interpreter.GameOutcome
+import software.shonk.interpreter.GameResult
+import software.shonk.interpreter.MockShork
+import software.shonk.interpreter.OutcomeKind
 
 class LobbyTest {
 

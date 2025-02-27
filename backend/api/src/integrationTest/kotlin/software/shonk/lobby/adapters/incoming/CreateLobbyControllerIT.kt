@@ -102,8 +102,7 @@ class CreateLobbyControllerIT : KoinTest {
 
             // Then...
             assertEquals(HttpStatusCode.BadRequest, response.status)
-            // todo decide if this exact text should be tested here
-            assertEquals("Your player name is invalid", response.bodyAsText())
+            assertEquals("Name must only consist of valid characters", response.bodyAsText())
 
             verify(exactly = 0) { saveLobbyPort.saveLobby(any()) }
         }
