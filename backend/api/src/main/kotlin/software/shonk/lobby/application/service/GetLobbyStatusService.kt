@@ -8,7 +8,7 @@ import software.shonk.lobby.domain.Status
 class GetLobbyStatusService(private val loadLobbyPort: LoadLobbyPort) : GetLobbyStatusQuery {
     override fun getLobbyStatus(getLobbyStatusCommand: GetLobbyStatusCommand): Result<Status> {
         val lobby =
-            loadLobbyPort.getLobby(getLobbyStatusCommand.lobbyId).getOrElse {
+            loadLobbyPort.getLobby(getLobbyStatusCommand.lobbyId.id).getOrElse {
                 return Result.failure(it)
             }
 

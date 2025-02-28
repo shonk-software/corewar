@@ -12,7 +12,6 @@ import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.incoming.AddProgramToLobbyUseCase
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
-import software.shonk.lobby.domain.PlayerNameString
 import software.shonk.lobby.domain.exceptions.LobbyAlreadyCompletedException
 import software.shonk.lobby.domain.exceptions.LobbyNotFoundException
 import software.shonk.lobby.domain.exceptions.PlayerNotInLobbyException
@@ -42,11 +41,7 @@ class AddProgramToLobbyServiceTest {
         // When ...
         val result =
             addProgramToLobbyUseCase.addProgramToLobby(
-                AddProgramToLobbyCommand(
-                    A_VALID_LOBBY_ID,
-                    PlayerNameString(A_VALID_PLAYERNAME),
-                    A_REDCODE_PROGRAM,
-                )
+                AddProgramToLobbyCommand(A_VALID_LOBBY_ID, A_VALID_PLAYERNAME, A_REDCODE_PROGRAM)
             )
 
         // Then ...
@@ -73,11 +68,7 @@ class AddProgramToLobbyServiceTest {
 
         // When ...
         addProgramToLobbyUseCase.addProgramToLobby(
-            AddProgramToLobbyCommand(
-                A_VALID_LOBBY_ID,
-                PlayerNameString(ANOTHER_VALID_PLAYERNAME),
-                A_REDCODE_PROGRAM,
-            )
+            AddProgramToLobbyCommand(A_VALID_LOBBY_ID, ANOTHER_VALID_PLAYERNAME, A_REDCODE_PROGRAM)
         )
 
         // Then ...
@@ -103,7 +94,7 @@ class AddProgramToLobbyServiceTest {
             addProgramToLobbyUseCase.addProgramToLobby(
                 AddProgramToLobbyCommand(
                     A_LOBBY_ID_THAT_HAS_NOT_BEEN_CREATED,
-                    PlayerNameString(A_VALID_PLAYERNAME),
+                    A_VALID_PLAYERNAME,
                     A_REDCODE_PROGRAM,
                 )
             )
@@ -132,11 +123,7 @@ class AddProgramToLobbyServiceTest {
         // When...
         val result =
             addProgramToLobbyUseCase.addProgramToLobby(
-                AddProgramToLobbyCommand(
-                    A_VALID_LOBBY_ID,
-                    PlayerNameString(A_VALID_PLAYERNAME),
-                    A_REDCODE_PROGRAM,
-                )
+                AddProgramToLobbyCommand(A_VALID_LOBBY_ID, A_VALID_PLAYERNAME, A_REDCODE_PROGRAM)
             )
 
         // Then...
@@ -157,7 +144,7 @@ class AddProgramToLobbyServiceTest {
             addProgramToLobbyUseCase.addProgramToLobby(
                 AddProgramToLobbyCommand(
                     A_VALID_LOBBY_ID,
-                    PlayerNameString(ANOTHER_VALID_PLAYERNAME),
+                    ANOTHER_VALID_PLAYERNAME,
                     A_REDCODE_PROGRAM,
                 )
             )

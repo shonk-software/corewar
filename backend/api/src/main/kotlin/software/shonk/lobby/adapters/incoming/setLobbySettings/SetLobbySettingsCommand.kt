@@ -1,22 +1,11 @@
 package software.shonk.lobby.adapters.incoming.setLobbySettings
 
 import software.shonk.lobby.domain.InterpreterSettings
+import software.shonk.lobby.domain.LobbyId
 
-data class SetLobbySettingsCommand(val lobbyId: Long, val settings: InterpreterSettings) {
-    init {
-        require(lobbyId >= 0) { "The Lobby id must be non-negative." }
-    }
+data class SetLobbySettingsCommand(val lobbyId: LobbyId, val settings: InterpreterSettings) {
 
-    constructor(
-        lobbyId: String?,
-        settings: InterpreterSettings,
-    ) : this(parseLobbyId(lobbyId), settings)
+    constructor(lobbyId: String?, settings: InterpreterSettings) : this(LobbyId(lobbyId), settings)
 
-    companion object {
-        // todo move this and all similar occurences to some kind of helper
-        fun parseLobbyId(lobbyIdString: String?): Long {
-            return lobbyIdString?.toLongOrNull()?.takeIf { it >= 0 }
-                ?: throw IllegalArgumentException("Failed to parse Lobby id: $lobbyIdString")
-        }
-    }
+    constructor(lobbyId: Long, settings: InterpreterSettings) : this(LobbyId(lobbyId), settings)
 }

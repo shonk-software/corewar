@@ -17,21 +17,23 @@ class AddProgramToLobbyService(
         addProgramToLobbyCommand: AddProgramToLobbyCommand
     ): Result<Unit> {
         val lobby =
-            loadLobbyPort.getLobby(addProgramToLobbyCommand.lobbyId).getOrElse {
+            loadLobbyPort.getLobby(addProgramToLobbyCommand.lobbyId.id).getOrElse {
                 return Result.failure(it)
             }
         if (lobby.gameState == GameState.FINISHED) {
-            return Result.failure(LobbyAlreadyCompletedException(addProgramToLobbyCommand.lobbyId))
+            return Result.failure(
+                LobbyAlreadyCompletedException(addProgramToLobbyCommand.lobbyId.id)
+            )
         }
 
-        if (!lobby.containsPlayer(addProgramToLobbyCommand.playerNameString.name)) {
+        if (!lobby.containsPlayer(addProgramToLobbyCommand.playerNameString.getName())) {
             return Result.failure(
                 PlayerNotInLobbyException(addProgramToLobbyCommand.playerNameString, lobby.id)
             )
         }
 
         lobby.addProgram(
-            addProgramToLobbyCommand.playerNameString.name,
+            addProgramToLobbyCommand.playerNameString.getName(),
             addProgramToLobbyCommand.program,
         )
         return saveLobbyPort.saveLobby(lobby)

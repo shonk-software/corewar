@@ -10,7 +10,6 @@ import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
 import software.shonk.lobby.adapters.incoming.addProgramToLobby.UNKNOWN_ERROR_MESSAGE
 import software.shonk.lobby.application.port.incoming.JoinLobbyUseCase
-import software.shonk.lobby.domain.PlayerNameString
 import software.shonk.lobby.domain.exceptions.LobbyNotFoundException
 import software.shonk.lobby.domain.exceptions.PlayerAlreadyJoinedLobbyException
 
@@ -45,7 +44,7 @@ fun Route.configureJoinLobbyControllerV1() {
 
         val joinLobbyBody = joinLobbyBodyResult.getOrThrow()
         val constructJoinLobbyCommandResult = runCatching {
-            JoinLobbyCommand(lobbyId, PlayerNameString(joinLobbyBody.playerName))
+            JoinLobbyCommand(lobbyId, joinLobbyBody.playerName)
         }
 
         constructJoinLobbyCommandResult.onFailure {

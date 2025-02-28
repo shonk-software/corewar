@@ -9,7 +9,6 @@ import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
 import software.shonk.lobby.application.port.incoming.AddProgramToLobbyUseCase
-import software.shonk.lobby.domain.PlayerNameString
 import software.shonk.lobby.domain.exceptions.LobbyAlreadyCompletedException
 import software.shonk.lobby.domain.exceptions.LobbyNotFoundException
 import software.shonk.lobby.domain.exceptions.PlayerNotInLobbyException
@@ -51,8 +50,7 @@ fun Route.configureAddProgramToLobbyControllerV1() {
 
         val submitCodeRequest = submitCodeRequestResult.getOrThrow()
         val constructAddProgramToLobbyCommandResult = runCatching {
-            require(playerName != null) { "Name must not be null" }
-            AddProgramToLobbyCommand(lobbyId, PlayerNameString(playerName), submitCodeRequest.code)
+            AddProgramToLobbyCommand(lobbyId, playerName, submitCodeRequest.code)
         }
 
         constructAddProgramToLobbyCommandResult.onFailure {

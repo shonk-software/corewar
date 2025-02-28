@@ -10,7 +10,7 @@ class GetLobbySettingsService(private val loadLobbyPort: LoadLobbyPort) : GetLob
     override fun getLobbySettings(
         getLobbySettingsCommand: GetLobbySettingsCommand
     ): Result<InterpreterSettings> {
-        return loadLobbyPort.getLobby(getLobbySettingsCommand.lobbyId).map { lobby ->
+        return loadLobbyPort.getLobby(getLobbySettingsCommand.lobbyId.id).map { lobby ->
             with(lobby.getSettings()) {
                 InterpreterSettings(
                     coreSize = coreSize,

@@ -15,7 +15,6 @@ import software.shonk.lobby.adapters.incoming.createLobby.CreateLobbyCommand
 import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
 import software.shonk.lobby.domain.Lobby
-import software.shonk.lobby.domain.PlayerNameString
 
 class CreateLobbyServiceTest {
 
@@ -35,8 +34,7 @@ class CreateLobbyServiceTest {
         // Given...
 
         // When...
-        val result =
-            createLobbyService.createLobby(CreateLobbyCommand(PlayerNameString(A_VALID_PLAYERNAME)))
+        val result = createLobbyService.createLobby(CreateLobbyCommand(A_VALID_PLAYERNAME))
 
         // Then...
         assertTrue(result.isSuccess)
@@ -52,10 +50,8 @@ class CreateLobbyServiceTest {
         val lobbySlot2 = slot<Lobby>()
 
         // When...
-        createLobbyService.createLobby(CreateLobbyCommand(PlayerNameString(A_VALID_PLAYERNAME)))
-        createLobbyService.createLobby(
-            CreateLobbyCommand(PlayerNameString(ANOTHER_VALID_PLAYERNAME))
-        )
+        createLobbyService.createLobby(CreateLobbyCommand(A_VALID_PLAYERNAME))
+        createLobbyService.createLobby(CreateLobbyCommand(ANOTHER_VALID_PLAYERNAME))
 
         // Then
         verify(exactly = 2) { saveLobbyPort.saveLobby(any()) }

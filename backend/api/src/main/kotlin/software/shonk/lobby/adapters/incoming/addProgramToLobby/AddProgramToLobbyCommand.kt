@@ -1,28 +1,23 @@
 package software.shonk.lobby.adapters.incoming.addProgramToLobby
 
+import software.shonk.lobby.domain.LobbyId
 import software.shonk.lobby.domain.PlayerNameString
 
-// todo introduce Lobby class instead of primitive Long, same for program
 class AddProgramToLobbyCommand(
-    val lobbyId: Long,
+    val lobbyId: LobbyId,
     val playerNameString: PlayerNameString,
     val program: String,
 ) {
-    init {
-        require(lobbyId >= 0) { "The Lobby id must be non-negative." }
-    }
 
     constructor(
         lobbyIdString: String?,
-        playerNameString: PlayerNameString,
+        playerNameString: String?,
         program: String,
-    ) : this(parseLobbyId(lobbyIdString), playerNameString, program)
+    ) : this(LobbyId(lobbyIdString), PlayerNameString.from(playerNameString), program)
 
-    companion object {
-        // todo move this and all similar occurences to some kind of helper
-        fun parseLobbyId(lobbyIdString: String?): Long {
-            return lobbyIdString?.toLongOrNull()?.takeIf { it >= 0 }
-                ?: throw IllegalArgumentException("Failed to parse Lobby id: $lobbyIdString")
-        }
-    }
+    constructor(
+        lobbyId: Long,
+        playerNameString: String?,
+        program: String,
+    ) : this(LobbyId(lobbyId), PlayerNameString.from(playerNameString), program)
 }

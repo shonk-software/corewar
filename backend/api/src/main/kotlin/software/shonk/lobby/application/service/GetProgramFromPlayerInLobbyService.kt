@@ -13,26 +13,28 @@ class GetProgramFromPlayerInLobbyService(private val loadLobbyPort: LoadLobbyPor
         getProgramFromPlayerInLobbyCommand: GetProgramFromPlayerInLobbyCommand
     ): Result<String> {
         val lobby =
-            loadLobbyPort.getLobby(getProgramFromPlayerInLobbyCommand.lobbyId).getOrElse {
+            loadLobbyPort.getLobby(getProgramFromPlayerInLobbyCommand.lobbyId.id).getOrElse {
                 return Result.failure(it)
             }
 
         if (
-            !lobby.joinedPlayers.contains(getProgramFromPlayerInLobbyCommand.playerNameString.name)
+            !lobby.joinedPlayers.contains(
+                getProgramFromPlayerInLobbyCommand.playerNameString.getName()
+            )
         ) {
             return Result.failure(
                 PlayerNotInLobbyException(
                     getProgramFromPlayerInLobbyCommand.playerNameString,
-                    getProgramFromPlayerInLobbyCommand.lobbyId,
+                    getProgramFromPlayerInLobbyCommand.lobbyId.id,
                 )
             )
         }
-        val result = lobby.programs[getProgramFromPlayerInLobbyCommand.playerNameString.name]
+        val result = lobby.programs[getProgramFromPlayerInLobbyCommand.playerNameString.getName()]
         return if (result == null) {
             Result.failure(
                 NoCodeForPlayerException(
                     getProgramFromPlayerInLobbyCommand.playerNameString,
-                    getProgramFromPlayerInLobbyCommand.lobbyId,
+                    getProgramFromPlayerInLobbyCommand.lobbyId.id,
                 )
             )
         } else {
