@@ -11,7 +11,6 @@ import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
 import software.shonk.lobby.adapters.incoming.addProgramToLobby.UNKNOWN_ERROR_MESSAGE
 import software.shonk.lobby.application.port.incoming.GetProgramFromPlayerInLobbyQuery
-import software.shonk.lobby.domain.PlayerNameString
 import software.shonk.lobby.domain.exceptions.LobbyNotFoundException
 import software.shonk.lobby.domain.exceptions.NoCodeForPlayerException
 import software.shonk.lobby.domain.exceptions.PlayerNotInLobbyException
@@ -39,7 +38,7 @@ fun Route.configureGetProgramFromPlayerInLobbyControllerV1() {
 
         val constructGetProgramFromPlayerInLobbyCommandResult = runCatching {
             require(player != null) { "Name must not be null" }
-            GetProgramFromPlayerInLobbyCommand(lobbyId, PlayerNameString(player))
+            GetProgramFromPlayerInLobbyCommand(lobbyId, player)
         }
 
         constructGetProgramFromPlayerInLobbyCommandResult.onFailure {

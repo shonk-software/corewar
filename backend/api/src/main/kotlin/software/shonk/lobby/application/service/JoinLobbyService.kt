@@ -12,19 +12,19 @@ class JoinLobbyService(
 ) : JoinLobbyUseCase {
     override fun joinLobby(joinLobbyCommand: JoinLobbyCommand): Result<Unit> {
         val lobby =
-            loadLobbyPort.getLobby(joinLobbyCommand.lobbyId).getOrElse {
+            loadLobbyPort.getLobby(joinLobbyCommand.lobbyId.id).getOrElse {
                 return Result.failure(it)
             }
 
-        if (lobby.containsPlayer(joinLobbyCommand.playerName.name)) {
+        if (lobby.containsPlayer(joinLobbyCommand.playerName.getName())) {
             return Result.failure(
                 PlayerAlreadyJoinedLobbyException(
                     joinLobbyCommand.playerName,
-                    joinLobbyCommand.lobbyId,
+                    joinLobbyCommand.lobbyId.id,
                 )
             )
         }
-        lobby.joinedPlayers.add(joinLobbyCommand.playerName.name)
+        lobby.joinedPlayers.add(joinLobbyCommand.playerName.getName())
         return saveLobbyPort.saveLobby(lobby)
     }
 }

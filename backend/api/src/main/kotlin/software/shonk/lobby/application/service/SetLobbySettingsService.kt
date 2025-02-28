@@ -12,7 +12,7 @@ class SetLobbySettingsService(
 
     override fun setLobbySettings(setLobbySettingsCommand: SetLobbySettingsCommand): Result<Unit> {
         val lobby =
-            loadLobbyPort.getLobby(setLobbySettingsCommand.lobbyId).getOrElse {
+            loadLobbyPort.getLobby(setLobbySettingsCommand.lobbyId.id).getOrElse {
                 return Result.failure(it)
             }
 

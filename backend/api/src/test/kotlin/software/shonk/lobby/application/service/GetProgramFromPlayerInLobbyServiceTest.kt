@@ -1,7 +1,8 @@
 package software.shonk.lobby.application.service
 
 import io.mockk.spyk
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import software.shonk.*
@@ -9,7 +10,6 @@ import software.shonk.lobby.adapters.incoming.getProgramFromPlayerInLobby.GetPro
 import software.shonk.lobby.adapters.outgoing.MemoryLobbyManager
 import software.shonk.lobby.application.port.outgoing.LoadLobbyPort
 import software.shonk.lobby.application.port.outgoing.SaveLobbyPort
-import software.shonk.lobby.domain.PlayerNameString
 import software.shonk.lobby.domain.exceptions.LobbyNotFoundException
 import software.shonk.lobby.domain.exceptions.NoCodeForPlayerException
 import software.shonk.lobby.domain.exceptions.PlayerNotInLobbyException
@@ -46,17 +46,11 @@ class GetProgramFromPlayerInLobbyServiceTest {
         // When...
         val playerAResponse =
             getProgramFromPlayerInLobbyService.getProgramFromPlayerInLobby(
-                GetProgramFromPlayerInLobbyCommand(
-                    A_VALID_LOBBY_ID,
-                    PlayerNameString(A_VALID_PLAYERNAME),
-                )
+                GetProgramFromPlayerInLobbyCommand(A_VALID_LOBBY_ID, A_VALID_PLAYERNAME)
             )
         val playerBResponse =
             getProgramFromPlayerInLobbyService.getProgramFromPlayerInLobby(
-                GetProgramFromPlayerInLobbyCommand(
-                    A_VALID_LOBBY_ID,
-                    PlayerNameString(ANOTHER_VALID_PLAYERNAME),
-                )
+                GetProgramFromPlayerInLobbyCommand(A_VALID_LOBBY_ID, ANOTHER_VALID_PLAYERNAME)
             )
 
         // Then...
@@ -74,10 +68,7 @@ class GetProgramFromPlayerInLobbyServiceTest {
         // When...
         val result =
             getProgramFromPlayerInLobbyService.getProgramFromPlayerInLobby(
-                GetProgramFromPlayerInLobbyCommand(
-                    A_VALID_LOBBY_ID,
-                    PlayerNameString(A_VALID_PLAYERNAME),
-                )
+                GetProgramFromPlayerInLobbyCommand(A_VALID_LOBBY_ID, A_VALID_PLAYERNAME)
             )
 
         // Then...
@@ -95,10 +86,7 @@ class GetProgramFromPlayerInLobbyServiceTest {
         // When...
         val result =
             getProgramFromPlayerInLobbyService.getProgramFromPlayerInLobby(
-                GetProgramFromPlayerInLobbyCommand(
-                    A_VALID_LOBBY_ID,
-                    PlayerNameString(ANOTHER_VALID_PLAYERNAME),
-                )
+                GetProgramFromPlayerInLobbyCommand(A_VALID_LOBBY_ID, ANOTHER_VALID_PLAYERNAME)
             )
 
         // Then...
@@ -115,7 +103,7 @@ class GetProgramFromPlayerInLobbyServiceTest {
             getProgramFromPlayerInLobbyService.getProgramFromPlayerInLobby(
                 GetProgramFromPlayerInLobbyCommand(
                     A_LOBBY_ID_THAT_HAS_NOT_BEEN_CREATED,
-                    PlayerNameString(A_VALID_PLAYERNAME),
+                    A_VALID_PLAYERNAME,
                 )
             )
 

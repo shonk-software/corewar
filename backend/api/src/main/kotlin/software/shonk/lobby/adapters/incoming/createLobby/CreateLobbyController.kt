@@ -12,7 +12,6 @@ import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
 import software.shonk.lobby.adapters.incoming.addProgramToLobby.UNKNOWN_ERROR_MESSAGE
 import software.shonk.lobby.application.port.incoming.CreateLobbyUseCase
-import software.shonk.lobby.domain.PlayerNameString
 
 fun Route.configureCreateLobbyControllerV1() {
     val logger = LoggerFactory.getLogger("CreateLobbyControllerV1")
@@ -43,7 +42,7 @@ fun Route.configureCreateLobbyControllerV1() {
 
         val createLobbyBody = createLobbyBodyResult.getOrThrow()
         val buildCreateLobbyCommandResult = runCatching {
-            CreateLobbyCommand(PlayerNameString(createLobbyBody.playerName))
+            CreateLobbyCommand(createLobbyBody.playerName)
         }
         buildCreateLobbyCommandResult.onFailure {
             when (it) {

@@ -1,21 +1,16 @@
 package software.shonk.lobby.adapters.incoming.joinLobby
 
+import software.shonk.lobby.domain.LobbyId
 import software.shonk.lobby.domain.PlayerNameString
 
-data class JoinLobbyCommand(val lobbyId: Long, val playerName: PlayerNameString) {
-    init {
-        require(lobbyId >= 0) { "The Lobby id must be non-negative." }
-    }
-
+data class JoinLobbyCommand(val lobbyId: LobbyId, val playerName: PlayerNameString) {
     constructor(
         lobbyIdString: String?,
-        playerName: PlayerNameString,
-    ) : this(parseLobbyId(lobbyIdString), playerName)
+        playerName: String?,
+    ) : this(LobbyId(lobbyIdString), PlayerNameString.from(playerName))
 
-    companion object {
-        fun parseLobbyId(lobbyIdString: String?): Long {
-            return lobbyIdString?.toLongOrNull()?.takeIf { it >= 0 }
-                ?: throw IllegalArgumentException("Failed to parse Lobby id: $lobbyIdString")
-        }
-    }
+    constructor(
+        lobbyIdString: Long,
+        playerName: String?,
+    ) : this(LobbyId(lobbyIdString), PlayerNameString.from(playerName))
 }
