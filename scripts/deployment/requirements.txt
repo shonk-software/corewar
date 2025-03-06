@@ -6,7 +6,7 @@ Flask-Limiter==3.8.0
 gunicorn==23.0.0
 importlib_resources==6.4.5
 itsdangerous==2.2.0
-Jinja2==3.1.5
+Jinja2==3.1.6
 limits==3.13.0
 markdown-it-py==3.0.0
 MarkupSafe==3.0.2
