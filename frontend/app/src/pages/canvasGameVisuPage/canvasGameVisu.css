@@ -38,10 +38,10 @@
 }
 
 #visuBoard {
-	transform: scale(0.04) translate(-50%, -50%);
+	transform: translate(-50%, -50%);
 	transform-origin: top left;
 
 	position: absolute;
-	left: 55%;
+	left: 56%;
 	top: 50%;
 }

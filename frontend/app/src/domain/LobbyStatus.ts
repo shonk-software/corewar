@@ -7,10 +7,10 @@ export interface LobbyStatus {
 	result: {
 		winner: "A" | "B" | "DRAW";
 	};
-	visualizationData: VisuStep[];
+	visualizationData: LogicalVisuStep[];
 }
 
-interface VisuStep {
+export interface LogicalVisuStep {
 	playerId: "playerA" | "playerB";
 	programCounterBefore: number;
 	programCounterAfter: number;
