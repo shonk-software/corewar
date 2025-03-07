@@ -168,7 +168,7 @@ function CanvasGameVisuPage() {
 				// and its props are complete
 				for (const index of touchedTiles.values()) {
 					visuStep.push({
-						hexIndex: index,
+						hexIndex: index % hex_count,
 						newProps: stateStore[index],
 					});
 				}
