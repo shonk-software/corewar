@@ -9,10 +9,12 @@ jobs:
       - name: Clean up
         run: |
           echo "Clean up for branch ${{ github.event.ref }}"
-          curl -X DELETE https://corewar-deployment.schnelle.dev/deployments/${{ github.event.ref }} -H "Authorization: Bearer ${{ secrets.DEPLOYMENT_TOKEN }}"
+          REF=$(echo ${{ github.event.ref }} | sed 's/\//-/g')
+          curl -X DELETE https://corewar-deployment.schnelle.dev/deployments/${REF} -H "Authorization: Bearer ${{ secrets.DEPLOYMENT_TOKEN }}"
 
       - name: Clean up ghcr image
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
-          IMAGE_ID=$(gh api /orgs/corewar-teamprojekt/packages/container/aio/versions --paginate -q ".[] | select(.metadata.container.tags | index(\"${{ github.event.ref }}\")) | .id")
+          REF=$(echo ${{ github.event.ref }} | sed 's/\//-/g')
+          IMAGE_ID=$(gh api /orgs/corewar-teamprojekt/packages/container/aio/versions --paginate -q ".[] | select(.metadata.container.tags | index(\"${REF}\")) | .id")
           gh api --method DELETE /orgs/corewar-teamprojekt/packages/container/aio/versions/$IMAGE_ID
