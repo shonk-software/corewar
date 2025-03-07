@@ -4,7 +4,6 @@ on:
 
 env:
   IMAGE_NAME: aio
-  IMAGE_TAGS: ${{ github.ref_name }}
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
   REGISTRY_USER: ${{ github.actor }}
   REGISTRY_PASSWORD: ${{ github.token }}
@@ -183,7 +182,12 @@ jobs:
           echo ${{ secrets.GITHUB_TOKEN }} | podman login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Push image
         run: |
-          podman push ${{ env.IMAGE_NAME }}:upload ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAGS }}
+          podman push ${{ env.IMAGE_NAME }}:upload ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          REF_NAME=$(echo ${{ github.ref_name }} | sed 's/\//-/g')
+          podman push ${{ env.IMAGE_NAME }}:upload ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${REF_NAME}
+          if [ "${{ github.ref_name }}" == "main" ]; then
+            podman push ${{ env.IMAGE_NAME }}:upload ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          fi
 
   deploy:
     name: "Deploy"
@@ -197,7 +201,8 @@ jobs:
       - name: Deploy by calling API
         id: deploy_step
         run: |
-          response=$(curl -X POST https://corewar-deployment.schnelle.dev/deployments/${{ github.ref_name }} -H "Authorization: Bearer ${{ secrets.DEPLOYMENT_TOKEN }}")
+          REF_NAME=$(echo ${{ github.ref_name }} | sed 's/\//-/g')
+          response=$(curl -X POST https://corewar-deployment.schnelle.dev/deployments/${REF_NAME} -H "Authorization: Bearer ${{ secrets.DEPLOYMENT_TOKEN }}")
           echo $response
           deployment_url=$(echo $response | jq -r '.url')
           echo "url=$deployment_url" >> $GITHUB_OUTPUT
