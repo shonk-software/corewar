@@ -1,0 +1,19 @@
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "5 0 * * *"  # every day
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    name: Delete old test images
+    steps:
+      - uses: snok/container-retention-policy@v3.0.0
+        with:
+          account: snok
+          token: ${{ secrets.PAT }}
+          image-names: "container-retention-policy"
+          image-tags: "!latest"
+          keep-n-most-recent: 5
+          cut-off: 1w
+          dry-run: true
