@@ -29,8 +29,6 @@ stop_services() {
     fi
 }
 
-echo "Services running"
-
 # Trap SIGINT to stop services on exit
 trap stop_services SIGINT
 trap stop_services SIGTERM
@@ -38,6 +36,9 @@ trap stop_services SIGTERM
 # Start services
 start_nginx
 start_java
+
+echo "Services running"
+
 
 # Wait for services to exit
 wait $nginx_pid
