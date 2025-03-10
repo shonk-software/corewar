@@ -32,6 +32,8 @@ const CanvasVisu = forwardRef(function CanvasVisu(
 	const canvasContextRef = useRef<CanvasRenderingContext2D | undefined | null>(
 		null,
 	);
+	const hexCountRef = useRef(hex_count);
+	const defaultTilePropsRef = useRef(defaultTileProps);
 
 	const UNIT_HEXAGON_VERTICES: [number, number][] = Array.from(
 		{ length: 6 },
@@ -136,19 +138,21 @@ const CanvasVisu = forwardRef(function CanvasVisu(
 		if (canvasRef.current) {
 			canvasContextRef.current = canvasRef.current.getContext("2d");
 		}
+	}, [canvasRef]);
 
+	useEffect(() => {
 		if (canvasContextRef.current && !initialDrawn.current) {
 			initialDrawn.current = true;
 			const initialDrawUpdates = Array.from(
-				{ length: hex_count },
+				{ length: hexCountRef.current },
 				(_, inx) => ({
 					hexIndex: inx,
-					newProps: { ...defaultTileProps },
+					newProps: { ...defaultTilePropsRef.current },
 				}),
 			);
-			drawChanges(initialDrawUpdates);
+			drawChangesRef.current(initialDrawUpdates);
 		}
-	}, []);
+	}, [canvasContextRef]);
 
 	const drawChanges = (
 		updates: {
@@ -194,8 +198,10 @@ const CanvasVisu = forwardRef(function CanvasVisu(
 		ctx.restore();
 	};
 
+	const drawChangesRef = useRef(drawChanges);
+
 	useImperativeHandle(ref, () => ({
-		drawChanges,
+		drawChanges: (...args) => drawChangesRef.current?.(...args),
 	}));
 
 	return (
