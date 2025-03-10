@@ -19,7 +19,7 @@ internal class TestDat {
         val program = Program("A-", shork)
         val process = Process(program, 0)
 
-        dat.execute(process, shork.memoryCore.resolveFields(0))
+        dat.execute(process, shork.memoryCore.resolveFields(0).first)
         assert(program.processes.isEmpty())
     }
 

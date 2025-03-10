@@ -82,28 +82,28 @@ internal class TestMemoryCore {
                 ),
             )
 
-        var resolvedAddresses = memoryCore.resolveFields(0)
+        var resolvedAddresses = memoryCore.resolveFields(0).first
 
         assertEquals(98, resolvedAddresses.aFieldRead)
         assertEquals(98, resolvedAddresses.bFieldRead)
         assertEquals(98, resolvedAddresses.aFieldWrite)
         assertEquals(98, resolvedAddresses.bFieldWrite)
 
-        resolvedAddresses = memoryCore.resolveFields(5)
+        resolvedAddresses = memoryCore.resolveFields(5).first
 
         assertEquals(3, resolvedAddresses.aFieldRead)
         assertEquals(3, resolvedAddresses.bFieldRead)
         assertEquals(3, resolvedAddresses.aFieldWrite)
         assertEquals(3, resolvedAddresses.bFieldWrite)
 
-        resolvedAddresses = memoryCore.resolveFields(10)
+        resolvedAddresses = memoryCore.resolveFields(10).first
 
         assertEquals(8, resolvedAddresses.aFieldRead)
         assertEquals(8, resolvedAddresses.bFieldRead)
         assertEquals(8, resolvedAddresses.aFieldWrite)
         assertEquals(8, resolvedAddresses.bFieldWrite)
 
-        resolvedAddresses = memoryCore.resolveFields(99)
+        resolvedAddresses = memoryCore.resolveFields(99).first
 
         assertEquals(97, resolvedAddresses.aFieldRead)
         assertEquals(97, resolvedAddresses.bFieldRead)
@@ -125,28 +125,28 @@ internal class TestMemoryCore {
                 ),
             )
 
-        var resolvedAddresses = memoryCore.resolveFields(0)
+        var resolvedAddresses = memoryCore.resolveFields(0).first
 
         assertEquals(2, resolvedAddresses.aFieldRead)
         assertEquals(2, resolvedAddresses.bFieldRead)
         assertEquals(2, resolvedAddresses.aFieldWrite)
         assertEquals(2, resolvedAddresses.bFieldWrite)
 
-        resolvedAddresses = memoryCore.resolveFields(5)
+        resolvedAddresses = memoryCore.resolveFields(5).first
 
         assertEquals(7, resolvedAddresses.aFieldRead)
         assertEquals(7, resolvedAddresses.bFieldRead)
         assertEquals(7, resolvedAddresses.aFieldWrite)
         assertEquals(7, resolvedAddresses.bFieldWrite)
 
-        resolvedAddresses = memoryCore.resolveFields(10)
+        resolvedAddresses = memoryCore.resolveFields(10).first
 
         assertEquals(12, resolvedAddresses.aFieldRead)
         assertEquals(12, resolvedAddresses.bFieldRead)
         assertEquals(12, resolvedAddresses.aFieldWrite)
         assertEquals(12, resolvedAddresses.bFieldWrite)
 
-        resolvedAddresses = memoryCore.resolveFields(99)
+        resolvedAddresses = memoryCore.resolveFields(99).first
 
         assertEquals(1, resolvedAddresses.aFieldRead)
         assertEquals(1, resolvedAddresses.bFieldRead)

@@ -30,7 +30,7 @@ internal class TestSpl {
 
         val spl = Spl(42, 0, AddressMode.DIRECT, AddressMode.IMMEDIATE, Modifier.A)
         shork.memoryCore.storeAbsolute(0, spl)
-        spl.execute(process, shork.memoryCore.resolveFields(0))
+        spl.execute(process, shork.memoryCore.resolveFields(0).first)
 
         assertEquals(program.processes.get().programCounter, 42)
         assert(shork.memoryCore.loadAbsolute(42) is Dat)

@@ -1,5 +1,6 @@
 package software.shonk.interpreter.internal.memory
 
+import software.shonk.interpreter.internal.PostExecuteAction
 import software.shonk.interpreter.internal.addressing.AddressMode
 import software.shonk.interpreter.internal.instruction.AbstractInstruction
 import software.shonk.interpreter.internal.settings.InternalSettings
@@ -39,9 +40,14 @@ internal class MemoryCore(val memorySize: Int, val settings: InternalSettings) :
      * @param mode The address mode to use, must be the address mode of the field (A or B)
      * @return The resolved absolute address
      */
-    private fun resolve(sourceAddress: Int, field: Int, mode: AddressMode): Int {
+    private fun resolve(
+        sourceAddress: Int,
+        field: Int,
+        mode: AddressMode,
+    ): Pair<Int, PostExecuteAction?> {
         val referenceAddress = sourceAddress + field // Address we are pointing to
         val instruction = loadAbsolute(referenceAddress)
+        var postExecuteAction: PostExecuteAction? = null
 
         val addressOffset =
             when (mode) {
@@ -70,22 +76,26 @@ internal class MemoryCore(val memorySize: Int, val settings: InternalSettings) :
                     }
                 }
                 AddressMode.A_POST_INCREMENT -> {
-                    instruction.writeToMemory(this, referenceAddress) {
-                        val offset = field + it.aField
-                        it.aField += 1
-                        offset
+                    postExecuteAction = PostExecuteAction {
+                        // Load it again, because the instruction might have changed
+                        val instr = loadAbsolute(referenceAddress)
+                        instr.writeToMemory(this, referenceAddress) { it.aField += 1 }
                     }
+
+                    field + instruction.aField
                 }
                 AddressMode.B_POST_INCREMENT -> {
-                    instruction.writeToMemory(this, referenceAddress) {
-                        val offset = field + it.bField
-                        it.bField += 1
-                        offset
+                    postExecuteAction = PostExecuteAction {
+                        // Load it again, because the instruction might have changed
+                        val instr = loadAbsolute(referenceAddress)
+                        instr.writeToMemory(this, referenceAddress) { it.bField += 1 }
                     }
+
+                    field + instruction.bField
                 }
             }
 
-        return sourceAddress + addressOffset
+        return Pair(sourceAddress + addressOffset, postExecuteAction)
     }
 
     /**
@@ -95,15 +105,17 @@ internal class MemoryCore(val memorySize: Int, val settings: InternalSettings) :
      * @param sourceAddress The address to resolve
      * @return All of the resolved addresses
      */
-    override fun resolveFields(sourceAddress: Int): ResolvedAddresses {
+    override fun resolveFields(
+        sourceAddress: Int
+    ): Pair<ResolvedAddresses, List<PostExecuteAction>> {
         val sourceInstruction = loadAbsolute(sourceAddress)
         val aField = sourceInstruction.aField
         val bField = sourceInstruction.bField
         val aMode = sourceInstruction.addressModeA
         val bMode = sourceInstruction.addressModeB
 
-        val resolvedA = resolve(sourceAddress, aField, aMode)
-        val resolvedB = resolve(sourceAddress, bField, bMode)
+        val (resolvedA, postActionA) = resolve(sourceAddress, aField, aMode)
+        val (resolvedB, postActionB) = resolve(sourceAddress, bField, bMode)
 
         val resolvedARead =
             sourceAddress + resolveDistanceBounds(resolvedA - sourceAddress, settings.readDistance)
@@ -114,11 +126,14 @@ internal class MemoryCore(val memorySize: Int, val settings: InternalSettings) :
         val resolvedBWrite =
             sourceAddress + resolveDistanceBounds(resolvedB - sourceAddress, settings.writeDistance)
 
-        return ResolvedAddresses(
-            resolvedAddressBounds(resolvedARead),
-            resolvedAddressBounds(resolvedAWrite),
-            resolvedAddressBounds(resolvedBRead),
-            resolvedAddressBounds(resolvedBWrite),
+        return Pair(
+            ResolvedAddresses(
+                resolvedAddressBounds(resolvedARead),
+                resolvedAddressBounds(resolvedAWrite),
+                resolvedAddressBounds(resolvedBRead),
+                resolvedAddressBounds(resolvedBWrite),
+            ),
+            listOfNotNull(postActionA, postActionB),
         )
     }
 

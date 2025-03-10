@@ -7,7 +7,8 @@ internal class Process(program: AbstractProgram, programCounter: Int) :
     override fun tick() {
         val instruction = this.program.shork.memoryCore.loadAbsolute(programCounter)
         val resolvedAddresses = this.program.shork.memoryCore.resolveFields(programCounter)
-        instruction.execute(this, resolvedAddresses)
+        instruction.execute(this, resolvedAddresses.first)
+        resolvedAddresses.second.forEach { it.run() }
         if (!this.dontIncrementProgramCounter) {
             this.programCounter++
         }

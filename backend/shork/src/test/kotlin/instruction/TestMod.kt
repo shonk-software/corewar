@@ -34,7 +34,7 @@ internal class TestMod {
         val mod = Mod(1, 2, AddressMode.DIRECT, AddressMode.DIRECT, Modifier.A)
         shork.memoryCore.storeAbsolute(0, mod)
 
-        mod.execute(process, shork.memoryCore.resolveFields(0))
+        mod.execute(process, shork.memoryCore.resolveFields(0).first)
 
         val resultInstruction = shork.memoryCore.loadAbsolute(2)
 
@@ -50,7 +50,7 @@ internal class TestMod {
         val mod = Mod(1, 2, AddressMode.DIRECT, AddressMode.DIRECT, Modifier.B)
         shork.memoryCore.storeAbsolute(0, mod)
 
-        mod.execute(process, shork.memoryCore.resolveFields(0))
+        mod.execute(process, shork.memoryCore.resolveFields(0).first)
 
         val resultInstruction = shork.memoryCore.loadAbsolute(2)
 
@@ -66,7 +66,7 @@ internal class TestMod {
         val mod = Mod(1, 2, AddressMode.DIRECT, AddressMode.DIRECT, Modifier.AB)
         shork.memoryCore.storeAbsolute(0, mod)
 
-        mod.execute(process, shork.memoryCore.resolveFields(0))
+        mod.execute(process, shork.memoryCore.resolveFields(0).first)
 
         val resultInstruction = shork.memoryCore.loadAbsolute(2)
 
@@ -82,7 +82,7 @@ internal class TestMod {
         val mod = Mod(1, 2, AddressMode.DIRECT, AddressMode.DIRECT, Modifier.BA)
         shork.memoryCore.storeAbsolute(0, mod)
 
-        mod.execute(process, shork.memoryCore.resolveFields(0))
+        mod.execute(process, shork.memoryCore.resolveFields(0).first)
 
         val resultInstruction = shork.memoryCore.loadAbsolute(2)
 
@@ -98,7 +98,7 @@ internal class TestMod {
         val mod = Mod(1, 2, AddressMode.DIRECT, AddressMode.DIRECT, Modifier.F)
         shork.memoryCore.storeAbsolute(0, mod)
 
-        mod.execute(process, shork.memoryCore.resolveFields(0))
+        mod.execute(process, shork.memoryCore.resolveFields(0).first)
 
         val resultInstruction = shork.memoryCore.loadAbsolute(2)
 
@@ -114,7 +114,7 @@ internal class TestMod {
         val mod = Mod(1, 2, AddressMode.DIRECT, AddressMode.DIRECT, Modifier.I)
         shork.memoryCore.storeAbsolute(0, mod)
 
-        mod.execute(process, shork.memoryCore.resolveFields(0))
+        mod.execute(process, shork.memoryCore.resolveFields(0).first)
 
         val resultInstruction = shork.memoryCore.loadAbsolute(2)
 
@@ -130,7 +130,7 @@ internal class TestMod {
         val mod = Mod(1, 2, AddressMode.DIRECT, AddressMode.DIRECT, Modifier.X)
         shork.memoryCore.storeAbsolute(0, mod)
 
-        mod.execute(process, shork.memoryCore.resolveFields(0))
+        mod.execute(process, shork.memoryCore.resolveFields(0).first)
 
         val resultInstruction = shork.memoryCore.loadAbsolute(2)
 

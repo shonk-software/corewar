@@ -35,7 +35,7 @@ internal class TestMov {
         shork.memoryCore.storeAbsolute(0, mov1)
         shork.memoryCore.storeAbsolute(1, mov2)
 
-        mov1.execute(process, shork.memoryCore.resolveFields(0))
+        mov1.execute(process, shork.memoryCore.resolveFields(0).first)
 
         val movedInstruction = shork.memoryCore.loadAbsolute(2)
 
@@ -53,9 +53,9 @@ internal class TestMov {
         shork.memoryCore.storeAbsolute(0, mov1)
         shork.memoryCore.storeAbsolute(1, mov2)
 
-        mov1.execute(process, shork.memoryCore.resolveFields(0))
+        mov1.execute(process, shork.memoryCore.resolveFields(0).first)
 
-        var movedInstruction = shork.memoryCore.loadAbsolute(2)
+        val movedInstruction = shork.memoryCore.loadAbsolute(2)
 
         assert(movedInstruction is Dat)
         assert(movedInstruction.aField == 0)
@@ -71,9 +71,9 @@ internal class TestMov {
         shork.memoryCore.storeAbsolute(0, mov1)
         shork.memoryCore.storeAbsolute(1, mov2)
 
-        mov1.execute(process, shork.memoryCore.resolveFields(0))
+        mov1.execute(process, shork.memoryCore.resolveFields(0).first)
 
-        var movedInstruction = shork.memoryCore.loadAbsolute(2)
+        val movedInstruction = shork.memoryCore.loadAbsolute(2)
 
         assert(movedInstruction is Dat)
         assert(movedInstruction.aField == 0)
@@ -89,9 +89,9 @@ internal class TestMov {
         shork.memoryCore.storeAbsolute(0, mov1)
         shork.memoryCore.storeAbsolute(1, mov2)
 
-        mov1.execute(process, shork.memoryCore.resolveFields(0))
+        mov1.execute(process, shork.memoryCore.resolveFields(0).first)
 
-        var movedInstruction = shork.memoryCore.loadAbsolute(2)
+        val movedInstruction = shork.memoryCore.loadAbsolute(2)
 
         assert(movedInstruction is Dat)
         assert(movedInstruction.aField == 69)
@@ -107,9 +107,9 @@ internal class TestMov {
         shork.memoryCore.storeAbsolute(0, mov1)
         shork.memoryCore.storeAbsolute(1, mov2)
 
-        mov1.execute(process, shork.memoryCore.resolveFields(0))
+        mov1.execute(process, shork.memoryCore.resolveFields(0).first)
 
-        var movedInstruction = shork.memoryCore.loadAbsolute(2)
+        val movedInstruction = shork.memoryCore.loadAbsolute(2)
 
         assert(movedInstruction is Dat)
         assert(movedInstruction.aField == 42)
@@ -121,9 +121,9 @@ internal class TestMov {
         val mov = Mov(0, 1, AddressMode.DIRECT, AddressMode.DIRECT, Modifier.I)
         shork.memoryCore.storeAbsolute(0, mov)
 
-        mov.execute(process, shork.memoryCore.resolveFields(0))
+        mov.execute(process, shork.memoryCore.resolveFields(0).first)
 
-        var movedInstruction = shork.memoryCore.loadAbsolute(1)
+        val movedInstruction = shork.memoryCore.loadAbsolute(1)
 
         assert(movedInstruction is Mov)
         assert(movedInstruction.aField == 0)
@@ -137,9 +137,9 @@ internal class TestMov {
         val mov = Mov(0, 1, AddressMode.DIRECT, AddressMode.DIRECT, Modifier.X)
         shork.memoryCore.storeAbsolute(0, mov)
 
-        mov.execute(process, shork.memoryCore.resolveFields(0))
+        mov.execute(process, shork.memoryCore.resolveFields(0).first)
 
-        var movedInstruction = shork.memoryCore.loadAbsolute(1)
+        val movedInstruction = shork.memoryCore.loadAbsolute(1)
 
         assert(movedInstruction is Dat)
         assert(movedInstruction.aField == 1)
