@@ -149,4 +149,82 @@ internal class TestAddressMode {
         assertEquals(42, dat2Result.aField)
         assertEquals(7, dat2Result.bField)
     }
+
+    @Test
+    fun `test A-Post-Increment`() {
+        val dat = Dat(2, 1984, AddressMode.IMMEDIATE, AddressMode.IMMEDIATE, Modifier.A)
+        val add = Add(-1, 3, AddressMode.A_POST_INCREMENT, AddressMode.IMMEDIATE, Modifier.AB)
+        val dat2 = Dat(42, 7, AddressMode.IMMEDIATE, AddressMode.IMMEDIATE, Modifier.A)
+        shork.memoryCore.storeAbsolute(0, dat)
+        shork.memoryCore.storeAbsolute(1, add)
+        shork.memoryCore.storeAbsolute(2, dat2)
+
+        // Resolve on its own should not increment the field, that should happen after execution
+        memoryCore.resolveFields(1)
+
+        assertEquals(dat, memoryCore.loadAbsolute(0))
+        assertEquals(add, memoryCore.loadAbsolute(1))
+        assertEquals(dat2, memoryCore.loadAbsolute(2))
+
+        // Now execute and check if it was incremented then
+
+        add.execute(process, memoryCore.resolveFields(1))
+
+        val datResult = shork.memoryCore.loadAbsolute(0)
+
+        assert(datResult is Dat)
+        assertEquals(3, datResult.aField)
+        assertEquals(1984, datResult.bField)
+
+        val addResult = shork.memoryCore.loadAbsolute(1)
+
+        assert(addResult is Add)
+        assertEquals(-1, addResult.aField)
+        assertEquals(45, addResult.bField)
+
+        val dat2Result = shork.memoryCore.loadAbsolute(2)
+
+        assert(dat2Result is Dat)
+        assertEquals(42, dat2Result.aField)
+        assertEquals(7, dat2Result.bField)
+    }
+
+    @Test
+    fun `test B-Post-Increment`() {
+        val dat = Dat(451, 2, AddressMode.IMMEDIATE, AddressMode.IMMEDIATE, Modifier.A)
+        val add = Add(69, -1, AddressMode.IMMEDIATE, AddressMode.B_POST_INCREMENT, Modifier.AB)
+        val dat2 = Dat(42, 7, AddressMode.IMMEDIATE, AddressMode.IMMEDIATE, Modifier.A)
+        shork.memoryCore.storeAbsolute(0, dat)
+        shork.memoryCore.storeAbsolute(1, add)
+        shork.memoryCore.storeAbsolute(2, dat2)
+
+        // Resolve on its own should not increment the field, that should happen after execution
+        memoryCore.resolveFields(1)
+
+        assertEquals(dat, memoryCore.loadAbsolute(0))
+        assertEquals(add, memoryCore.loadAbsolute(1))
+        assertEquals(dat2, memoryCore.loadAbsolute(2))
+
+        // Now execute and check if it was incremented then
+
+        add.execute(process, memoryCore.resolveFields(1))
+
+        val datResult = shork.memoryCore.loadAbsolute(0)
+
+        assert(datResult is Dat)
+        assertEquals(3, datResult.aField)
+        assertEquals(1984, datResult.bField)
+
+        val addResult = shork.memoryCore.loadAbsolute(1)
+
+        assert(addResult is Add)
+        assertEquals(-1, addResult.aField)
+        assertEquals(45, addResult.bField)
+
+        val dat2Result = shork.memoryCore.loadAbsolute(2)
+
+        assert(dat2Result is Dat)
+        assertEquals(42, dat2Result.aField)
+        assertEquals(7, dat2Result.bField)
+    }
 }
