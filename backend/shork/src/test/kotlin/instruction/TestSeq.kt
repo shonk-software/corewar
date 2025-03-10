@@ -27,7 +27,7 @@ internal class TestSeq {
     }
 
     private fun executeSeqAndAssertCounter(seq: Seq, expectedCounterIncrement: Int) {
-        seq.execute(process, shork.memoryCore.resolveFields(0))
+        seq.execute(process, shork.memoryCore.resolveFields(0).first)
         assertEquals(expectedCounterIncrement, process.programCounter)
     }
 

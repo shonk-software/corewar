@@ -1,6 +1,7 @@
 package memory
 
 import getDefaultInternalSettings
+import kotlin.test.assertTrue
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -35,7 +36,9 @@ internal class TestAddressMode {
         shork.memoryCore.storeAbsolute(0, add)
         shork.memoryCore.storeAbsolute(1, dat)
 
-        add.execute(process, memoryCore.resolveFields(0))
+        val resolvedAddresses = memoryCore.resolveFields(0)
+        assertTrue(resolvedAddresses.second.isEmpty())
+        add.execute(process, resolvedAddresses.first)
 
         val resultInstruction = shork.memoryCore.loadAbsolute(2)
 
@@ -48,7 +51,9 @@ internal class TestAddressMode {
         val add = Add(1, 5, AddressMode.IMMEDIATE, AddressMode.IMMEDIATE, Modifier.A)
         shork.memoryCore.storeAbsolute(0, add)
 
-        add.execute(process, memoryCore.resolveFields(0))
+        val resolvedAddresses = memoryCore.resolveFields(0)
+        assertTrue(resolvedAddresses.second.isEmpty())
+        add.execute(process, resolvedAddresses.first)
 
         val resultInstruction = shork.memoryCore.loadAbsolute(0)
 
@@ -65,7 +70,9 @@ internal class TestAddressMode {
         shork.memoryCore.storeAbsolute(1, dat)
         shork.memoryCore.storeAbsolute(2, dat2)
 
-        add.execute(process, memoryCore.resolveFields(0))
+        val resolvedAddresses = memoryCore.resolveFields(0)
+        assertTrue(resolvedAddresses.second.isEmpty())
+        add.execute(process, resolvedAddresses.first)
 
         val resultInstruction = shork.memoryCore.loadAbsolute(2)
 
@@ -82,7 +89,9 @@ internal class TestAddressMode {
         shork.memoryCore.storeAbsolute(1, dat)
         shork.memoryCore.storeAbsolute(2, dat2)
 
-        add.execute(process, memoryCore.resolveFields(0))
+        val resolvedAddresses = memoryCore.resolveFields(0)
+        assertTrue(resolvedAddresses.second.isEmpty())
+        add.execute(process, resolvedAddresses.first)
 
         val resultInstruction = shork.memoryCore.loadAbsolute(2)
 
@@ -99,7 +108,9 @@ internal class TestAddressMode {
         shork.memoryCore.storeAbsolute(1, add)
         shork.memoryCore.storeAbsolute(2, dat2)
 
-        add.execute(process, memoryCore.resolveFields(1))
+        val resolvedAddresses = memoryCore.resolveFields(1)
+        assertTrue(resolvedAddresses.second.isEmpty())
+        add.execute(process, resolvedAddresses.first)
 
         val datResult = shork.memoryCore.loadAbsolute(0)
 
@@ -129,7 +140,9 @@ internal class TestAddressMode {
         shork.memoryCore.storeAbsolute(1, add)
         shork.memoryCore.storeAbsolute(2, dat2)
 
-        add.execute(process, memoryCore.resolveFields(1))
+        val resolvedAddresses = memoryCore.resolveFields(1)
+        assertTrue(resolvedAddresses.second.isEmpty())
+        add.execute(process, resolvedAddresses.first)
 
         val datResult = shork.memoryCore.loadAbsolute(0)
 
@@ -166,9 +179,10 @@ internal class TestAddressMode {
         assertEquals(add, memoryCore.loadAbsolute(1))
         assertEquals(dat2, memoryCore.loadAbsolute(2))
 
-        // Now execute and check if it was incremented then
-
-        add.execute(process, memoryCore.resolveFields(1))
+        // Now execute and check if it was incremented then. Since post increment
+        // handling is done via a process, we need a process that we can tick
+        val process = Process(program, 1)
+        process.tick()
 
         val datResult = shork.memoryCore.loadAbsolute(0)
 
@@ -205,26 +219,27 @@ internal class TestAddressMode {
         assertEquals(add, memoryCore.loadAbsolute(1))
         assertEquals(dat2, memoryCore.loadAbsolute(2))
 
-        // Now execute and check if it was incremented then
-
-        add.execute(process, memoryCore.resolveFields(1))
+        // Now execute and check if it was incremented then. Since post increment
+        // handling is done via a process, we need a process that we can tick
+        val process = Process(program, 1)
+        process.tick()
 
         val datResult = shork.memoryCore.loadAbsolute(0)
 
         assert(datResult is Dat)
-        assertEquals(3, datResult.aField)
-        assertEquals(1984, datResult.bField)
+        assertEquals(451, datResult.aField)
+        assertEquals(3, datResult.bField)
 
         val addResult = shork.memoryCore.loadAbsolute(1)
 
         assert(addResult is Add)
-        assertEquals(-1, addResult.aField)
-        assertEquals(45, addResult.bField)
+        assertEquals(69, addResult.aField)
+        assertEquals(-1, addResult.bField)
 
         val dat2Result = shork.memoryCore.loadAbsolute(2)
 
         assert(dat2Result is Dat)
         assertEquals(42, dat2Result.aField)
-        assertEquals(7, dat2Result.bField)
+        assertEquals(76, dat2Result.bField)
     }
 }

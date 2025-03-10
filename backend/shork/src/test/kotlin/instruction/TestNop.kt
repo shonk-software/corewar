@@ -32,7 +32,7 @@ internal class TestNop {
         for (mod in Modifier.entries) {
             val nop = Nop(0, 0, AddressMode.DIRECT, AddressMode.DIRECT, mod)
             shork.memoryCore.storeAbsolute(0, nop)
-            nop.execute(process, shork.memoryCore.resolveFields(0))
+            nop.execute(process, shork.memoryCore.resolveFields(0).first)
             assertEquals(0, process.programCounter)
         }
     }

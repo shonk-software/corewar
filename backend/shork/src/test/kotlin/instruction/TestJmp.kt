@@ -32,7 +32,7 @@ internal class TestJmp {
         val jmp = Jmp(42, 0, AddressMode.DIRECT, AddressMode.IMMEDIATE, Modifier.A)
         shork.memoryCore.storeAbsolute(0, jmp)
 
-        jmp.execute(process, shork.memoryCore.resolveFields(0))
+        jmp.execute(process, shork.memoryCore.resolveFields(0).first)
         assert(process.programCounter == 42)
     }
 

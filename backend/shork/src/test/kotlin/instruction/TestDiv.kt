@@ -34,9 +34,9 @@ internal class TestDiv {
         val div = Div(1, 2, AddressMode.DIRECT, AddressMode.DIRECT, Modifier.A)
         shork.memoryCore.storeAbsolute(0, div)
 
-        div.execute(process, shork.memoryCore.resolveFields(0))
+        div.execute(process, shork.memoryCore.resolveFields(0).first)
 
-        var resultInstruction = shork.memoryCore.loadAbsolute(2)
+        val resultInstruction = shork.memoryCore.loadAbsolute(2)
 
         assert(resultInstruction is Dat)
         assert(resultInstruction.aField == 1)
@@ -50,9 +50,9 @@ internal class TestDiv {
         val div = Div(1, 2, AddressMode.DIRECT, AddressMode.DIRECT, Modifier.B)
         shork.memoryCore.storeAbsolute(0, div)
 
-        div.execute(process, shork.memoryCore.resolveFields(0))
+        div.execute(process, shork.memoryCore.resolveFields(0).first)
 
-        var resultInstruction = shork.memoryCore.loadAbsolute(2)
+        val resultInstruction = shork.memoryCore.loadAbsolute(2)
 
         assert(resultInstruction is Dat)
         assert(resultInstruction.aField == 5)
@@ -66,9 +66,9 @@ internal class TestDiv {
         val div = Div(1, 2, AddressMode.DIRECT, AddressMode.DIRECT, Modifier.AB)
         shork.memoryCore.storeAbsolute(0, div)
 
-        div.execute(process, shork.memoryCore.resolveFields(0))
+        div.execute(process, shork.memoryCore.resolveFields(0).first)
 
-        var resultInstruction = shork.memoryCore.loadAbsolute(2)
+        val resultInstruction = shork.memoryCore.loadAbsolute(2)
 
         assert(resultInstruction is Dat)
         assert(resultInstruction.aField == 5)
@@ -82,9 +82,9 @@ internal class TestDiv {
         val div = Div(1, 2, AddressMode.DIRECT, AddressMode.DIRECT, Modifier.BA)
         shork.memoryCore.storeAbsolute(0, div)
 
-        div.execute(process, shork.memoryCore.resolveFields(0))
+        div.execute(process, shork.memoryCore.resolveFields(0).first)
 
-        var resultInstruction = shork.memoryCore.loadAbsolute(2)
+        val resultInstruction = shork.memoryCore.loadAbsolute(2)
 
         assert(resultInstruction is Dat)
         assert(resultInstruction.aField == 0)
@@ -98,9 +98,9 @@ internal class TestDiv {
         val div = Div(1, 2, AddressMode.DIRECT, AddressMode.DIRECT, Modifier.F)
         shork.memoryCore.storeAbsolute(0, div)
 
-        div.execute(process, shork.memoryCore.resolveFields(0))
+        div.execute(process, shork.memoryCore.resolveFields(0).first)
 
-        var resultInstruction = shork.memoryCore.loadAbsolute(2)
+        val resultInstruction = shork.memoryCore.loadAbsolute(2)
 
         assert(resultInstruction is Dat)
         assert(resultInstruction.aField == 1)
@@ -114,9 +114,9 @@ internal class TestDiv {
         val div = Div(1, 2, AddressMode.DIRECT, AddressMode.DIRECT, Modifier.I)
         shork.memoryCore.storeAbsolute(0, div)
 
-        div.execute(process, shork.memoryCore.resolveFields(0))
+        div.execute(process, shork.memoryCore.resolveFields(0).first)
 
-        var resultInstruction = shork.memoryCore.loadAbsolute(2)
+        val resultInstruction = shork.memoryCore.loadAbsolute(2)
 
         assert(resultInstruction is Dat)
         assert(resultInstruction.aField == 1)
@@ -130,9 +130,9 @@ internal class TestDiv {
         val div = Div(1, 2, AddressMode.DIRECT, AddressMode.DIRECT, Modifier.X)
         shork.memoryCore.storeAbsolute(0, div)
 
-        div.execute(process, shork.memoryCore.resolveFields(0))
+        div.execute(process, shork.memoryCore.resolveFields(0).first)
 
-        var resultInstruction = shork.memoryCore.loadAbsolute(2)
+        val resultInstruction = shork.memoryCore.loadAbsolute(2)
 
         assert(resultInstruction is Dat)
         assert(resultInstruction.aField == 0)
