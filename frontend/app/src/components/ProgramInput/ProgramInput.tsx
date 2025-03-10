@@ -29,11 +29,12 @@ export default function ProgrammInput({
 				</CardFooter>
 			</Card>
 			<div className="flex ml-2 flex-col w-[300px] gap-y-1">
-				{codeExamples.map((example) => (
+				{codeExamples.map((example, index) => (
 					<CodeExampleCard
 						title={example.title}
 						setCode={() => setProgram(example.code)}
 						shortDescription={example.shortDescription}
+						key={index}
 					/>
 				))}
 			</div>
