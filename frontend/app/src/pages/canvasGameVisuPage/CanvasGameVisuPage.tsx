@@ -46,7 +46,7 @@ function CanvasGameVisuPage() {
 					counterRef.current >= lobbyStatus.current.visualizationData.length
 				) {
 					console.log("Done visualizing!");
-					setTimeout(() => navigate("/result-display"), 500000000000000000000);
+					setTimeout(() => navigate("/result-display"), 9999999);
 					return;
 				}
 
